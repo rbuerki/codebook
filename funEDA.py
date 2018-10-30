@@ -7,7 +7,7 @@ from tqdm import tqdm
 # Plots of numerical features
 
 def histDF(df, figsize=(16, 16), bins=50, color='rebeccapurple'):
-    """Plots histograms for all numerical columns in DataFrame.
+    """Create histograms for all numerical columns in DataFrame.
     Params
         ======
             df: DataFrame
@@ -21,7 +21,7 @@ def histDF(df, figsize=(16, 16), bins=50, color='rebeccapurple'):
 
 
 def boxplotDF(df, figsize=(16, 16), color='rebeccapurple'):
-    """Plots boxplots for all numerical columns in DataFrame.
+    """Create boxplots for all numerical columns in DataFrame.
     Params
     ======
         df: DataFrame
@@ -42,7 +42,7 @@ def boxplotDF(df, figsize=(16, 16), color='rebeccapurple'):
 # Plots of categorical features
 
 def pieDF(df, figsize=(16, 16), cmap='viridis'):
-    """Plots boxplots for all categorical columns in DataFrame with up to 30 values.
+    """Create pieplots for all categorical columns in DataFrame with up to 30 values.
     Params
     ======
         df: DataFrame
@@ -81,11 +81,11 @@ def corrHeatMap_num(df, figsize=(16, 16), cmap='magma'):
 
 
 def corrBoxDF_numClass(df, target, figsize=(16, 16), color='rebeccapurple'):
-    """Creates series of boxplots to show correlation between all numerical columns and target classes value in DataFrame.
+    """Create boxplots to show correlations between all numerical variables and target classes value in DataFrame.
     Params
     ======
         df: DataFrame
-        target: Target Variable
+        target: Column name of target variable in string format (variable has to be in numerical format)
         figsize: default is (16, 16)
         color: default is 'rebeccapurple'
     """
@@ -101,11 +101,11 @@ def corrBoxDF_numClass(df, target, figsize=(16, 16), color='rebeccapurple'):
 
 
 def corrLineDF_numClass(df, target, figsize=(16, 16), ylim=[0,1], color='rebeccapurple'):
-    """Creates series of lineplots to show correlation details between all numerical columns and target classes in DataFrame.
+    """Create lineplots to show correlation details between all numerical variables and target classes in DataFrame.
     Params
     ======
         df: DataFrame
-        target: Target Variable (has to be in numerical format)
+        target: Column name of target variable in string format (variable has to be in numerical format)
         figsize: default is (16, 16)
         ylim: scale of y-axis, default is [0,1]
         color: default is 'rebeccapurple'
@@ -125,12 +125,12 @@ def corrLineDF_numClass(df, target, figsize=(16, 16), ylim=[0,1], color='rebecca
 
 
 def corrPointDF_catClass(df, target, figsize=(16, 16), ylim=[0,1], color='rebeccapurple', cmap='viridis'):
-    """Creates series of pointplots (and corresponding piecharts) to show correlations between all categorical columns 
+    """Create pointplots (and corresponding piecharts) to show correlations between all categorical columns 
     and target classes in DataFrame.
     Params
     ======
         df: DataFrame
-        target: Target Variable (has to be in numerical format)
+        target: Column name of target variable in string format (variable has to be in numerical format)
         figsize: default is (16, 16)
         ylim: scale of y-axis, default is [0,1]
         color: default is 'rebeccapurple'
