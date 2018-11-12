@@ -17,7 +17,6 @@ def histDF(df, figsize=(16, 16), bins=50, color='rebeccapurple'):
     """
     df_num = df.select_dtypes(include = ['float64', 'int64'])
     df_num.hist(figsize=figsize, bins=bins, xlabelsize=8, ylabelsize=8, color=color);
-    return df_num
 
 
 def boxplotDF(df, figsize=(16, 16), color='rebeccapurple'):
@@ -35,8 +34,7 @@ def boxplotDF(df, figsize=(16, 16), color='rebeccapurple'):
     for col in df_num.columns:
         pos +=1
         plt.subplot((df_num.shape[1]/4)+1,4,pos)
-        sns.boxplot(y=col, data=df_num, color=color)
-    return df_num
+        sns.boxplot(y=col, data=df_num, color=color);
 
 
 # Plots of categorical features
@@ -60,8 +58,7 @@ def pieDF(df, figsize=(16, 16), cmap='viridis'):
             plt.subplot(round(df_cat.shape[1]/4)+1,4,position)
             df[col].value_counts().plot(kind='pie', cmap = cmap)
         else: catWithManyValues.append(df[col].name)
-    display("Not plotted: " + str(catWithManyValues))
-    return df_cat
+    display("Not plotted: " + str(catWithManyValues));
 
 
 # Plots of CORRELATIONS
@@ -76,8 +73,7 @@ def corrHeatMap_num(df, figsize=(16, 16), cmap='magma'):
     """
     plt.figure(figsize=figsize)
     df_num = df.select_dtypes(include = ['int64', 'float64'])
-    sns.heatmap(df_num.corr(), cmap=cmap, linecolor='white', linewidth=1, annot=True)
-    return df_num
+    sns.heatmap(df_num.corr(), cmap=cmap, linecolor='white', linewidth=1, annot=True);
 
 
 def corrBoxDF_numClass(df, target, figsize=(16, 16), color='rebeccapurple'):
@@ -96,8 +92,7 @@ def corrBoxDF_numClass(df, target, figsize=(16, 16), color='rebeccapurple'):
     for col in df_num.columns:
         position +=1
         plt.subplot((df_num.shape[1]/2)+1,2,position)
-        sns.boxplot(x=df[target].astype('category'), y=col, data=df_num, color=color)
-    return df_num
+        sns.boxplot(x=df[target].astype('category'), y=col, data=df_num, color=color);
 
 
 def corrLineDF_numClass(df, target, figsize=(16, 16), ylim=[0,1], color='rebeccapurple'):
@@ -120,8 +115,7 @@ def corrLineDF_numClass(df, target, figsize=(16, 16), ylim=[0,1], color='rebecca
         plt.subplot(round(df_num.shape[1]/2)+1,2,position)
         plt.ylim(ylim)
         plt.xlabel(df[col].name)
-        sns.lineplot(x=col, y=target, data=df_num, color=color)
-    return df_num
+        sns.lineplot(x=col, y=target, data=df_num, color=color);
 
 
 def corrPointDF_catClass(df, target, figsize=(16, 16), ylim=[0,1], color='rebeccapurple', cmap='viridis'):
@@ -150,8 +144,7 @@ def corrPointDF_catClass(df, target, figsize=(16, 16), ylim=[0,1], color='rebecc
             position +=1
             plt.subplot(df_cat.shape[1],2,position)
             df[col].value_counts().plot(kind='pie', cmap = cmap)
-        else: position +=1
-    return df_cat
+        else: position +=1;
 
 
 # corr PairPlot numCols to numTarget - see here: https://www.kaggle.com/ekami66/detailed-exploratory-data-analysis-with-python

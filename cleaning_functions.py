@@ -135,8 +135,9 @@ def list_NaN(df):
     """
     print("Number of NaN per column:")
     for col in df:
-        if df[col].isnull().sum() > 0:
-            print(df[col].name +": "+str(df[col].isnull().sum()))
+        nan_count = df[col].isnull().sum()
+        if nan_count > 0:
+            print("{}: {} ({:.2f}%)".format(df[col].name, nan_count, nan_count/len(df)))
             
 
 def handle_NaN(df, cols_to_impute_num=None, cols_to_impute_cat=None, 
@@ -189,7 +190,7 @@ def count_outliers_IQR_method(df, outlier_cols=None, IQR_dist = 1.5):
         outlier_cols: List with columns to clean, default is all numerical columns
         IQR_dist: Cut-off distance from quartiles, default is 1.5 * IQR
     """
-    outlier_cols = outlier_cols if outlier_cols is not None else 
+    outlier_cols = outlier_cols if outlier_cols is not None else \
                    list(df.select_dtypes(include = ['float64', 'int64']).columns)
     for col in outlier_cols:
         q25, q75 = np.nanpercentile(df[col], 25), np.nanpercentile(df[col], 75)
@@ -212,12 +213,12 @@ def remove_outliers_IQR_method(df, outlier_cols=None , IQR_dist = 1.5):
         outlier_cols: List with columns to clean, default are all numerical columns
         IQR_dist: Cut-off distance from quartiles, default is 1.5 * IQR
     """
-    outlier_cols = outlier_cols if outlier_cols is not None else 
+    outlier_cols = outlier_cols if outlier_cols is not None else \
                    list(df.select_dtypes(include = ['float64', 'int64']).columns)
     for col in outlier_cols:
         print(col)
         row_count_1 = len(df)
-        distance = dist * (np.nanpercentile(df[col], 75) - np.nanpercentile(df[col], 25)) 
+        distance = IQR_dist * (np.nanpercentile(df[col], 75) - np.nanpercentile(df[col], 25)) 
         df.drop(df[df[col] > distance + np.nanpercentile(df[col], 75)].index, inplace=True)
         df.drop(df[df[col] < np.nanpercentile(df[col], 25) - distance].index, inplace=True)
         row_count_2 = len(df)
