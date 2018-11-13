@@ -6,7 +6,7 @@ from tqdm import tqdm
 
 # Plots of numerical features
 
-def histDF(df, figsize=(16, 16), bins=50, color='rebeccapurple'):
+def plot_num_hist(df, figsize=(16, 16), bins=50, color='rebeccapurple'):
     """Create histograms for all numerical columns in DataFrame.
     Params
         ======
@@ -19,7 +19,7 @@ def histDF(df, figsize=(16, 16), bins=50, color='rebeccapurple'):
     df_num.hist(figsize=figsize, bins=bins, xlabelsize=8, ylabelsize=8, color=color);
 
 
-def boxplotDF(df, figsize=(16, 16), color='rebeccapurple'):
+def plot_num_box(df, figsize=(16, 16), color='rebeccapurple'):
     """Create boxplots for all numerical columns in DataFrame.
     Params
     ======
@@ -39,7 +39,7 @@ def boxplotDF(df, figsize=(16, 16), color='rebeccapurple'):
 
 # Plots of categorical features
 
-def pieDF(df, figsize=(16, 16), cmap='viridis'):
+def plot_cat_pies(df, figsize=(16, 16), cmap='viridis'):
     """Create pieplots for all categorical columns in DataFrame with up to 30 values.
     Params
     ======
@@ -63,7 +63,7 @@ def pieDF(df, figsize=(16, 16), cmap='viridis'):
 
 # Plots of CORRELATIONS
     
-def corrHeatMap_num(df, figsize=(16, 16), cmap='magma'):
+def plot_num_corrMap(df, figsize=(16, 16), cmap='magma'):
     """Creates heatmap to show correlations between all numerical columns in DataFrame.
     Params
     ======
@@ -76,7 +76,7 @@ def corrHeatMap_num(df, figsize=(16, 16), cmap='magma'):
     sns.heatmap(df_num.corr(), cmap=cmap, linecolor='white', linewidth=1, annot=True);
 
 
-def corrBoxDF_numClass(df, target, figsize=(16, 16), color='rebeccapurple'):
+def plot_num_corrBox(df, target, figsize=(16, 16), color='rebeccapurple'):
     """Create boxplots to show correlations between all numerical variables and target classes value in DataFrame.
     Params
     ======
@@ -95,7 +95,7 @@ def corrBoxDF_numClass(df, target, figsize=(16, 16), color='rebeccapurple'):
         sns.boxplot(x=df[target].astype('category'), y=col, data=df_num, color=color);
 
 
-def corrLineDF_numClass(df, target, figsize=(16, 16), ylim=[0,1], color='rebeccapurple'):
+def plot_num_corrLine(df, target, figsize=(16, 16), ylim=[0,1], color='rebeccapurple'):
     """Create lineplots to show correlation details between all numerical variables and target classes in DataFrame.
     Params
     ======
@@ -118,7 +118,7 @@ def corrLineDF_numClass(df, target, figsize=(16, 16), ylim=[0,1], color='rebecca
         sns.lineplot(x=col, y=target, data=df_num, color=color);
 
 
-def corrPointDF_catClass(df, target, figsize=(16, 16), ylim=[0,1], color='rebeccapurple', cmap='viridis'):
+def plot_cat_corrPoint(df, target, figsize=(16, 16), ylim=[0,1], color='rebeccapurple', cmap='viridis'):
     """Create pointplots (and corresponding piecharts) to show correlations between all categorical columns 
     and target classes in DataFrame.
     Params

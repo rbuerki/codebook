@@ -196,7 +196,7 @@ def count_outliers_IQR_method(df, outlier_cols=None, IQR_dist = 1.5):
         q25, q75 = np.nanpercentile(df[col], 25), np.nanpercentile(df[col], 75)
         iqr = q75 - q25
         # calculate the outlier cut-off
-        cut_off = iqr * IRQ_dist
+        cut_off = iqr * IQR_dist
         lower, upper = q25 - cut_off, q75 + cut_off
         # identify outliers
         outliers = [x for x in df[col] if x < lower or x > upper]
@@ -215,6 +215,7 @@ def remove_outliers_IQR_method(df, outlier_cols=None , IQR_dist = 1.5):
     """
     outlier_cols = outlier_cols if outlier_cols is not None else \
                    list(df.select_dtypes(include = ['float64', 'int64']).columns)
+    outer_row_count_1 = len(df)
     for col in outlier_cols:
         print(col)
         row_count_1 = len(df)
@@ -222,21 +223,26 @@ def remove_outliers_IQR_method(df, outlier_cols=None , IQR_dist = 1.5):
         df.drop(df[df[col] > distance + np.nanpercentile(df[col], 75)].index, inplace=True)
         df.drop(df[df[col] < np.nanpercentile(df[col], 25) - distance].index, inplace=True)
         row_count_2 = len(df)
-        print("Rows removed in total: {}\n".format(row_count_1 - row_count_2))
-    return df
+        print("Rows removed: {}\n".format(row_count_1 - row_count_2))
+    outer_row_count_2 = len(df)
+    print("\nRows removed in total: {}\n" \
+        .format(outer_row_count_1 - outer_row_count_2))
 
 
 ### TRANSFORMATION
 
 def apply_log10 (df, cols_to_log10, treat_NaN=False):
-    """Transform values of selected columns to Log10. NaN are not affected by default, parameter can be changed.
-       Returns transformed DataFrame, column names have "_log" appended.
-       Params
+    """Transform values of selected columns to Log10. NaN are not 
+    affected by default, parameter can be changed. Returns transformed 
+    DataFrame, column names have "_log" appended.
+    Params
     ======
         df: DataFrame
         cols_to_log10: list of numerical columns that will have log10 applied
         treat_NaN: sets NaN to small negative value, default is False
     """
+    cols_to_log10 = cols_to_log10 if cols_to_log10 is not None else \
+               list(df.select_dtypes(include = ['float64', 'int64']).columns)
     for col in df[cols_to_log10]:
         if col in df:
             df[col] = df[col].apply(lambda x: np.log10(max(x,1)))
@@ -246,4 +252,3 @@ def apply_log10 (df, cols_to_log10, treat_NaN=False):
             display(col + " not found")
         #rename log-transformed columns
         df.rename(columns={col: col+'_log'}, inplace=True)
-    return df
