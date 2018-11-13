@@ -184,8 +184,8 @@ class LinRegModel:
         # plt.ylim(0,1)
         plt.xlim(N[0], N[-1])
         plt.xlabel('training size')
-        plt.ylabel('score')
-        plt.title("Learning Curves {}".format(scoring))
+        plt.ylabel(scoring)
+        plt.title("Learning Curves {}".format(self._model))
         plt.legend(loc='lower right');
 
     
