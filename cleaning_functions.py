@@ -231,22 +231,23 @@ def remove_outliers_IQR_method(df, outlier_cols=None , IQR_dist = 1.5):
 
 ### TRANSFORMATION
 
-def apply_log10 (df, cols_to_log10, treat_NaN=False):
+def apply_log10 (df, cols_to_log10=None, treat_NaN=False):
     """Transform values of selected columns to Log10. NaN are not 
     affected by default, parameter can be changed. Returns transformed 
     DataFrame, column names have "_log" appended.
     Params
     ======
         df: DataFrame
-        cols_to_log10: list of numerical columns that will have log10 applied
-        treat_NaN: sets NaN to small negative value, default is False
+        cols_to_log10: list of columns that will have log10 
+            transformation applied. Default is all numerical columns.
+        treat_NaN: sets NaN to small negative value, default is False.
     """
     cols_to_log10 = cols_to_log10 if cols_to_log10 is not None else \
                list(df.select_dtypes(include = ['float64', 'int64']).columns)
     for col in df[cols_to_log10]:
         if col in df:
             df[col] = df[col].apply(lambda x: np.log10(max(x,1)))
-            if NaNTreatment:
+            if treat_NaN:
                 df[col].replace(np.nan, -1, inplace=True)
         else:
             display(col + " not found")
