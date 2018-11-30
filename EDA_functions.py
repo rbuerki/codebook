@@ -55,10 +55,11 @@ def plot_cat_pies(df, figsize=(16, 16), cmap='viridis'):
     for col in df_cat.columns:
         if df[col].nunique() <= 30:
             position +=1
-            plt.subplot(round(df_cat.shape[1]/4)+1,4,position)
+            plt.subplot(round(df_cat.shape[1] / 4 ) + 1, 4, position)
             df[col].value_counts().plot(kind='pie', cmap = cmap)
         else: catWithManyValues.append(df[col].name)
-    display("Not plotted: " + str(catWithManyValues));
+    if len(catWithManyValues) > 0:
+        display("Not plotted: " + str(catWithManyValues));
 
 
 # Plots of CORRELATIONS

@@ -44,6 +44,8 @@ def edit_column_names(df, lowercase=True):
         df.columns = (col.lower().replace(' ', '_') for col in df.columns)
     else:
         df.columns = (col.replace(' ', '_') for col in df.columns)
+
+    return df
    
         
 def count_dtypes(df):
@@ -98,6 +100,8 @@ def change_dtypes(df, cols_to_category=[], cols_to_object=[], cols_to_integer=[]
                 df[col] = pd.to_datetime(df[col], format=datetime_pattern)
             else:
                 display(col + " not found")
+
+    return df
 
 
 def delete_columns(df, cols_to_delete):
