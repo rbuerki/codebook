@@ -25,12 +25,17 @@ class TypeSelector(BaseEstimator, TransformerMixin):
 
     def transform(self, X):
         assert isinstance(X, pd.DataFrame)
+        
         return X.select_dtypes(include=[self.dtype])
 
 
 
 class CustomOneHotEncoder(BaseEstimator, TransformerMixin):
-    """Custom OneHotEncoder based on Pandas get_dummies function.
+    """Custom OneHotEncoder based on Pandas get_dummies function. Note: I prefer 
+    this over sk-learns built in OneHotEncoder because of the possibility to 
+    define labels for the new dummy columns.This makes checking for feature 
+    importance easier. (That's also why the drop_first argument fo get_dummmies
+    is set to `False`.) 
         
        ARGUMENTS: 
             dummy_na = bool, indicating if NaN should be encoded in an own
