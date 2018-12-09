@@ -13,6 +13,9 @@ Missing Values
 - handle_NaN: Apply different strategies for NaN handling in selected
   columns (simplistic approach).
 
+Duplicates:
+- list_duplicates: Display the columns / containing column-wise duplicates.
+
 Outlier Removal
 - count_outliers_IQR_method: Detect outliers in specified columns 
   depending on specified distance from 1th / 3rd quartile. NaN ignored.
@@ -141,7 +144,8 @@ def list_NaN(df):
     for col in df:
         nan_count = df[col].isnull().sum()
         if nan_count > 0:
-            print("{}: {} ({:.2f}%)".format(df[col].name, nan_count, nan_count/len(df)))
+            print("{}: {} ({:.2f}%)".format(
+                df[col].name, nan_count, nan_count/len(df)))
             
 
 def handle_NaN(df, cols_to_impute_num=None, cols_to_impute_cat=None, 
@@ -149,25 +153,27 @@ def handle_NaN(df, cols_to_impute_num=None, cols_to_impute_cat=None,
     """Handle NaN with different strategies for selected columns. 
        Return transformed DataFrame. Note: Use with caution, there are 
        more sophisticated solutions around.
-    Params
-    ======
+    
+    ARGUMENTS:
         df: DataFrame
-        cols_to_impute_Num: list of num columns to impute median, default is None
-        cols_to_impute_cat: list of categorical columns to impute mode, default is None
-        cols_to_drop: list of columns to drop entirely, default is None
-        drop_all_NaN: if True ALL remaining rows with NaN will be removed, default is FALSE
+        cols_to_impute_num: list of num columns to impute median (default: None)
+        cols_to_impute_cat: list of categorical columns to impute mode (default: None)
+        cols_to_drop: list of columns to drop entirely (default: None)
+        drop_all_NaN: if True ALL remaining rows with NaN will be removed, (default: False)
     """
     if cols_to_impute_num != None:    
         for col in cols_to_impute_num:
             if col in df.columns:
-                display("{} - median value to impute: {}".format(col, df[col].median()))
+                display("{} - median value to impute: {}".format(
+                    col, df[col].median()))
                 df[col] = df[col].fillna(df[col].median())
             else:
                 display(col + " not found")
     if cols_to_impute_cat != None:
         for col in cols_to_impute_cat:
             if col in df.columns:
-                display("{} - most frequent value to impute: {}".format(col, df[col].value_counts().index[0]))
+                display("{} - most frequent value to impute: {}".format(
+                    col, df[col].value_counts().index[0]))
                 df[col] = df[col].fillna(df[col].value_counts().index[0])
             else:
                 display(col + " not found")
@@ -180,22 +186,43 @@ def handle_NaN(df, cols_to_impute_num=None, cols_to_impute_cat=None,
     if drop_all_NaN:
         df = df.dropna(how='any')   # drop remaining rows with any NaNs       
     return df
+ 
+
+ ### DUPLICATES
+
+
+def list_duplicates(df):
+    """Display the columns / containing column-wise duplicates.
     
+    ARGUMENTS:
+        df: DataFrame
+    """
+    print("Number of column-wise duplicates per column:")
+    for col in df:
+        dup = df[col].loc[df[[col]].duplicated(keep=False) == 1]
+        dup_unique = dup.nunique()
+        dup_full = len(dup)
+        if dup_unique > 0:
+            print("{}: {} unique duplicate values ({} total duplicates)" \
+                .format(df[col].name, dup_unique, dup_full))
+
+
+
 
 ### OUTLIERS - Count and Removal
 
 
 def count_outliers_IQR_method(df, outlier_cols=None, IQR_dist = 1.5):
-    """Display outlier count in specified columns depending on distance from 1th / 3rd quartile. 
-       NaN are ignored.
-    Params
-    ======
+    """Display outlier count in specified columns depending on distance 
+    from 1th / 3rd quartile. NaN are ignored.
+
+    ARGUMENTS:
         df: DataFrame
-        outlier_cols: List with columns to clean, default is all numerical columns
-        IQR_dist: Cut-off distance from quartiles, default is 1.5 * IQR
+        outlier_cols: List with columns to clean (default: all num columns)
+        IQR_dist: Float for cut-off distance from quartiles (default: 1.5 * IQR)
     """
     outlier_cols = outlier_cols if outlier_cols is not None else \
-                   list(df.select_dtypes(include = ['float64', 'int64']).columns)
+        list(df.select_dtypes(include = ['float64', 'int64']).columns)
     for col in outlier_cols:
         q25, q75 = np.nanpercentile(df[col], 25), np.nanpercentile(df[col], 75)
         iqr = q75 - q25
@@ -205,20 +232,21 @@ def count_outliers_IQR_method(df, outlier_cols=None, IQR_dist = 1.5):
         # identify outliers
         outliers = [x for x in df[col] if x < lower or x > upper]
         print(col+'\nIdentified outliers: {}'.format(len(outliers)))
-        print('Percentage of outliers: {:.1f}%\n'.format((len(outliers)/len(df[col]))*100))
+        print('Percentage of outliers: {:.1f}%\n'.format(
+            (len(outliers)/len(df[col]))*100))
 
 
 def remove_outliers_IQR_method(df, outlier_cols=None , IQR_dist = 1.5):
-    """Remove outliers in specified columns depending on distance from 1th / 3rd quartile. 
-       NaN are ignored. Returns transformed DataFrame.
-    Params
-    ======
+    """Remove outliers in specified columns depending on distance from 
+    1th / 3rd quartile. NaN are ignored. Returns transformed DataFrame.
+    
+    ARGUMENTS:
         df: DataFrame
-        outlier_cols: List with columns to clean, default are all numerical columns
-        IQR_dist: Cut-off distance from quartiles, default is 1.5 * IQR
+        outlier_cols: List with columns to clean (default: all num columns)
+        IQR_dist: Float for cut-off distance from quartiles (default: 1.5 * IQR)
     """
     outlier_cols = outlier_cols if outlier_cols is not None else \
-                   list(df.select_dtypes(include = ['float64', 'int64']).columns)
+            list(df.select_dtypes(include = ['float64', 'int64']).columns)
     outer_row_count_1 = len(df)
     for col in outlier_cols:
         print(col)
