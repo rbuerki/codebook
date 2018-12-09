@@ -31,9 +31,9 @@ class TypeSelector(BaseEstimator, TransformerMixin):
 
 
 class CustomOneHotEncoder(BaseEstimator, TransformerMixin):
-    """Custom OneHotEncoder based on Pandas get_dummies function. Note: I prefer 
-    this over sk-learns built in OneHotEncoder because of the possibility to 
-    define labels for the new dummy columns.This makes checking for feature 
+    """Custom OneHotEncoder based on Pandas get_dummies() function. Note: I 
+    prefer this over sk-learns built in OneHotEncoder because of the possibility 
+    to define labels for the new dummy columns.This makes checking for feature 
     importance easier. (That's also why the drop_first argument fo get_dummmies
     is set to `False`.) 
         
