@@ -77,6 +77,31 @@ def plot_num_corrMap(df, figsize=(16, 16), cmap='magma'):
     sns.heatmap(df_num.corr(), cmap=cmap, linecolor='white', linewidth=1, annot=True);
 
 
+def plot_corr_num_scatter(df, target, hue=False, figsize=(16, 16), palette='rocket'):
+    """Show Scatterplots to visualize correlations between all numerical 
+    features and target variable.
+    
+    ARGUMENTS:
+        - df: DataFrame
+        - target: str, column label of numerical target variable
+        - hue: str, colum label of a categorical variable (default = False)
+        - figsize: tuple (default = (16, 16))
+        - palette: str (default = 'rocket')
+
+    RETURNS:
+        - None
+
+    """
+    df_num = df.select_dtypes(include = ['float64', 'int64']).drop(target, axis=1)
+    position=0
+    plt.figure(figsize=figsize)
+#     plt.tight_layout(w_pad=1)
+    for col in df_num.columns:
+        position +=1
+        plt.subplot((df_num.shape[1]/2)+1,2,position)
+        sns.scatterplot(x=col, y=df[target], hue=df[hue], data=df_num, palette=palette);
+
+
 def plot_num_corrBox(df, target, figsize=(16, 16), color='rebeccapurple'):
     """Create boxplots to show correlations between all numerical variables and target classes value in DataFrame.
     Params
