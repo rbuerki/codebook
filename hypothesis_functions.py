@@ -1,7 +1,22 @@
+"""NOTE: The functions in this notebook work for 
+calculations on proportions only!
+
+LIST OF FUNCTIONS
+-----------------
+- calc_confidence_bounds_binomial: Compute lower and upper bounds for a defined 
+  confidence level based on a random variable with binomial / normal distribution.
+- calc_experiment_size: Compute minimum number of samples for each group needed 
+  to achieve a desired power level for a given effect size.
+- calc_invariant_population: Compute statistics to check if your random 
+  population sizing is within the expected standard error for a 50/50 split.
+- calc_experiment_results: Compute observed difference with it's lower and upper 
+  bounds based on a defined conficence level.
+
+
+"""
+
 import numpy as np
 import scipy.stats as stats
-
-"""NOTE: The functions in this notebook work for calculations on proportions."""
 
 
 def calc_confidence_bounds_binomial(p, n, alpha=0.05):

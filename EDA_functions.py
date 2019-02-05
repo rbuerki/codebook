@@ -1,3 +1,26 @@
+"""
+LIST OF FUNCTIONS
+-----------------
+
+Distributions:
+- plot_num_hist: Display histograms for all numerical columns in DataFrame.
+- plot_num_box: Display boxplots for all numerical columns in DataFrame.
+- plot_cat_pies: Display pieplots for all categorical columns in DataFrame with 
+  up to 30 unique values.
+
+Correlations: 
+- plot_num_corrMap: Display heatmap to show correlations between all numerical 
+  columns in DataFrame.    
+- plot_corr_num_scatter: Display scatterplots to visualize correlations between 
+  all numerical features and target variable.
+- plot_num_corrBox: Display boxplots to show correlations between all numerical 
+  variables and target classes value in DataFrame.
+- plot_num_corrLine: Display lineplots to show correlation details between all 
+  numerical variables and target classes in DataFrame.
+- plot_cat_corrPoint: Display pointplots (and corresponding piecharts) to show 
+  correlations between all categorical columns and target classes in DataFrame.
+"""
+
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns; sns.set_style('whitegrid')
@@ -7,7 +30,7 @@ from tqdm import tqdm
 # Plots of numerical features
 
 def plot_num_hist(df, figsize=(16, 16), bins=50, color='rebeccapurple'):
-    """Create histograms for all numerical columns in DataFrame.
+    """Display histograms for all numerical columns in DataFrame.
     Params
         ======
             df: DataFrame
@@ -20,7 +43,7 @@ def plot_num_hist(df, figsize=(16, 16), bins=50, color='rebeccapurple'):
 
 
 def plot_num_box(df, figsize=(16, 16), color='rebeccapurple'):
-    """Create boxplots for all numerical columns in DataFrame.
+    """Display boxplots for all numerical columns in DataFrame.
     Params
     ======
         df: DataFrame
@@ -40,7 +63,7 @@ def plot_num_box(df, figsize=(16, 16), color='rebeccapurple'):
 # Plots of categorical features
 
 def plot_cat_pies(df, figsize=(16, 16), cmap='viridis'):
-    """Create pieplots for all categorical columns in DataFrame with up to 30 values.
+    """Display pieplots for all categorical columns in DataFrame with up to 30 values.
     Params
     ======
         df: DataFrame
@@ -65,7 +88,7 @@ def plot_cat_pies(df, figsize=(16, 16), cmap='viridis'):
 # Plots of CORRELATIONS
     
 def plot_num_corrMap(df, figsize=(16, 16), cmap='magma'):
-    """Creates heatmap to show correlations between all numerical columns in DataFrame.
+    """Displays heatmap to show correlations between all numerical columns in DataFrame.
     Params
     ======
         df: DataFrame
@@ -98,12 +121,12 @@ def plot_corr_num_scatter(df, target, hue=False, figsize=(16, 16), palette='rock
 #     plt.tight_layout(w_pad=1)
     for col in df_num.columns:
         position +=1
-        plt.subplot((df_num.shape[1]/2)+1,2,position)
+        plt.subplot((df_num.shape[1] / 2) + 1, 2 , position)
         sns.scatterplot(x=col, y=df[target], hue=df[hue], data=df_num, palette=palette);
 
 
 def plot_num_corrBox(df, target, figsize=(16, 16), color='rebeccapurple'):
-    """Create boxplots to show correlations between all numerical variables and target classes value in DataFrame.
+    """Display boxplots to show correlations between all numerical variables and target classes value in DataFrame.
     Params
     ======
         df: DataFrame
@@ -122,7 +145,7 @@ def plot_num_corrBox(df, target, figsize=(16, 16), color='rebeccapurple'):
 
 
 def plot_num_corrLine(df, target, figsize=(16, 16), ylim=[0,1], color='rebeccapurple'):
-    """Create lineplots to show correlation details between all numerical variables and target classes in DataFrame.
+    """Display lineplots to show correlation details between all numerical variables and target classes in DataFrame.
     Params
     ======
         df: DataFrame
@@ -145,7 +168,7 @@ def plot_num_corrLine(df, target, figsize=(16, 16), ylim=[0,1], color='rebeccapu
 
 
 def plot_cat_corrPoint(df, target, figsize=(16, 16), ylim=[0,1], color='rebeccapurple', cmap='viridis'):
-    """Create pointplots (and corresponding piecharts) to show correlations between all categorical columns 
+    """Display pointplots (and corresponding piecharts) to show correlations between all categorical columns 
     and target classes in DataFrame.
     Params
     ======

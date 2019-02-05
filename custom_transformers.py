@@ -6,7 +6,7 @@ from sklearn.base import BaseEstimator, TransformerMixin
 
 
 class TypeSelector(BaseEstimator, TransformerMixin):
-    """Selects columns from a DataFrame with specified dtype for further 
+    """Selects columns from a DataFrame with specified datatype(s) for further 
     pipeline processing.
 
     ARGUMENTS:
@@ -34,7 +34,7 @@ class CustomOneHotEncoder(BaseEstimator, TransformerMixin):
     """Custom OneHotEncoder based on Pandas get_dummies() function. Note: I 
     prefer this over sk-learns built in OneHotEncoder because of the possibility 
     to define labels for the new dummy columns.This makes checking for feature 
-    importance easier. (That's also why the drop_first argument fo get_dummmies
+    importance easier. (That's also why the drop_first argument for get_dummmies
     is set to `False`.) 
         
        ARGUMENTS: 

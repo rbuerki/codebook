@@ -153,7 +153,7 @@ class LinRegModel:
     
     def plot_learning_curves(self, scoring='r2', n_folds=5):
         """
-        Plots learning curves based on n-fold cross validation.
+        Display learning curves based on n-fold cross validation.
 
         ARGUMENTS:
         scoring: evaluation score (as str, default 'r2')
