@@ -26,7 +26,7 @@ Small collections of functions and classes written for reusability in my project
   depending on specified distance from 1th / 3rd quartile. NaN ignored.
 
 *Transformations:*
-_(The different transformations are demonstrated in nb-4 of the starbucks challenge.)
+_(The different transformations are demonstrated in nb-4 of the starbucks challenge.)_
 - `apply_log`: Transform values of selected columns to natural log. 
   NaN not affected by default, parameter can be changed.
 - `apply_log10`: Transform values of selected columns to log10. 
@@ -88,12 +88,12 @@ _NOTE: The functions in this notebook work for calculations on PROPORTIONS only!
 linear models. Needs a sklearn linReg model object as input.
 
 _Basic functions:_  
-    - `go_quickDirty`: apply linear regression to unprepared / dirty data
-    - `go_preprocessed`: apply linear regression to properly prepared data
+- `go_quickDirty`: apply linear regression to unprepared / dirty data
+- `go_preprocessed`: apply linear regression to properly prepared data
 
 _Evaluation:_
-    - `plot_learning_curves`: Display learning curves based on n-fold cross validation.
-    - `print_coef_weights`: Output estimates for coefficient weights and corresponding 
+- `plot_learning_curves`: Display learning curves based on n-fold cross validation.
+- `print_coef_weights`: Output estimates for coefficient weights and corresponding 
       error. The error is calculated using bootstrap resamplings of the data.
 
 
