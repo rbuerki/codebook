@@ -1,30 +1,37 @@
 """
 LIST OF FUNCTIONS
+-----------------
 
-Columns
+Columns:
 - edit_column_names: Replace whitespace in column labels with underscore
   and change to all lowercase (optional).
-- change_dtypes: Change different datatyes for selected columns.
+- change_dtypes: Change different datatypes for selected columns.
 - delete_columns: Delete columns permanently from a dataframe.
 
-Missing Values
+Missing Values:
 - plot_NaN: Plot heatmap with all NaN in DataFrame.
 - list_NaN: List columns with missing values and respective count of NaN.
 - handle_NaN: Apply different strategies for NaN handling in selected
   columns (simplistic approach).
 
 Duplicates:
-- list_duplicates: Display the columns / containing column-wise duplicates.
+- list_duplicates: Display the columns containing column-wise duplicates.
 
-Outlier Removal
+Outliers:
 - count_outliers_IQR_method: Detect outliers in specified columns 
   depending on specified distance from 1th / 3rd quartile. NaN ignored.
 - remove_outliers_IQR_method: Remove outliers in specified columns 
   depending on specified distance from 1th / 3rd quartile. NaN ignored.
 
-Transformations
-- apply_log10: Transform values of selected columns to Log10. 
+Transformations:
+- apply_log: Transform values of selected columns to natural log. 
   NaN not affected by default, parameter can be changed.
+- apply_log10: Transform values of selected columns to log10. 
+  NaN not affected by default, parameter can be changed.
+- apply_box_cox: Power transform values of selected columns with box-cox.
+  NOTE: Cannot handle NaN and negvalues. Workaround to handle zero values.
+- apply_yeo_j: Power transform values of selected columns with yeo-johnson.
+  NOTE: Cannot handle NaN but yeo-johnson works on neg and zero values.
 """
 
 import pandas as pd
@@ -33,7 +40,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns; sns.set()
 
 
-### COLUMNS - Datatypes and Removal
+### COLUMNS - Name,s Datatypes and Removal
 
 def edit_column_names(df, lowercase=True):
     """Replace whitespace in column labels with underscore and change
@@ -120,6 +127,8 @@ def delete_columns(df, cols_to_delete):
             display(col + " successfully deleted")
 
 
+
+
 ### MISSING VALUES - Detection and handling
 
 def plot_NaN(df, figsize=(18, 6), cmap='viridis'):
@@ -187,6 +196,8 @@ def handle_NaN(df, cols_to_impute_num=None, cols_to_impute_cat=None,
         df = df.dropna(how='any')   # drop remaining rows with any NaNs       
     return df
  
+
+
 
  ### DUPLICATES
 
@@ -261,27 +272,140 @@ def remove_outliers_IQR_method(df, outlier_cols=None , IQR_dist = 1.5):
         .format(outer_row_count_1 - outer_row_count_2))
 
 
+
+
 ### TRANSFORMATION
 
-def apply_log10 (df, cols_to_log10=None, treat_NaN=False):
-    """Transform values of selected columns to Log10. NaN are not 
-    affected by default, parameter can be changed. Returns transformed 
-    DataFrame, column names have "_log" appended.
-    Params
-    ======
+def apply_log(df, cols_to_transform=None, treat_NaN=False, rename=False):
+    """Transform values of selected columns to natural log. NaN are not 
+    affected by default, parameter can be changed. Returns a transformed 
+    DataFrame, column names have "_log" appended if parameter is set.
+
+    ARGUMENTS:
         df: DataFrame
-        cols_to_log10: list of columns that will have log10 
-            transformation applied. Default is all numerical columns.
-        treat_NaN: sets NaN to small negative value, default is False.
+        cols_to_transform: list of columns that will have log-transformation 
+            applied. Default is all numerical columns.
+        treat_NaN: bool, set NaN to small negative value (default=False)
+        rename: bool, rename column with appendix (default=False)
+
+    RETURNS:
+        df: log-transformed dataframe
     """
-    cols_to_log10 = cols_to_log10 if cols_to_log10 is not None else \
-               list(df.select_dtypes(include = ['float64', 'int64']).columns)
-    for col in df[cols_to_log10]:
+
+    cols_to_transform = cols_to_transform if cols_to_transform is not None else \
+        list(df.select_dtypes(include = ['float64', 'int64']).columns)
+
+    for col in df[cols_to_transform]:
         if col in df:
-            df[col] = df[col].apply(lambda x: np.log10(max(x,1)))
+            df[col] = df[col].apply(lambda x: np.log(max(x,0.01)))
             if treat_NaN:
                 df[col].replace(np.nan, -1, inplace=True)
         else:
             display(col + " not found")
-        #rename log-transformed columns
-        df.rename(columns={col: col+'_log'}, inplace=True)
+
+        #rename transformed columns
+        if rename:
+            df.rename(columns={col : col+'_log'}, inplace=True)
+
+    return df
+
+
+def apply_log10(df, cols_to_transform=None, treat_NaN=False, rename=False):
+    """Transform values of selected columns to natural log. NaN are not 
+    affected by default, parameter can be changed. Returns a transformed 
+    DataFrame, column names have "_log10" appended if parameter is set.
+
+    ARGUMENTS:
+        df: DataFrame
+        cols_to_transform: list of columns that will have log-transformation 
+            applied. Default is all numerical columns.
+        treat_NaN: bool, set NaN to small negative value (default=False)
+        rename: bool, rename column with appendix (default=False)
+
+    RETURNS:
+        df: log-transformed dataframe
+    """
+
+    cols_to_transform = cols_to_transform if cols_to_transform is not None else \
+        list(df.select_dtypes(include = ['float64', 'int64']).columns)
+
+    for col in df[cols_to_transform]:
+        if col in df:
+            df[col] = df[col].apply(lambda x: np.log10(max(x,0.01)))
+            if treat_NaN:
+                df[col].replace(np.nan, -1, inplace=True)
+        else:
+            display(col + " not found")
+
+        #rename transformed columns
+        if rename:
+            df.rename(columns={col : col+'_log10'}, inplace=True)
+
+    return df
+
+
+def apply_box_cox(df, cols_to_transform=None, treat_NaN=False, rename=False):
+    """Transform values of selected columns with box-cox. Returns transformed 
+    DataFrame, column names have "_bc" appended if parameter is set.
+    NOTE: Cannot handle NaN and negative values. Normally bc can works on 
+    positive values only, this function has a little workaround is included to 
+    set 0 values to 0.01.
+
+    ARGUMENTS:
+        df: DataFrame
+        cols_to_transform: list of columns that will have bc-transformation 
+            applied. Default is all numerical columns.
+        rename: bool, rename column with appendix (default=False)
+
+    RETURNS:
+        df: box-cox-transformed dataframe
+    """
+
+    cols_to_transfrom = cols_to_transform if cols_to_transform is not None else \
+        list(df.select_dtypes(include = ['float64', 'int64']).columns)
+
+    for col in df[cols_to_transform]:
+        if col in df:
+            df[col] = df[col].apply(lambda x : x + 0.01 if x == 0 else x)
+            df[col] = stats.boxcox(df[col])[0]
+        else:
+            display(col + " not found")
+
+        #rename transformed columns
+        if rename:
+            df.rename(columns={col: col+'_bc'}, inplace=True)
+
+    return df
+
+
+    def apply_yeo_j(df, cols_to_transform=None, treat_NaN=False, rename=False):
+    """Transform values of selected columns with yeo-johnson. Returns transformed 
+    DataFrame, column names have "_yj" appended if parameter is set.
+    NOTE: Cannot handle NaN but contrary to box-cox yeo-johnson works also on 
+    negative and zero values.
+
+    ARGUMENTS:
+        df: DataFrame
+        cols_to_transform: list of columns that will have jy-transformation 
+            applied. Default is all numerical columns.
+        treat_NaN: bool, set NaN to small negative value (default=False)
+        rename: bool, rename column with appendix (default=False)
+
+    RETURNS:
+        df: yeo-johnson-transformed dataframe
+    """
+
+    cols_to_transfrom = cols_to_transform if cols_to_transform is not None else \
+        list(df.select_dtypes(include = ['float64', 'int64']).columns)
+
+    for col in df[cols_to_transform]:
+        if col in df:
+            df[col] = stats.yeojohnson(df[col])[0]
+        else:
+            display(col + " not found")
+
+        #rename transformed columns
+        if rename:
+            df.rename(columns={col: col+'_yj'}, inplace=True)
+
+    return df
