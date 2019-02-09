@@ -34,18 +34,18 @@ class CustomOneHotEncoder(BaseEstimator, TransformerMixin):
     """Custom OneHotEncoder based on Pandas get_dummies() function. Note: I 
     prefer this over sk-learns built in OneHotEncoder because of the possibility 
     to define labels for the new dummy columns.This makes checking for feature 
-    importance easier. (That's also why the drop_first argument for get_dummmies
+    importance easier. (That's also why the drop_first argument within get_dummmies
     is set to `False`.) 
         
        ARGUMENTS: 
             dummy_na = bool, indicating if NaN should be encoded in an own
-            dummy variable.
+            dummy variable (default=False).
          
        RETURNS: 
             X = np.array, containing the one-hot-encoded values.
     """
 
-    def __init__(self, dummy_na=True):
+    def __init__(self, dummy_na=False):
         self.dummy_na = dummy_na     
 
     def fit(self, X, y_train=None):
