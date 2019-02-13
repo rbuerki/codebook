@@ -59,18 +59,23 @@ _(The different transformations are demonstrated in nb-4 of the starbucks challe
 
 ### custom_transformers.py - List of classes
 
-_(These classes were developed and used in the disaster message pipeline project.)
-- `TypeSelector`: Selects columns from a DataFrame with specified datatype(s) 
-  for further pipeline processing.  
-- `CustomOneHotEncoder`: Custom OneHotEncoder based on Pandas get_dummies() 
-  function. _(I prefer this over sk-learns built in OneHotEncoder because of the 
-  possibility to define labels for the new dummy columns. This makes checking 
-  for feature importance easier.)_ 
+
+- `ColumnSelector`: Selects  the defined  columns from a DataFrame for further 
+    processing. Makes sure, that only the these columns are processed. Valuable 
+    in automated production settings (e.g. ETL microservice) or if you want to 
+    experiment with different feature settings.
+- `TypeSelector`: Selects columns from a DataFrame with specified datatype(s) for 
+    further parallelized pipeline processing  with _FeatureUnion_. (It is of no 
+    use when working with ColumnTransformer.)  
+- `CustomOneHotEncoder`: Can be used within _ColumnTransformer_. Just passes the 
+    data on as it is. Can be used when you want to get the feature names for the 
+    transformed dataframe as the built in 'passthrough' argument in sklearn 0.20  
+    does not (yet) support get_feature_names(). See [here](https://stackoverflow.com/questions/53382322/adding-get-feature-names-to-columntransformer-pipeline) for background info.
 
 
 ### hypothesis_functions.py - List of functions
 
-_NOTE: The functions in this notebook work for calculations on PROPORTIONS only!
+_NOTE: The functions in this notebook are for calculations on PROPORTIONS only!
 (They have been developed in the small projects in the experimental design repository.)_
 - `calc_confidence_bounds_binomial`: Compute lower and upper bounds for a defined 
   confidence level based on a random variable with binomial / normal distribution.

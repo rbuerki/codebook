@@ -4,16 +4,51 @@ import pandas as pd
 from sklearn.base import BaseEstimator, TransformerMixin
 
 
+class ColumnSelector(BaseEstimator, TransformerMixin):
+    """Selects  the defined  columns from a DataFrame for further processing. 
+    Makes sure, that only the these columns are processed. Valuable in automated 
+    production settings (e.g. ETL microservice) or if you want to experiment
+    with different feature settings.
+
+    Arguments:
+    ----------
+    - columns: list of strings, containting the column names of the columns
+        to be selected
+
+    Returns:
+    --------
+    - X: DataFrame, sub-selection of X including the defined columns.
+    """
+
+    def __init__(self, columns):
+        self.columns = columns
+
+    def fit(self, X, y=None):
+        return self
+
+    def transform(self, X):
+        assert isinstance(X, pd.DataFrame), "input must be DataFrame"
+
+        try:
+            return X[self.columns]
+        except KeyError:
+            cols_error = list(set(self.columns) - set(X.columns))
+            raise KeyError("DataFrame does not include: {}".format(cols_error))
+            
+
 
 class TypeSelector(BaseEstimator, TransformerMixin):
     """Selects columns from a DataFrame with specified datatype(s) for further 
-    pipeline processing.
+    pipeline processing  with FeatureUnion. (Is no use when working with 
+    ColumnTransformer.)
 
-    ARGUMENTS:
+    Arguments:
+    ----------
         dtype = dtype to be selected
 
-    RETURNS:
-        X = Sub-selection of X in DataFrame format including columns with the 
+    Returns:
+    --------
+    - X: DataFrame, sub-selection of X  including columns with the 
         selected dtype.
     """
 
@@ -24,39 +59,31 @@ class TypeSelector(BaseEstimator, TransformerMixin):
         return self
 
     def transform(self, X):
-        assert isinstance(X, pd.DataFrame)
+        assert isinstance(X, pd.DataFrame), "input must be DataFrame"
         
         return X.select_dtypes(include=[self.dtype])
 
+    def get_feature_names(self):
+        return self.X.select_dtypes(include=[self.dtype]).columns.tolist()
 
 
-class CustomOneHotEncoder(BaseEstimator, TransformerMixin):
-    """Custom OneHotEncoder based on Pandas get_dummies() function. Note: I 
-    prefer this over sk-learns built in OneHotEncoder because of the possibility 
-    to define labels for the new dummy columns.This makes checking for feature 
-    importance easier. (That's also why the drop_first argument within get_dummmies
-    is set to `False`.) 
-        
-       ARGUMENTS: 
-            dummy_na = bool, indicating if NaN should be encoded in an own
-            dummy variable (default=False).
-         
-       RETURNS: 
-            X = np.array, containing the one-hot-encoded values.
+
+class PassthroughTransformer(BaseEstimator, TransformerMixin):
+    """A custom Passtrough Transformer that can be used with ColumnTransformer. 
+    It just passes the data as is. Can be used when you want to get the 
+    feature names for the transformed dataframe as the built in 'passthrough' 
+    argument does not yet support get_feature_names(). 
+
+    See here for background information: 
+    https://stackoverflow.com/questions/53382322/adding-get-feature-names-to-columntransformer-pipeline
     """
 
-    def __init__(self, dummy_na=False):
-        self.dummy_na = dummy_na     
-
-    def fit(self, X, y_train=None):
+    def fit(self, X, y=None):
         return self
 
     def transform(self, X):
-        # for each cat add dummy variables, drop original column
-        # if dummy_na=True encode NaN in separate column
-        for col in  X:
-            X = pd.concat([X.drop(col, axis=1), pd.get_dummies(
-                X[col], prefix=col, prefix_sep='-', drop_first=False, 
-                dummy_na=self.dummy_na)], axis=1)
-        
-        return X.values
+        self.X = X
+        return X
+
+    def get_feature_names(self):
+        return self.X.columns.tolist()
