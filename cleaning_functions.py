@@ -263,15 +263,15 @@ def remove_outliers_IQR_method(df, outlier_cols=None , IQR_dist = 1.5):
         print(col)
         row_count_1 = len(df)
         distance = IQR_dist * (np.nanpercentile(df[col], 75) - np.nanpercentile(df[col], 25)) 
-        df.drop(df[df[col] > distance + np.nanpercentile(df[col], 75)].index, inplace=True)
-        df.drop(df[df[col] < np.nanpercentile(df[col], 25) - distance].index, inplace=True)
+        df.drop(df[df[col] > distance + np.nanpercentile(df[col], 75)].index)
+        df.drop(df[df[col] < np.nanpercentile(df[col], 25) - distance].index)
         row_count_2 = len(df)
         print("Rows removed: {}\n".format(row_count_1 - row_count_2))
     outer_row_count_2 = len(df)
     print("\nRows removed in total: {}\n" \
         .format(outer_row_count_1 - outer_row_count_2))
 
-
+    return df
 
 
 ### TRANSFORMATION
