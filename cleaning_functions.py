@@ -5,7 +5,7 @@ LIST OF FUNCTIONS
 Columns:
 - edit_column_names: Replace whitespace in column labels with underscore
   and change to all lowercase (optional).
-- change_dtypes: Change different datatypes for selected columns.
+- change_dtypes: Change datatypes for selected columns.
 - delete_columns: Delete columns permanently from a dataframe.
 
 Missing Values:
@@ -40,15 +40,21 @@ import matplotlib.pyplot as plt
 import seaborn as sns; sns.set()
 
 
-### COLUMNS - Name,s Datatypes and Removal
+### COLUMNS - Names, Datatypes and Removal
 
 def edit_column_names(df, lowercase=True):
     """Replace whitespace in column labels with underscore and change
        to all lowercase (this param can be changed).
-    Params
-    =====
-        df: DataFrame
-        lowercase: changes column labels to all lowercase, default True
+    
+    Arguments:
+    ----------
+    - df: DataFrame
+    - lowercase: bool, change column labels to all lowercase, (default=True)
+
+    Returns:
+    --------
+    - df: transformed DataFrame
+
     """
     if lowercase:
         df.columns = (col.lower().replace(' ', '_') for col in df.columns)
@@ -59,10 +65,26 @@ def edit_column_names(df, lowercase=True):
    
         
 def count_dtypes(df):
-    dtypes_dict = {'numerical' : tuple(df.select_dtypes(include = ['float64', 'int64', 'float32', 'int32'])),
-                   'categorical' : tuple(df.select_dtypes(include = ['category'])),
-                   'object' : tuple(df.select_dtypes(include = ['object'])),
-                   'datetime' : tuple(df.select_dtypes(include = ['datetime'])),
+    """Print a list with the count of columns for the different datatypes 
+    in a DataFrame.
+
+    Arguments:
+    ----------
+    - df: DataFrame
+
+    Returns:
+    --------
+    - None, print count of different dtypes    
+
+    """
+    dtypes_dict = {'numerical' : tuple(df.select_dtypes(include = [
+                        'float64', 'int64', 'float32', 'int32'])),
+                   'categorical' : tuple(df.select_dtypes(include = [
+                        'category'])),
+                   'object' : tuple(df.select_dtypes(include = [
+                        'object'])),
+                   'datetime' : tuple(df.select_dtypes(include = [
+                        'datetime'])),
                    }
     counter = 0
     print("Total number of columns: {}".format(df.shape[1]))
@@ -72,23 +94,29 @@ def count_dtypes(df):
             counter += len(cols_list)
             
     #safety check: # if assert breaks some exotic dtype may have been missed
-    assert counter == df.shape[1]  
+    assert counter == df.shape[1], "obviously some exoctic datatype was missed"  
     
 
 def change_dtypes(df, cols_to_category=[], cols_to_object=[], cols_to_integer=[], 
                   cols_to_float=[], cols_to_datetime=[], datetime_pattern="%Y/%m/%d"):
     """Transform datatyes of selected columns in a dataframe.
-       Return transformed DataFrame.
-       Params
-       ======
-           df: DataFrame
-           cols_to_category: list of colums to category, default empty
-           cols_to_object: list of colums to string, default empty
-           cols_to_integer: list of colums to integer, default empty
-           cols_to_float: list of colums to float, default empty
-           cols_to_datetime: list of colums to datetime, default empty
-           datetime_pattern: datetime pattern, default = "%Y/%m/%d"
+    Return transformed DataFrame.
+    
+    Arguments:
+    ----------
+    - df: DataFrame
+    - cols_to_category: list of colums to category, (default=None)
+    - cols_to_object: list of colums to string, (default=None)
+    - cols_to_integer: list of colums to integer, (default=None)
+    - cols_to_float: list of colums to float, (default=None)
+    - cols_to_datetime: list of colums to datetime, (default=None)
+    - datetime_pattern: datetime pattern, (default="%Y/%m/%d")
+
+    Returns:
+    --------
+    - df: transformed DataFrame
     """
+
     dtypes_dict = {tuple(cols_to_category) : 'category', 
                    tuple(cols_to_object) : str, 
                    tuple(cols_to_integer) : np.int64, 
@@ -116,39 +144,60 @@ def change_dtypes(df, cols_to_category=[], cols_to_object=[], cols_to_integer=[]
 
 def delete_columns(df, cols_to_delete):
     """Delete columns permanently from a dataframe.
-        Params
-        ======
-            df: DataFrame
-            cols_to_delete: list of columns to delete
+    
+    Arguments:
+    ----------
+    - df: DataFrame
+    - cols_to_delete: list, names of columns to delete
+
+    Returns:
+    --------
+    - df_del: DataFrame, transformed copy of original DataFrame
     """   
+
+    df_del = df.copy()
     for col in cols_to_delete:
-        if col in df.columns:
-            df.drop(col, axis=1, inplace=True)
+        if col in df_del.columns:
+            df_del.drop(col, axis=1, inplace=True)
             display(col + " successfully deleted")
 
+    return df_del
 
 
 
 ### MISSING VALUES - Detection and handling
 
 def plot_NaN(df, figsize=(18, 6), cmap='viridis'):
-    """Display heatmap of DataFrame with NaN.
-    Params
-        ======
-            df: DataFrame
-            figsize: default is (18, 6)
-            cmap: default is 'viridis'
+    """Display heatmap of DataFrame highlighting missing values.
+    
+    Arguments:
+    ----------
+    - df: DataFrame
+    - figsize: default is (18, 6)
+    - cmap: default is 'viridis'
+
+    Returns:
+    --------
+    - None, plot heatmap
+
     """
+
     plt.figure(figsize=figsize)
     sns.heatmap(df.isnull(),yticklabels=False,cbar=False,cmap='viridis');
 
 
 def list_NaN(df):
-    """Display the columns with missing values and respective number of NaN.
-    Params
-        ======
-            df: DataFrame
+    """Print  columns with missing values and their respective number of NaN.
+
+    Arguments:
+    ----------
+    - df: DataFrame
+
+    Returns:
+    --------
+    - None, print list
     """
+
     print("Number of NaN per column:")
     for col in df:
         nan_count = df[col].isnull().sum()
@@ -159,55 +208,71 @@ def list_NaN(df):
 
 def handle_NaN(df, cols_to_impute_num=None, cols_to_impute_cat=None, 
                cols_to_drop=None, drop_all_NaN=False):
-    """Handle NaN with different strategies for selected columns. 
-       Return transformed DataFrame. Note: Use with caution, there are 
-       more sophisticated solutions around.
+    """Handle NaN with different strategies for selected columns. Return a 
+    transformed copy of the DataFrame. Note: Use with caution, as there are 
+    more sophisticated solutions around.
     
-    ARGUMENTS:
-        df: DataFrame
-        cols_to_impute_num: list of num columns to impute median (default: None)
-        cols_to_impute_cat: list of categorical columns to impute mode (default: None)
-        cols_to_drop: list of columns to drop entirely (default: None)
-        drop_all_NaN: if True ALL remaining rows with NaN will be removed, (default: False)
+    Arguments:
+    ----------
+    - cols_to_impute_num: list of num columns to impute median, 
+        (default=None)
+    - cols_to_impute_cat: list of categorical columns to impute mode 
+        (default=None)
+    - cols_to_drop: list of columns to drop entirely, 
+        (default=None)
+    - drop_all_NaN: bool, if True ALL remaining rows with NaN will be removed, 
+        (default=False)
+
+    Returns:
+    --------
+    - df_NaN: DataFrame, transformed copy of original DataFrame
     """
+        df_NaN = df.copy()
     if cols_to_impute_num != None:    
         for col in cols_to_impute_num:
-            if col in df.columns:
+            if col in df_NaN.columns:
                 display("{} - median value to impute: {}".format(
-                    col, df[col].median()))
-                df[col] = df[col].fillna(df[col].median())
+                    col, df_NaN[col].median()))
+                df_NaN[col] = df_NaN[col].fillna(df_NaN[col].median())
             else:
                 display(col + " not found")
     if cols_to_impute_cat != None:
         for col in cols_to_impute_cat:
-            if col in df.columns:
+            if col in df_NaN.columns:
                 display("{} - most frequent value to impute: {}".format(
-                    col, df[col].value_counts().index[0]))
-                df[col] = df[col].fillna(df[col].value_counts().index[0])
+                    col, df_NaN[col].value_counts().index[0]))
+                df_NaN[col] = df_NaN[col].fillna(
+                    df_NaN[col].value_counts().index[0])
             else:
                 display(col + " not found")
     if cols_to_drop != None:
         for col in cols_to_drop:
-            if col in df.columns:
-                df.drop(col, axis=1, inplace=True)
+            if col in df_NaN.columns:
+                df_NaN.drop(col, axis=1, inplace=True)
             else:
                 display(col + " not found")
     if drop_all_NaN:
-        df = df.dropna(how='any')   # drop remaining rows with any NaNs       
-    return df
+        df_NaN = df_NaN.dropna(how='any')   # drop remaining rows with any NaNs       
+    
+    return df_NaN
  
-
 
 
  ### DUPLICATES
 
 
 def list_duplicates(df):
-    """Display the columns / containing column-wise duplicates.
+    """Display the columns containing column-wise duplicates.
     
-    ARGUMENTS:
-        df: DataFrame
+    Arguments:
+    ----------
+    - df: DataFrame
+
+    Returns:
+    --------
+    - None, print list
     """
+
     print("Number of column-wise duplicates per column:")
     for col in df:
         dup = df[col].loc[df[[col]].duplicated(keep=False) == 1]
@@ -219,7 +284,6 @@ def list_duplicates(df):
 
 
 
-
 ### OUTLIERS - Count and Removal
 
 
@@ -227,11 +291,13 @@ def count_outliers_IQR_method(df, outlier_cols=None, IQR_dist = 1.5):
     """Display outlier count in specified columns depending on distance 
     from 1th / 3rd quartile. NaN are ignored.
 
-    ARGUMENTS:
-        df: DataFrame
-        outlier_cols: List with columns to clean (default: all num columns)
-        IQR_dist: Float for cut-off distance from quartiles (default: 1.5 * IQR)
+    Arguments:
+    ----------
+    - df: DataFrame
+    - outlier_cols: List with columns to clean, (default=all num columns)
+    - IQR_dist: Float for cut-off distance from quartiles, (default=1.5)
     """
+
     outlier_cols = outlier_cols if outlier_cols is not None else \
         list(df.select_dtypes(include = ['float64', 'int64']).columns)
     for col in outlier_cols:
@@ -249,29 +315,42 @@ def count_outliers_IQR_method(df, outlier_cols=None, IQR_dist = 1.5):
 
 def remove_outliers_IQR_method(df, outlier_cols=None , IQR_dist = 1.5):
     """Remove outliers in specified columns depending on distance from 
-    1th / 3rd quartile. NaN are ignored. Returns transformed DataFrame.
+    1th / 3rd quartile. NaN are ignored. Returns a transformed copy of the 
+    original DataFrame.
     
-    ARGUMENTS:
-        df: DataFrame
-        outlier_cols: List with columns to clean (default: all num columns)
-        IQR_dist: Float for cut-off distance from quartiles (default: 1.5 * IQR)
+    Arguments:
+    ----------
+    - df: DataFrame
+    - outlier_cols: list, names of columns to clean (default=all num columns)
+    - IQR_dist: float, cut-off distance from quartiles (default=1.5)
+
+    Returns:
+    --------
+    - df_out: DataFrame, transformed copy of original DataFrame
     """
+
+    df_out = df.copy()
     outlier_cols = outlier_cols if outlier_cols is not None else \
-            list(df.select_dtypes(include = ['float64', 'int64']).columns)
-    outer_row_count_1 = len(df)
+            list(df_out.select_dtypes(include = ['float64', 'int64']).columns)
+    outer_row_count_1 = len(df_out)
     for col in outlier_cols:
         print(col)
-        row_count_1 = len(df)
-        distance = IQR_dist * (np.nanpercentile(df[col], 75) - np.nanpercentile(df[col], 25)) 
-        df.drop(df[df[col] > distance + np.nanpercentile(df[col], 75)].index)
-        df.drop(df[df[col] < np.nanpercentile(df[col], 25) - distance].index)
-        row_count_2 = len(df)
+        row_count_1 = len(df_out)
+        distance = IQR_dist * (np.nanpercentile(df_out[col], 75) 
+                - np.nanpercentile(df_out[col], 25)) 
+        df_out.drop(df_out[df_out[col] > distance 
+                + np.nanpercentile(df_out[col], 75)].index, 
+                inplace=True)
+        df.drop(df_out[df_out[col] < np.nanpercentile(df_out[col], 25) 
+                - distance].index, 
+                inplace=True)
+        row_count_2 = len(df_out)
         print("Rows removed: {}\n".format(row_count_1 - row_count_2))
-    outer_row_count_2 = len(df)
+    outer_row_count_2 = len(df_out)
     print("\nRows removed in total: {}\n" \
         .format(outer_row_count_1 - outer_row_count_2))
 
-    return df
+    return df_out
 
 
 ### TRANSFORMATION
@@ -281,33 +360,36 @@ def apply_log(df, cols_to_transform=None, treat_NaN=False, rename=False):
     affected by default, parameter can be changed. Returns a transformed 
     DataFrame, column names have "_log" appended if parameter is set.
 
-    ARGUMENTS:
-        df: DataFrame
-        cols_to_transform: list of columns that will have log-transformation 
-            applied. Default is all numerical columns.
-        treat_NaN: bool, set NaN to small negative value (default=False)
-        rename: bool, rename column with appendix (default=False)
+    Arguments:
+    ----------
+    - df: DataFrame
+    - cols_to_transform: list of columns that will have jy-transformation 
+        applied, (default is all numerical columns)
+    - treat_NaN: bool, set NaN to small negative value, (default=False)
+    - rename: bool, rename column with appendix, (default=False)
 
-    RETURNS:
-        df: log-transformed dataframe
+    Returns:
+    --------
+    - df: DataFrame, natural log-transformed copy of original DataFrame
     """
 
+    df_log = df.copy()
     cols_to_transform = cols_to_transform if cols_to_transform is not None else \
-        list(df.select_dtypes(include = ['float64', 'int64']).columns)
+        list(df_log.select_dtypes(include = ['float64', 'int64']).columns)
 
-    for col in df[cols_to_transform]:
-        if col in df:
-            df[col] = df[col].apply(lambda x: np.log(max(x,0.01)))
+    for col in df_log[cols_to_transform]:
+        if col in df_log:
+            df_log[col] = df_log[col].apply(lambda x: np.log(max(x,0.01)))
             if treat_NaN:
-                df[col].replace(np.nan, -1, inplace=True)
+                df_log[col].replace(np.nan, -1, inplace=True)
         else:
             display(col + " not found")
 
         #rename transformed columns
         if rename:
-            df.rename(columns={col : col+'_log'}, inplace=True)
+            df_log.rename(columns={col : col+'_log'}, inplace=True)
 
-    return df
+    return df_log
 
 
 def apply_log10(df, cols_to_transform=None, treat_NaN=False, rename=False):
@@ -315,97 +397,106 @@ def apply_log10(df, cols_to_transform=None, treat_NaN=False, rename=False):
     affected by default, parameter can be changed. Returns a transformed 
     DataFrame, column names have "_log10" appended if parameter is set.
 
-    ARGUMENTS:
-        df: DataFrame
-        cols_to_transform: list of columns that will have log-transformation 
-            applied. Default is all numerical columns.
-        treat_NaN: bool, set NaN to small negative value (default=False)
-        rename: bool, rename column with appendix (default=False)
+    Arguments:
+    ----------
+    - df: DataFrame
+    - cols_to_transform: list of columns that will have jy-transformation 
+        applied, (default is all numerical columns)
+    - treat_NaN: bool, set NaN to small negative value, (default=False)
+    - rename: bool, rename column with appendix, (default=False)
 
-    RETURNS:
-        df: log-transformed dataframe
+    Returns:
+    --------
+    - df: DataFrame, log10-transformed copy of original DataFrame
     """
 
+    df_log = df.copy()
     cols_to_transform = cols_to_transform if cols_to_transform is not None else \
-        list(df.select_dtypes(include = ['float64', 'int64']).columns)
+        list(df_log.select_dtypes(include = ['float64', 'int64']).columns)
 
-    for col in df[cols_to_transform]:
-        if col in df:
-            df[col] = df[col].apply(lambda x: np.log10(max(x,0.01)))
+
+    for col in df_log[cols_to_transform]:
+        if col in df_log:
+            df_log[col] = df_log[col].apply(lambda x: np.log10(max(x,0.01)))
             if treat_NaN:
-                df[col].replace(np.nan, -1, inplace=True)
+                df_log[col].replace(np.nan, -1, inplace=True)
         else:
             display(col + " not found")
 
         #rename transformed columns
         if rename:
-            df.rename(columns={col : col+'_log10'}, inplace=True)
+            df_log.rename(columns={col : col+'_log10'}, inplace=True)
 
-    return df
+    return df_log
 
 
-def apply_box_cox(df, cols_to_transform=None, treat_NaN=False, rename=False):
+def apply_box_cox(df, cols_to_transform=None, rename=False):
     """Transform values of selected columns with box-cox. Returns transformed 
     DataFrame, column names have "_bc" appended if parameter is set.
     NOTE: Cannot handle NaN and negative values. Normally bc can works on 
     positive values only, this function has a little workaround is included to 
     set 0 values to 0.01.
 
-    ARGUMENTS:
-        df: DataFrame
-        cols_to_transform: list of columns that will have bc-transformation 
-            applied. Default is all numerical columns.
-        rename: bool, rename column with appendix (default=False)
+    Arguments:
+    ----------
+    - df: DataFrame
+    - cols_to_transform: list of columns that will have jy-transformation 
+        applied, (default is all numerical columns)
+    - treat_NaN: bool, set NaN to small negative value, (default=False)
+    - rename: bool, rename column with appendix, (default=False)
 
-    RETURNS:
-        df: box-cox-transformed dataframe
+    Returns:
+    --------
+    - df_bc: DataFrame, box-cox-transformed copy of original DataFrame
     """
 
+    df_bc = df.copy()
     cols_to_transfrom = cols_to_transform if cols_to_transform is not None else \
-        list(df.select_dtypes(include = ['float64', 'int64']).columns)
+        list(df_bc.select_dtypes(include = ['float64', 'int64']).columns)
 
-    for col in df[cols_to_transform]:
+    for col in df_bc[cols_to_transform]:
         if col in df:
-            df[col] = df[col].apply(lambda x : x + 0.01 if x == 0 else x)
-            df[col] = stats.boxcox(df[col])[0]
+            df_bc[col] = df_bc[col].apply(lambda x : x + 0.01 if x == 0 else x)
+            df_bc[col] = stats.boxcox(df_bc[col])[0]
         else:
             display(col + " not found")
 
         #rename transformed columns
         if rename:
-            df.rename(columns={col: col+'_bc'}, inplace=True)
+            df_bc.rename(columns={col: col+'_bc'}, inplace=True)
 
-    return df
+    return df_bc
 
 
-def apply_yeo_j(df, cols_to_transform=None, treat_NaN=False, rename=False):
+def apply_yeo_j(df, cols_to_transform=None, rename=False):
     """Transform values of selected columns with yeo-johnson. Returns transformed 
     DataFrame, column names have "_yj" appended if parameter is set.
-    NOTE: Cannot handle NaN but contrary to box-cox yeo-johnson works also on 
+    NOTE: Cannot handle NaN but contrary to box-cox, yeo-johnson works also on 
     negative and zero values.
 
-    ARGUMENTS:
-        df: DataFrame
-        cols_to_transform: list of columns that will have jy-transformation 
-            applied. Default is all numerical columns.
-        treat_NaN: bool, set NaN to small negative value (default=False)
-        rename: bool, rename column with appendix (default=False)
+    Arguments:
+    ----------
+    - df: DataFrame
+    - cols_to_transform: list of columns that will have jy-transformation 
+        applied, (default is all numerical columns)
+    - rename: bool, rename column with appendix, (default=False)
 
-    RETURNS:
-        df: yeo-johnson-transformed dataframe
+    Returns:
+    --------
+    - df_yj: DataFrame, yeo-johnson-transformed copy of original DataFrame
     """
-
+    df_yj = df.copy()
     cols_to_transfrom = cols_to_transform if cols_to_transform is not None else \
-        list(df.select_dtypes(include = ['float64', 'int64']).columns)
+        list(df_yj.select_dtypes(include = ['float64', 'int64']).columns)
 
-    for col in df[cols_to_transform]:
-        if col in df:
-            df[col] = stats.yeojohnson(df[col])[0]
+    for col in df_yj[cols_to_transform]:
+        if col in df_yj:
+            df_yj[col] = stats.yeojohnson(df_yj[col])[0]
         else:
             display(col + " not found")
 
         #rename transformed columns
         if rename:
-            df.rename(columns={col: col+'_yj'}, inplace=True)
+            df_yj.rename(columns={col: col+'_yj'}, inplace=True)
 
-    return df
+    return df_yj

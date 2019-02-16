@@ -39,7 +39,7 @@ class ColumnSelector(BaseEstimator, TransformerMixin):
 
 class TypeSelector(BaseEstimator, TransformerMixin):
     """Selects columns from a DataFrame with specified datatype(s) for further 
-    pipeline processing  with FeatureUnion. (Is no use when working with 
+    pipeline processing  with FeatureUnion. (It is of no use when working with 
     ColumnTransformer.)
 
     Arguments:
@@ -69,10 +69,10 @@ class TypeSelector(BaseEstimator, TransformerMixin):
 
 
 class PassthroughTransformer(BaseEstimator, TransformerMixin):
-    """A custom Passtrough Transformer that can be used with ColumnTransformer. 
-    It just passes the data as is. Can be used when you want to get the 
-    feature names for the transformed dataframe as the built in 'passthrough' 
-    argument does not yet support get_feature_names(). 
+    """Can be used within ColumnTransformer. Just passes the data on as it is. 
+    Can be used when you want to get the feature names for the transformed 
+    dataframe as the built in 'passthrough' argument in sklearn 0.20  does not 
+    (yet) support get_feature_names(). 
 
     See here for background information: 
     https://stackoverflow.com/questions/53382322/adding-get-feature-names-to-columntransformer-pipeline
