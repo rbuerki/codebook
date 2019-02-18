@@ -227,7 +227,7 @@ def handle_NaN(df, cols_to_impute_num=None, cols_to_impute_cat=None,
     --------
     - df_NaN: DataFrame, transformed copy of original DataFrame
     """
-        df_NaN = df.copy()
+    df_NaN = df.copy()
     if cols_to_impute_num != None:    
         for col in cols_to_impute_num:
             if col in df_NaN.columns:
