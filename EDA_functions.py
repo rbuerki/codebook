@@ -23,33 +23,54 @@ Correlations:
 
 import pandas as pd
 import matplotlib.pyplot as plt
-import seaborn as sns; sns.set_style('whitegrid')
+import seaborn as sns
+sns.set_style('whitegrid')
+color = 'rebeccapurple'
 from tqdm import tqdm
 
 
-# Plots of numerical features
+# DISTRIBUTIONS
 
-def plot_num_hist(df, figsize=(16, 16), bins=50, color='rebeccapurple'):
+def plot_num_hist(df, figsize=(16, 16), bins=50, color=color, kde=True):
     """Display histograms for all numerical columns in DataFrame.
-    Params
-        ======
-            df: DataFrame
-            figsize: default is (16, 16)
-            bins: default is 50
-            color: default is 'rebeccapurple'
+    
+    Arguments:
+    ----------
+    - df: DataFrame
+    - figsize: tuple (default=(16, 16))
+    - bins: int, number of bins (default=50)
+    - color: string (default='rebeccapurple')
+    - kde: bool, plot of kde-line (default=True)
+
+    Returns:
+    --------
+    - None. Displays plot.
     """
+
     df_num = df.select_dtypes(include = ['float64', 'int64'])
-    df_num.hist(figsize=figsize, bins=bins, xlabelsize=8, ylabelsize=8, color=color);
+    pos=0
+    plt.figure(figsize=figsize)
+#     plt.tight_layout(w_pad=1)
+    for col in df_num.columns:
+        pos +=1
+        plt.subplot((df_num.shape[1]/4)+1,4,pos)
+        sns.distplot(df_num[col], bins= bins, color=color, kde=kde);
 
 
-def plot_num_box(df, figsize=(16, 16), color='rebeccapurple'):
+def plot_num_box(df, figsize=(16, 16), color=color):
     """Display boxplots for all numerical columns in DataFrame.
-    Params
-    ======
-        df: DataFrame
-        figsize: default is (16, 16)
-        color: default is 'rebeccapurple'
+
+    Arguments:
+    ----------
+    - df: DataFrame
+    - figsize: tuple (default=(16, 16))
+    - color: string (default='rebeccapurple')
+
+    Returns:
+    --------
+    - None. Displays plot.
     """
+
     df_num = df.select_dtypes(include = ['float64', 'int64'])
     pos=0
     plt.figure(figsize=figsize)
@@ -60,16 +81,21 @@ def plot_num_box(df, figsize=(16, 16), color='rebeccapurple'):
         sns.boxplot(y=col, data=df_num, color=color);
 
 
-# Plots of categorical features
-
 def plot_cat_pies(df, figsize=(16, 16), cmap='viridis'):
-    """Display pieplots for all categorical columns in DataFrame with up to 30 values.
-    Params
-    ======
-        df: DataFrame
-        figsize: default is (16, 16)
-        cmap: default is 'viridis'
+    """Display pieplots for all categorical columns in DataFrame with up to 
+    30 values.
+
+    Arguments:
+    ----------
+    - df: DataFrame
+    - figsize: tuple (default=(16, 16))
+    - cmap: default is 'viridis'
+
+    Returns:
+    --------
+    - None. Displays plot.
     """
+
     df_cat = df.select_dtypes(include = 'category')
     position=0
     catWithManyValues = []
@@ -85,55 +111,75 @@ def plot_cat_pies(df, figsize=(16, 16), cmap='viridis'):
         display("Not plotted: " + str(catWithManyValues));
 
 
-# Plots of CORRELATIONS
+
+# CORRELATIONS
     
 def plot_num_corrMap(df, figsize=(16, 16), cmap='magma'):
-    """Displays heatmap to show correlations between all numerical columns in DataFrame.
-    Params
-    ======
-        df: DataFrame
-        figsize: default is (16, 16)
-        cmap: default is 'magma'
+    """Displays heatmap to show correlations between all numerical columns 
+    in DataFrame.
+
+    Arguments:
+    ----------
+    - df: DataFrame
+    - figsize: tuple (default=(16, 16))
+    - cmap: default is 'magma'
+
+    Returns:
+    --------
+    - None. Displays plot.
     """
+
     plt.figure(figsize=figsize)
     df_num = df.select_dtypes(include = ['int64', 'float64'])
-    sns.heatmap(df_num.corr(), cmap=cmap, linecolor='white', linewidth=1, annot=True);
+    sns.heatmap(df_num.corr(), cmap=cmap, linecolor='white', 
+                linewidth=1, annot=True);
 
 
 def plot_corr_num_scatter(df, target, hue=False, figsize=(16, 16), palette='rocket'):
     """Show Scatterplots to visualize correlations between all numerical 
     features and target variable.
     
-    ARGUMENTS:
-        - df: DataFrame
-        - target: str, column label of numerical target variable
-        - hue: str, colum label of a categorical variable (default = False)
-        - figsize: tuple (default = (16, 16))
-        - palette: str (default = 'rocket')
+    Arguments:
+    ----------
+    - df: DataFrame
+    - target: str, column label of numerical target variable
+    - hue: str, colum label of a categorical variable (default=False)
+    - figsize: tuple (default=(16, 16))
+    - palette: str (default='rocket')
 
-    RETURNS:
-        - None
-
+    Returns:
+    --------
+    - None. Displays plot.
     """
-    df_num = df.select_dtypes(include = ['float64', 'int64']).drop(target, axis=1)
+
+    df_num = df.select_dtypes(include = ['float64', 'int64']
+            ).drop(target, axis=1)
     position=0
     plt.figure(figsize=figsize)
 #     plt.tight_layout(w_pad=1)
     for col in df_num.columns:
         position +=1
         plt.subplot((df_num.shape[1] / 2) + 1, 2 , position)
-        sns.scatterplot(x=col, y=df[target], hue=df[hue], data=df_num, palette=palette);
+        sns.scatterplot(x=col, y=df[target], hue=df[hue], 
+                        data=df_num, palette=palette);
 
 
-def plot_num_corrBox(df, target, figsize=(16, 16), color='rebeccapurple'):
-    """Display boxplots to show correlations between all numerical variables and target classes value in DataFrame.
-    Params
-    ======
-        df: DataFrame
-        target: Column name of target variable in string format (variable has to be in numerical format)
-        figsize: default is (16, 16)
-        color: default is 'rebeccapurple'
+def plot_num_corrBox(df, target, figsize=(16, 16), color=color):
+    """Display boxplots to show correlations between all numerical variables 
+    and target classes value in DataFrame.
+
+    Arguments:
+    ----------
+    - df: DataFrame
+    - target: str, column label of numerical target variable
+    - figsize: tuple (default=(16, 16))
+    - color: str (default='rebeccapurple')
+
+    Returns:
+    --------
+    - None. Displays plot.
     """
+
     df_num = df.select_dtypes(include = ['float64', 'int64'])
     position=0
     plt.figure(figsize=figsize)
@@ -141,25 +187,32 @@ def plot_num_corrBox(df, target, figsize=(16, 16), color='rebeccapurple'):
     for col in df_num.columns:
         position +=1
         plt.subplot((df_num.shape[1]/2)+1,2,position)
-        sns.boxplot(x=df[target].astype('category'), y=col, data=df_num, color=color);
+        sns.boxplot(x=df[target].astype('category'), y=col, 
+                    data=df_num, color=color);
 
 
-def plot_num_corrLine(df, target, figsize=(16, 16), ylim=[0,1], color='rebeccapurple'):
-    """Display lineplots to show correlation details between all numerical variables and target classes in DataFrame.
-    Params
-    ======
-        df: DataFrame
-        target: Column name of target variable in string format (variable has to be in numerical format)
-        figsize: default is (16, 16)
-        ylim: scale of y-axis, default is [0,1]
-        color: default is 'rebeccapurple'
+def plot_num_corrLine(df, target, figsize=(16, 16), ylim=[0, 1], color=color):
+    """Display lineplots to show correlation details between all numerical 
+    variables and target classes in DataFrame.
+
+    Arguments:
+    ----------
+    - df: DataFrame
+    - target: str, column label of numerical target variable
+    - figsize: tuple (default=(16, 16))
+    - ylim: list of two int, limits for y-axis (default=[0, 1])
+    - color: str (default='rebeccapurple')
+
+    Returns:
+    --------
+    - None. Displays plot.
     """
+
     df_num = df.select_dtypes(include = ['float64', 'int64'])
     position=0
     plt.figure(figsize=figsize)
 #     plt.tight_layout(w_pad=1)
     for col in tqdm(df_num.columns):
-        # df_plot = df[[col, target]].groupby(col, as_index=False).mean().sort_values(by=target, ascending=False)
         position +=1
         plt.subplot(round(df_num.shape[1]/2)+1,2,position)
         plt.ylim(ylim)
@@ -167,24 +220,31 @@ def plot_num_corrLine(df, target, figsize=(16, 16), ylim=[0,1], color='rebeccapu
         sns.lineplot(x=col, y=target, data=df_num, color=color);
 
 
-def plot_cat_corrPoint(df, target, figsize=(16, 16), ylim=[0,1], color='rebeccapurple', cmap='viridis'):
-    """Display pointplots (and corresponding piecharts) to show correlations between all categorical columns 
-    and target classes in DataFrame.
-    Params
-    ======
-        df: DataFrame
-        target: Column name of target variable in string format (variable has to be in numerical format)
-        figsize: default is (16, 16)
-        ylim: scale of y-axis, default is [0,1]
-        color: default is 'rebeccapurple'
-        cmap: default is 'viridis'
+def plot_cat_corrPoint(df, target, figsize=(16, 16), ylim=[0,1], color=color, cmap='viridis'):
+    """Display pointplots (and corresponding piecharts) to show correlations 
+    between all categorical columns and target classes in DataFrame.
+
+    Arguments:
+    ----------
+    - df: DataFrame
+    - target: str, column label of numerical target variable
+    - figsize: tuple (default=(16, 16))
+    - ylim: list of two int, limits for y-axis (default=[0, 1])
+    - color: str (default='rebeccapurple')
+    - cmap: default is 'viridis'
+
+    Returns:
+    --------
+    - None. Displays plot.
     """
+
     df_cat = df.select_dtypes(include = ['category'])
     position=0
     plt.figure(figsize=figsize)
 #     plt.tight_layout(w_pad=1)
     for col in df_cat.columns:
-        df_plot = df[[col, target]].groupby(col, as_index=False).mean().sort_values(by=target, ascending=False)
+        df_plot = df[[col, target]].groupby(col, as_index=False).mean() \
+                .sort_values(by=target, ascending=False)
         position +=1
         plt.subplot(df_cat.shape[1],2,position)
         plt.ylim(ylim)
