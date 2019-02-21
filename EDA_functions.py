@@ -53,7 +53,7 @@ def plot_num_hist(df, figsize=(16, 16), bins=50, color=color, kde=True):
 #     plt.tight_layout(w_pad=1)
     for col in df_num.columns:
         pos +=1
-        plt.subplot((df_num.shape[1]/4)+1,4,pos)
+        plt.subplot(np.rint((df_num.shape[1] / 4) + 0.1), 4, position)
         sns.distplot(df_num[col], bins= bins, color=color, kde=kde);
 
 
@@ -77,7 +77,7 @@ def plot_num_box(df, figsize=(16, 16), color=color):
 #     plt.tight_layout(w_pad=1)
     for col in df_num.columns:
         pos +=1
-        plt.subplot((df_num.shape[1]/4)+1,4,pos)
+        plt.subplot(np.rint((df_num.shape[1] / 4) + 0.1), 4, position)
         sns.boxplot(y=col, data=df_num, color=color);
 
 
@@ -104,7 +104,7 @@ def plot_cat_pies(df, figsize=(16, 16), cmap='viridis'):
     for col in df_cat.columns:
         if df[col].nunique() <= 30:
             position +=1
-            plt.subplot(round(df_cat.shape[1] / 4 ) + 1, 4, position)
+            plt.subplot(np.rint((df_num.shape[1] / 4) + 0.1), 4, position)
             df[col].value_counts().plot(kind='pie', cmap = cmap)
         else: catWithManyValues.append(df[col].name)
     if len(catWithManyValues) > 0:
@@ -159,7 +159,7 @@ def plot_corr_num_scatter(df, target, hue=False, figsize=(16, 16), palette='rock
 #     plt.tight_layout(w_pad=1)
     for col in df_num.columns:
         position +=1
-        plt.subplot((df_num.shape[1] / 2) + 1, 2 , position)
+        plt.subplot(np.rint((df_num.shape[1] / 2) + 0.1), 2, position)
         sns.scatterplot(x=col, y=df[target], hue=df[hue], 
                         data=df_num, palette=palette);
 
@@ -186,7 +186,7 @@ def plot_num_corrBox(df, target, figsize=(16, 16), color=color):
 #     plt.tight_layout(w_pad=1)
     for col in df_num.columns:
         position +=1
-        plt.subplot((df_num.shape[1]/2)+1,2,position)
+        plt.subplot(np.rint((df_num.shape[1] / 2) + 0.1), 2, position)
         sns.boxplot(x=df[target].astype('category'), y=col, 
                     data=df_num, color=color);
 
@@ -214,7 +214,7 @@ def plot_num_corrLine(df, target, figsize=(16, 16), ylim=[0, 1], color=color):
 #     plt.tight_layout(w_pad=1)
     for col in tqdm(df_num.columns):
         position +=1
-        plt.subplot(round(df_num.shape[1]/2)+1,2,position)
+        plt.subplot(np.rint((df_num.shape[1] / 2) + 0.1), 2, position)
         plt.ylim(ylim)
         plt.xlabel(df[col].name)
         sns.lineplot(x=col, y=target, data=df_num, color=color);
@@ -246,12 +246,12 @@ def plot_cat_corrPoint(df, target, figsize=(16, 16), ylim=[0,1], color=color, cm
         df_plot = df[[col, target]].groupby(col, as_index=False).mean() \
                 .sort_values(by=target, ascending=False)
         position +=1
-        plt.subplot(df_cat.shape[1],2,position)
+        plt.subplot(df_cat.shape[1], 2, position)
         plt.ylim(ylim)
         sns.pointplot(x=col, y=target, data=df_plot,color=color)
         if df[col].nunique() <= 30:
             position +=1
-            plt.subplot(df_cat.shape[1],2,position)
+            plt.subplot(df_cat.shape[1], 2, position)
             df[col].value_counts().plot(kind='pie', cmap = cmap)
         else: position +=1;
 
