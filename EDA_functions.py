@@ -2,6 +2,9 @@
 LIST OF FUNCTIONS
 -----------------
 
+- display_tail_transposed: Display transposed tail of DataFrame with all the 
+features (orig cols) as rows and values for 5 instances (orig rows) as cols.
+
 Distributions:
 - plot_num_hist: Display histograms for all numerical columns in DataFrame.
 - plot_num_box: Display boxplots for all numerical columns in DataFrame.
@@ -27,6 +30,28 @@ import seaborn as sns
 sns.set_style('whitegrid')
 color = 'rebeccapurple'
 from tqdm import tqdm
+
+
+def display_tail_transposed(df, max_row=200, max_col=200):
+    """Display transposed tail of DataFrame with all the features (original 
+    columns) as rows and values for 5 instances (original rows) as columns.
+
+    Arguments:
+    ----------
+    - df: DataFrame
+    - max_row: int, max number of rows to display (default=200)
+    - max_col: int, max number of columns to display (default=200)
+
+    Returns:
+    --------
+    - None. Prints shape and displays transposed tail of DataFrame.
+
+    """
+
+    with pd.option_context("display.max_rows", max_row): 
+        with pd.option_context("display.max_columns", max_col): 
+            print(df.shape)
+            display(df.tail().transpose())
 
 
 # DISTRIBUTIONS

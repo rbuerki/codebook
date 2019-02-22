@@ -38,6 +38,10 @@ _(The different transformations are demonstrated in nb-4 of the starbucks challe
 
 ### EDA_functions.py - List of functions
 
+*General*
+- `display_tail_transposed`: Display transposed tail of DataFrame with all the 
+  features as rows and values for 5 instances as columns.
+
 *Distributions:*
 - `plot_num_hist`: Display histograms for all numerical columns in DataFrame.
 - `plot_num_box`: Display boxplots for all numerical columns in DataFrame.
