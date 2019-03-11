@@ -79,7 +79,7 @@ def plot_num_hist(df, figsize=(16, 16), bins=50, color=color, kde=True):
 #     plt.tight_layout(w_pad=1)
     for col in df_num.columns:
         pos +=1
-        plt.subplot(np.rint((df_num.shape[1] / 4) + 0.1), 4, position)
+        plt.subplot(np.rint((df_num.shape[1] / 4) + 0.1), 4, pos)
         sns.distplot(df_num[col], bins= bins, color=color, kde=kde);
 
 
@@ -103,7 +103,7 @@ def plot_num_box(df, figsize=(16, 16), color=color):
 #     plt.tight_layout(w_pad=1)
     for col in df_num.columns:
         pos +=1
-        plt.subplot(np.rint((df_num.shape[1] / 4) + 0.1), 4, position)
+        plt.subplot(np.rint((df_num.shape[1] / 4) + 0.1), 4, pos)
         sns.boxplot(y=col, data=df_num, color=color);
 
 
@@ -123,14 +123,14 @@ def plot_cat_pies(df, figsize=(16, 16), cmap='viridis'):
     """
 
     df_cat = df.select_dtypes(include = 'category')
-    position=0
+    pos=0
     catWithManyValues = []
     plt.figure(figsize=figsize)
 #     plt.tight_layout(w_pad=1)
     for col in df_cat.columns:
         if df[col].nunique() <= 30:
-            position +=1
-            plt.subplot(np.rint((df_num.shape[1] / 4) + 0.1), 4, position)
+            pos +=1
+            plt.subplot(np.rint((df_num.shape[1] / 4) + 0.1), 4, pos)
             df[col].value_counts().plot(kind='pie', cmap = cmap)
         else: catWithManyValues.append(df[col].name)
     if len(catWithManyValues) > 0:
@@ -180,12 +180,12 @@ def plot_corr_num_scatter(df, target, hue=False, figsize=(16, 16), palette='rock
 
     df_num = df.select_dtypes(include = ['float64', 'int64']
             ).drop(target, axis=1)
-    position=0
+    pos=0
     plt.figure(figsize=figsize)
 #     plt.tight_layout(w_pad=1)
     for col in df_num.columns:
-        position +=1
-        plt.subplot(np.rint((df_num.shape[1] / 2) + 0.1), 2, position)
+        pos +=1
+        plt.subplot(np.rint((df_num.shape[1] / 2) + 0.1), 2, pos)
         sns.scatterplot(x=col, y=df[target], hue=df[hue], 
                         data=df_num, palette=palette);
 
@@ -207,12 +207,12 @@ def plot_num_corrBox(df, target, figsize=(16, 16), color=color):
     """
 
     df_num = df.select_dtypes(include = ['float64', 'int64'])
-    position=0
+    pos=0
     plt.figure(figsize=figsize)
 #     plt.tight_layout(w_pad=1)
     for col in df_num.columns:
-        position +=1
-        plt.subplot(np.rint((df_num.shape[1] / 2) + 0.1), 2, position)
+        pos +=1
+        plt.subplot(np.rint((df_num.shape[1] / 2) + 0.1), 2, pos)
         sns.boxplot(x=df[target].astype('category'), y=col, 
                     data=df_num, color=color);
 
@@ -235,12 +235,12 @@ def plot_num_corrLine(df, target, figsize=(16, 16), ylim=[0, 1], color=color):
     """
 
     df_num = df.select_dtypes(include = ['float64', 'int64'])
-    position=0
+    pos=0
     plt.figure(figsize=figsize)
 #     plt.tight_layout(w_pad=1)
     for col in tqdm(df_num.columns):
-        position +=1
-        plt.subplot(np.rint((df_num.shape[1] / 2) + 0.1), 2, position)
+        pos +=1
+        plt.subplot(np.rint((df_num.shape[1] / 2) + 0.1), 2, pos)
         plt.ylim(ylim)
         plt.xlabel(df[col].name)
         sns.lineplot(x=col, y=target, data=df_num, color=color);
@@ -265,21 +265,21 @@ def plot_cat_corrPoint(df, target, figsize=(16, 16), ylim=[0,1], color=color, cm
     """
 
     df_cat = df.select_dtypes(include = ['category'])
-    position=0
+    pos=0
     plt.figure(figsize=figsize)
 #     plt.tight_layout(w_pad=1)
     for col in df_cat.columns:
         df_plot = df[[col, target]].groupby(col, as_index=False).mean() \
                 .sort_values(by=target, ascending=False)
-        position +=1
-        plt.subplot(df_cat.shape[1], 2, position)
+        pos +=1
+        plt.subplot(df_cat.shape[1], 2, pos)
         plt.ylim(ylim)
         sns.pointplot(x=col, y=target, data=df_plot,color=color)
         if df[col].nunique() <= 30:
-            position +=1
-            plt.subplot(df_cat.shape[1], 2, position)
+            pos +=1
+            plt.subplot(df_cat.shape[1], 2, pos)
             df[col].value_counts().plot(kind='pie', cmap = cmap)
-        else: position +=1;
+        else: pos +=1;
 
 
 # corr PairPlot numCols to numTarget - see here: https://www.kaggle.com/ekami66/detailed-exploratory-data-analysis-with-python
