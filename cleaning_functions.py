@@ -97,8 +97,9 @@ def count_dtypes(df):
     assert counter == df.shape[1], "obviously some exoctic datatype was missed"  
     
 
-def change_dtypes(df, cols_to_category=[], cols_to_object=[], cols_to_integer=[], 
-                  cols_to_float=[], cols_to_datetime=[], datetime_pattern="%Y/%m/%d"):
+def change_dtypes(df, cols_to_category=[], cols_to_object=[], 
+                  cols_to_integer=[], cols_to_float=[], cols_to_datetime=[], 
+                  datetime_pattern="%Y/%m/%d"):
     """Transform datatyes of selected columns in a dataframe.
     Return transformed DataFrame.
     
@@ -197,13 +198,15 @@ def list_NaN(df):
     --------
     - None, print list
     """
-
-    print("Number of NaN per column:")
-    for col in df:
-        nan_count = df[col].isnull().sum()
-        if nan_count > 0:
-            print("{}: {} ({:.2f}%)".format(
-                df[col].name, nan_count, nan_count/len(df)))
+    if df.isnull().sum().sum() > 0:
+        print("List of missing values per column:")
+        for col in df:
+            nan_count = df[col].isnull().sum()
+            if nan_count > 0:
+                print("{}: {} ({:.2f}%)".format(
+                    df[col].name, nan_count, (nan_count/len(df) * 100)))
+    else:
+        print("No empty cells in DataFrame.")
             
 
 def handle_NaN(df, cols_to_impute_num=None, cols_to_impute_cat=None, 
