@@ -20,6 +20,8 @@ Correlations:
   variables and target classes value in DataFrame.
 - plot_num_corrLine: Display lineplots to show correlation details between all 
   numerical variables and target classes in DataFrame.
+- plot_cat_corrStrip: Display stripplots to show correlations between the 
+  categorical features and a numeric target variable in the DataFrame.
 - plot_cat_corrPoint: Display pointplots (and corresponding piecharts) to show 
   correlations between all categorical columns and target classes in DataFrame.
 """
@@ -129,7 +131,7 @@ def plot_cat_pies(df, figsize=(16, 16), cmap='viridis'):
     for col in df_cat.columns:
         if df[col].nunique() <= 30:
             pos +=1
-            plt.subplot(np.ceil(df_num.shape[1] / 4), 4, pos)
+            plt.subplot(np.ceil(df_cat.shape[1] / 4), 4, pos)
             plt.tight_layout(w_pad=1)            
             df[col].value_counts().plot(kind='pie', cmap = cmap)
         else: catWithManyValues.append(df[col].name)
@@ -246,6 +248,33 @@ def plot_num_corrLine(df, target, figsize=(16, 16), ylim=[0, 1], color=color):
         sns.lineplot(x=col, y=target, data=df_num, color=color);
 
 
+def plot_cat_corrStrip(df, target, figsize=(16, 16), palette='rocket'):
+    """Display stripplots to show correlations between the categorical features
+    and a numeric target variable in the DataFrame.
+
+    Arguments:
+    ----------
+    - df: DataFrame
+    - target: str, column label of numerical target variable
+    - figsize: tuple (default=(16, 16))
+    - palette: str (default='rocket')
+
+    Returns:
+    --------
+    - None. Displays plot.
+    """
+
+    df_cat = df.select_dtypes(include = ['category'])
+    pos=0
+    plt.figure(figsize=figsize)
+    for col in df_cat.columns:
+        df_plot = df[[col, target]]
+        pos +=1
+        plt.subplot(np.ceil(df_cat.shape[1] / 2), 2, pos)
+        plt.tight_layout(w_pad=1)
+        sns.stripplot(x=col, y=target, data=df_plot, palette=palette);
+
+
 def plot_cat_corrPoint(df, target, figsize=(16, 16), ylim=[0,1], color=color, cmap='viridis'):
     """Display pointplots (and corresponding piecharts) to show correlations 
     between all categorical columns and target classes in DataFrame.
@@ -272,7 +301,7 @@ def plot_cat_corrPoint(df, target, figsize=(16, 16), ylim=[0,1], color=color, cm
                 .sort_values(by=target, ascending=False)
         pos +=1
         plt.subplot(df_cat.shape[1], 2, pos)
-        plt.tight_layout(w_pad=1)
+                plt.tight_layout(w_pad=1)
         plt.ylim(ylim)
         sns.pointplot(x=col, y=target, data=df_plot,color=color)
         if df[col].nunique() <= 30:
@@ -280,6 +309,7 @@ def plot_cat_corrPoint(df, target, figsize=(16, 16), ylim=[0,1], color=color, cm
             plt.subplot(df_cat.shape[1], 2, pos)
             df[col].value_counts().plot(kind='pie', cmap = cmap)
         else: pos +=1;
+
 
 
 # corr PairPlot numCols to numTarget - see here: https://www.kaggle.com/ekami66/detailed-exploratory-data-analysis-with-python
