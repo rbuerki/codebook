@@ -12,7 +12,8 @@ Small collections of functions and classes written for reusability in my project
 
 *Missing Values:*
 - `plot_NaN`: Plot heatmap with all NaN in DataFrame.
-- `list_NaN`: List columns with missing values and respective count of NaN.
+- `list_NaN`: Display DataFrame with missing values and their respective 
+  percentage for every column that contains missing values
 - `handle_NaN`: Apply different strategies for NaN handling in selected
   columns (simplistic approach).
 

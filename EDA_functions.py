@@ -183,6 +183,8 @@ def plot_corr_bar_num_target(df, target, figsize=(16, 6),
     """
     
     df_num = df.select_dtypes(include = ['int64', 'float64'])
+
+    plt.figure(figsize=figsize)
     corr_target_series = df_num.corr()[target].sort_values(ascending=False)
     corr_target_series.drop(target).plot.bar(color=color)
     plt.show();
@@ -275,7 +277,7 @@ def plot_corr_line_num_target(df, target, figsize=(16, 16), ylim=[0, 1],
         sns.lineplot(x=col, y=target, data=df_num, color=color);
 
 
-def plot_corr_strip_cat_target(df, target, figsize=(16, 16), palette='rocket'):
+def plot_corr_strip_cat_target(df, target, figsize=(16, 32), palette='rocket'):
     """Display stripplots to show correlations between 
     the categorical features and numerical target variable.
 

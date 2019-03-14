@@ -10,7 +10,8 @@ Columns:
 
 Missing Values:
 - plot_NaN: Plot heatmap with all NaN in DataFrame.
-- list_NaN: List columns with missing values and respective count of NaN.
+- list_NaN: Display DataFrame with missing values and their respective 
+  percentage for every column that contains missing values
 - handle_NaN: Apply different strategies for NaN handling in selected
   columns (simplistic approach).
 
@@ -188,7 +189,8 @@ def plot_NaN(df, figsize=(18, 6), cmap='viridis'):
 
 
 def list_NaN(df):
-    """Print  columns with missing values and their respective number of NaN.
+    """Display DataFrame with missing values and their respective percentage
+    for every column that contains missing values.
 
     Arguments:
     ----------
@@ -196,15 +198,15 @@ def list_NaN(df):
 
     Returns:
     --------
-    - None, print list
+    - None, display DataFrame
     """
     if df.isnull().sum().sum() > 0:
-        print("List of missing values per column:")
-        for col in df:
-            nan_count = df[col].isnull().sum()
-            if nan_count > 0:
-                print("{}: {} ({:.2f}%)".format(
-                    df[col].name, nan_count, (nan_count/len(df) * 100)))
+        total = df.isnull().sum()
+        percent = round(df.isnull().sum() / len(df) * 100, 1)
+        missing_data = pd.concat([total, percent], axis=1, keys=['total', 'percent'])
+        missing_data = missing_data.loc[missing_data['total'] != 0 \
+                ].sort_values(['total'], ascending=False)
+        display(missing_data)
     else:
         print("No empty cells in DataFrame.")
             
