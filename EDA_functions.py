@@ -183,7 +183,7 @@ def plot_corr_bar_num_target(df, target, figsize=(16, 16),
     """
     
     df_num = df.select_dtypes(include = ['int64', 'float64'])
-        corr_target_series = df_num.corr()[target].sort_values(ascending=False)
+    corr_target_series = df_num.corr()[target].sort_values(ascending=False)
     corr_target_series.drop(target).plot.bar(color=color)
     plt.show();
 
