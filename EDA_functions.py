@@ -329,7 +329,7 @@ def plot_corr_point_cat_target(df, target, figsize=(16, 16), ylim=[0,1],
                 .sort_values(by=target, ascending=False)
         pos +=1
         plt.subplot(df_cat.shape[1], 2, pos)
-                plt.tight_layout(w_pad=1)
+        plt.tight_layout(w_pad=1)
         plt.ylim(ylim)
         sns.pointplot(x=col, y=target, data=df_plot,color=color)
         if df[col].nunique() <= 30:
