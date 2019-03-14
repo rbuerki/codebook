@@ -203,7 +203,10 @@ def list_NaN(df):
     if df.isnull().sum().sum() > 0:
         total = df.isnull().sum()
         percent = round(df.isnull().sum() / len(df) * 100, 1)
-        missing_data = pd.concat([total, percent], axis=1, keys=['total', 'percent'])
+        dtypes = df.dtypes
+        
+        missing_data = pd.concat([total, percent, dtypes], axis=1, 
+                                 keys=['total', 'percent', 'dtype'])
         missing_data = missing_data.loc[missing_data['total'] != 0 \
                 ].sort_values(['total'], ascending=False)
         display(missing_data)
