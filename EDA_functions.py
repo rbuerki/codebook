@@ -165,7 +165,7 @@ def plot_corr_map_num_all(df, figsize=(16, 16), cmap='magma'):
                 linewidth=1, annot=True);
 
 
-def plot_corr_bar_num_target(df, target, figsize=(16, 16), 
+def plot_corr_bar_num_target(df, target, figsize=(16, 6), 
                              color='rebeccapurple'):
     """Display sorted barchart to show correlations between 
     all numerical features and numerical target variable.
