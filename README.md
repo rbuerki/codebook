@@ -50,17 +50,19 @@ _(The different transformations are demonstrated in nb-4 of the starbucks challe
 
 *Correlations:* 
 - `plot_num_corrMap`: Display heatmap to show correlations between all numerical 
-  columns in DataFrame.    
-- `plot_corr_num_scatter`: Display scatterplots to visualize correlations between 
-  all numerical features and a numeric target variable.
-- `plot_num_corrBox`: Display boxplots to show correlations between all numerical 
-  variables and target classes.
-- `plot_num_corrLine`: Display lineplots to show correlation details between all 
-  numerical variables and target classes.
-- `plot_cat_corrStrip`: Display stripplots to show correlations between all the 
-  categorical columns and a continuous numeric target variable in the DataFrame.
-- `plot_cat_corrPoint`: Display pointplots (and corresponding piecharts) to show 
-  correlations between all the categorical columns and target classes.
+  columns in the Dataframe.    
+- `plot_corr_bar_num_target`: Display sorted barchart to show correlations between 
+  all numerical features and numerical target variable.
+- `plot_corr_scatter_num_target`: Display scatterplots to visualize correlations 
+  between all numerical features and numerical target variable.
+- `plot_corr_box_num_target`: Display boxplots to show correlations between all 
+  numerical features and target classes.
+- `plot_corr_line_num_target`: Display lineplots to show correlation details 
+  between all numerical features and target classes.
+- `plot_corr_strip_cat_target`: Display stripplots to show correlations between 
+  the categorical features and numerical target variable.
+- `plot_corr_point_cat_target`: Display pointplots (and corresponding piecharts) 
+  to show correlations between all categorical columns and target classes.
 
 
 ### custom_transformers.py - List of classes

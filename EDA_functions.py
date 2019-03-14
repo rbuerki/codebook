@@ -13,17 +13,19 @@ Distributions:
 
 Correlations: 
 - plot_num_corrMap: Display heatmap to show correlations between all numerical 
-  columns in DataFrame.    
-- plot_corr_num_scatter: Display scatterplots to visualize correlations between 
-  all numerical features and target variable.
-- plot_num_corrBox: Display boxplots to show correlations between all numerical 
-  variables and target classes value in DataFrame.
-- plot_num_corrLine: Display lineplots to show correlation details between all 
-  numerical variables and target classes in DataFrame.
-- plot_cat_corrStrip: Display stripplots to show correlations between the 
-  categorical features and a numeric target variable in the DataFrame.
-- plot_cat_corrPoint: Display pointplots (and corresponding piecharts) to show 
-  correlations between all categorical columns and target classes in DataFrame.
+  columns in the Dataframe.    
+- plot_corr_bar_num_target: Display sorted barchart to show correlations between 
+  all numerical features and numerical target variable.
+- plot_corr_scatter_num_target: Display scatterplots to visualize correlations 
+  between all numerical features and numerical target variable.
+- plot_corr_box_num_target: Display boxplots to show correlations between all 
+  numerical features and target classes.
+- plot_corr_line_num_target: Display lineplots to show correlation details 
+  between all numerical features and target classes.
+- plot_corr_strip_cat_target: Display stripplots to show correlations between 
+  the categorical features and numerical target variable.
+- plot_corr_point_cat_target: Display pointplots (and corresponding piecharts) 
+  to show correlations between all categorical columns and target classes.
 """
 
 import numpy as np
@@ -142,15 +144,15 @@ def plot_cat_pies(df, figsize=(16, 16), cmap='viridis'):
 
 # CORRELATIONS
     
-def plot_num_corrMap(df, figsize=(16, 16), cmap='magma'):
-    """Displays heatmap to show correlations between all numerical columns 
-    in DataFrame.
+def plot_corr_map_num_all(df, figsize=(16, 16), cmap='magma'):
+    """Display heatmap to show correlations between all numerical 
+    columns in the Dataframe. 
 
     Arguments:
     ----------
     - df: DataFrame
     - figsize: tuple (default=(16, 16))
-    - cmap: default is 'magma'
+    - cmap: str, (default='magma')
 
     Returns:
     --------
@@ -163,9 +165,33 @@ def plot_num_corrMap(df, figsize=(16, 16), cmap='magma'):
                 linewidth=1, annot=True);
 
 
-def plot_corr_num_scatter(df, target, hue=False, figsize=(16, 16), palette='rocket'):
-    """Show Scatterplots to visualize correlations between all numerical 
-    features and target variable.
+def plot_corr_bar_num_target(df, target, figsize=(16, 16), 
+                             color='rebeccapurple'):
+    """Display sorted barchart to show correlations between 
+    all numerical features and numerical target variable.
+
+    Arguments:
+    ----------
+    - df: DataFrame
+    - target: str, column label of numerical target variable
+    - figsize: tuple (default=(16, 6))
+    - color: str (default='rebeccapurple')
+
+    Returns:
+    --------
+    - None. Displays plot.
+    """
+    
+    df_num = df.select_dtypes(include = ['int64', 'float64'])
+        corr_target_series = df_num.corr()[target].sort_values(ascending=False)
+    corr_target_series.drop(target).plot.bar(color=color)
+    plt.show();
+
+
+def plot_corr_scatter_num_target(df, target, hue=False, figsize=(16, 16), 
+                                 palette='rocket'):
+    """Display scatterplots to visualize correlations 
+    between all numerical features and numerical target variable.
     
     Arguments:
     ----------
@@ -181,7 +207,7 @@ def plot_corr_num_scatter(df, target, hue=False, figsize=(16, 16), palette='rock
     """
 
     df_num = df.select_dtypes(include = ['float64', 'int64']
-            ).drop(target, axis=1)
+                              ).drop(target, axis=1)
     pos=0
     plt.figure(figsize=figsize)
     for col in df_num.columns:
@@ -192,9 +218,9 @@ def plot_corr_num_scatter(df, target, hue=False, figsize=(16, 16), palette='rock
                         data=df_num, palette=palette);
 
 
-def plot_num_corrBox(df, target, figsize=(16, 16), color=color):
-    """Display boxplots to show correlations between all numerical variables 
-    and target classes value in DataFrame.
+def plot_corr_box_num_target(df, target, figsize=(16, 16), color=color):
+    """Display lineplots to show correlation details 
+    between all numerical features and target classes.
 
     Arguments:
     ----------
@@ -219,9 +245,10 @@ def plot_num_corrBox(df, target, figsize=(16, 16), color=color):
                     data=df_num, color=color);
 
 
-def plot_num_corrLine(df, target, figsize=(16, 16), ylim=[0, 1], color=color):
-    """Display lineplots to show correlation details between all numerical 
-    variables and target classes in DataFrame.
+def plot_corr_line_num_target(df, target, figsize=(16, 16), ylim=[0, 1], 
+                              color=color):
+    """Display lineplots to show correlation details 
+    between all numerical features and target classes.
 
     Arguments:
     ----------
@@ -248,9 +275,9 @@ def plot_num_corrLine(df, target, figsize=(16, 16), ylim=[0, 1], color=color):
         sns.lineplot(x=col, y=target, data=df_num, color=color);
 
 
-def plot_cat_corrStrip(df, target, figsize=(16, 16), palette='rocket'):
-    """Display stripplots to show correlations between the categorical features
-    and a numeric target variable in the DataFrame.
+def plot_corr_strip_cat_target(df, target, figsize=(16, 16), palette='rocket'):
+    """Display stripplots to show correlations between 
+    the categorical features and numerical target variable.
 
     Arguments:
     ----------
@@ -275,9 +302,10 @@ def plot_cat_corrStrip(df, target, figsize=(16, 16), palette='rocket'):
         sns.stripplot(x=col, y=target, data=df_plot, palette=palette);
 
 
-def plot_cat_corrPoint(df, target, figsize=(16, 16), ylim=[0,1], color=color, cmap='viridis'):
-    """Display pointplots (and corresponding piecharts) to show correlations 
-    between all categorical columns and target classes in DataFrame.
+def plot_corr_point_cat_target(df, target, figsize=(16, 16), ylim=[0,1], 
+                               color=color, cmap='viridis'):
+    """Display pointplots (and corresponding piecharts) 
+    to show correlations between all categorical columns and target classes.
 
     Arguments:
     ----------
