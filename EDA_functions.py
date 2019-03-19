@@ -190,22 +190,21 @@ def plot_corr_bar_num_target(df, target, figsize=(16, 6),
     plt.show();
 
 
-def plot_corr_scatter_num_target(df, target, hue=False, figsize=(16, 16), 
-                                 palette='rocket'):
-    """Display scatterplots to visualize correlations 
-    between all numerical features and numerical target variable.
+def plot_corr_regression_num_target(df, target, figsize=(16, 16), 
+                                 color=['rebeccapurple', 'yellow']):
+    """Display regplots to visualize correlations between the numerical 
+    features and numerical target variable.
     
     Arguments:
     ----------
     - df: DataFrame
     - target: str, column label of numerical target variable
-    - hue: str, colum label of a categorical variable (default=False)
     - figsize: tuple (default=(16, 16))
-    - palette: str (default='rocket')
+    - color: list of two strings (default=['rebeccapurple', 'yellow'])
 
     Returns:
     --------
-    - None. Displays plot.
+    - None. Displays plots.
     """
 
     df_num = df.select_dtypes(include = ['float64', 'int64']
@@ -216,8 +215,8 @@ def plot_corr_scatter_num_target(df, target, hue=False, figsize=(16, 16),
         pos +=1
         plt.subplot(np.ceil(df_num.shape[1] / 2), 2, pos)
         plt.tight_layout(w_pad=1)
-        sns.scatterplot(x=col, y=df[target], hue=df[hue], 
-                        data=df_num, palette=palette);
+        sns.regplot(x=col, y=df[target], data=df_num, 
+                    color=color[0], line_kws={'color': color[1]});
 
 
 def plot_corr_box_num_target(df, target, figsize=(16, 16), color=color):
