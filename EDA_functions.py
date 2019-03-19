@@ -84,7 +84,7 @@ def plot_num_hist(df, figsize=(16, 16), bins=50, color=color, kde=True):
         pos +=1
         plt.subplot(np.ceil(df_num.shape[1] / 4), 4, pos)
         plt.tight_layout(w_pad=1)
-        sns.distplot(df_num[col], bins= bins, color=color, kde=kde);
+        sns.distplot(df_num[col].dropna(), bins= bins, color=color, kde=kde);
 
 
 def plot_num_box(df, figsize=(16, 16), color=color):
