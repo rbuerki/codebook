@@ -54,8 +54,8 @@ _(The different transformations are demonstrated in nb-4 of the starbucks challe
   columns in the Dataframe.    
 - `plot_corr_bar_num_target`: Display sorted barchart to show correlations between 
   all numerical features and numerical target variable.
-- `plot_corr_scatter_num_target`: Display scatterplots to visualize correlations 
-  between all numerical features and numerical target variable.
+- `plot_corr_regression_num_target`: Display regplots to visualize correlations 
+  between the numerical features and numerical target variable.
 - `plot_corr_box_num_target`: Display boxplots to show correlations between all 
   numerical features and target classes.
 - `plot_corr_line_num_target`: Display lineplots to show correlation details 
