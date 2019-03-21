@@ -304,6 +304,10 @@ def count_outliers_IQR_method(df, outlier_cols=None, IQR_dist = 1.5):
     - df: DataFrame
     - outlier_cols: List with columns to clean, (default=all num columns)
     - IQR_dist: Float for cut-off distance from quartiles, (default=1.5)
+
+    Returns:
+    --------
+    - None, print cols with outliers
     """
 
     outlier_cols = outlier_cols if outlier_cols is not None else \
@@ -316,9 +320,10 @@ def count_outliers_IQR_method(df, outlier_cols=None, IQR_dist = 1.5):
         lower, upper = q25 - cut_off, q75 + cut_off
         # identify outliers
         outliers = [x for x in df[col] if x < lower or x > upper]
-        print(col+'\nIdentified outliers: {}'.format(len(outliers)))
-        print('Percentage of outliers: {:.1f}%\n'.format(
-            (len(outliers)/len(df[col]))*100))
+        if len(outliers) > 0:
+            print(col + '\nIdentified outliers: {}'.format(len(outliers)))
+            print('Percentage of outliers: {:.1f}%\n'.format(
+                  (len(outliers)/len(df[col]))*100))
 
 
 def remove_outliers_IQR_method(df, outlier_cols=None , IQR_dist = 1.5):
