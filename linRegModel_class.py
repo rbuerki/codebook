@@ -200,8 +200,8 @@ class LinRegModel:
         4. Fill the mean of the column for any missing values 
         '''
              
-        assert self._df[self._target_col].dtype == int or \
-            self._df[self._target_col].dtype == float, \
+        assert self._df[self._target_col].dtype == 'int64' or \
+            self._df[self._target_col].dtype == 'float64', \
             'target column must be numerical'
         
         # cleaning rows with NaN in target col
