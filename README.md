@@ -76,7 +76,7 @@ _(The different transformations are demonstrated in nb-4 of the starbucks challe
 - `TypeSelector`: Selects columns from a DataFrame with specified datatype(s) for 
     further parallelized pipeline processing  with _FeatureUnion_. (It is of no 
     use when working with ColumnTransformer.)  
-- `CustomOneHotEncoder`: Can be used within _ColumnTransformer_. Just passes the 
+- `PassthroughTransformer`: Can be used within _ColumnTransformer_. Just passes the 
     data on as it is. Can be used when you want to get the feature names for the 
     transformed dataframe as the built in 'passthrough' argument in sklearn 0.20  
     does not (yet) support get_feature_names(). See [here](https://stackoverflow.com/questions/53382322/adding-get-feature-names-to-columntransformer-pipeline) for background info.
