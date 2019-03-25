@@ -24,7 +24,7 @@ class LinRegModel:
         target_col: target column for linear prediction (as str)
         model: sklearn model object including parameters  
         """
-        self._df = df
+        self._df = df.copy()
         self._target_col = target_col
         self._model = model
     
