@@ -224,7 +224,7 @@ def handle_NaN(df, cols_to_impute_num=None, cols_to_impute_cat=None,
     ----------
     - cols_to_impute_num: list of num columns to impute median, 
         (default=None)
-    - cols_to_impute_cat: list of categorical columns to impute mode 
+    - cols_to_impute_cat: list of categorical columns to impute mode, 
         (default=None)
     - cols_to_drop: list of columns to drop entirely, 
         (default=None)
@@ -334,7 +334,8 @@ def remove_outliers_IQR_method(df, outlier_cols=None , IQR_dist = 1.5):
     Arguments:
     ----------
     - df: DataFrame
-    - outlier_cols: list, names of columns to clean (default=all num columns)
+    - outlier_cols: list, names of columns to clean, (default=None). 
+        If nothing is passed, the whole dataframe will be transformed
     - IQR_dist: float, cut-off distance from quartiles (default=1.5)
 
     Returns:
@@ -354,7 +355,7 @@ def remove_outliers_IQR_method(df, outlier_cols=None , IQR_dist = 1.5):
         df_out.drop(df_out[df_out[col] > distance 
                 + np.nanpercentile(df_out[col], 75)].index, 
                 inplace=True)
-        df.drop(df_out[df_out[col] < np.nanpercentile(df_out[col], 25) 
+        df_out.drop(df_out[df_out[col] < np.nanpercentile(df_out[col], 25) 
                 - distance].index, 
                 inplace=True)
         row_count_2 = len(df_out)

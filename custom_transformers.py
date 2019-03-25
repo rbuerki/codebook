@@ -17,7 +17,7 @@ class ColumnSelector(BaseEstimator, TransformerMixin):
 
     Returns:
     --------
-    - X: DataFrame, sub-selection of X including the defined columns.
+    - X: DataFrame, sub-selection of X including the defined columns
     """
 
     def __init__(self, columns):
@@ -49,7 +49,7 @@ class TypeSelector(BaseEstimator, TransformerMixin):
     Returns:
     --------
     - X: DataFrame, sub-selection of X  including columns with the 
-        selected dtype.
+        selected dtype
     """
 
     def __init__(self, dtype):
@@ -87,3 +87,38 @@ class PassthroughTransformer(BaseEstimator, TransformerMixin):
 
     def get_feature_names(self):
         return self.X.columns.tolist()
+
+
+#   THIS ONE DOES NOT WORK PROPERLY YET (IT ACUTALLY WORKS BUT
+#   SUBSEQUENT TRANSFORMATORS DON'T GET THE DATA IN THE RIGHT SHAPE ...)
+
+# class ColumnDropper(BaseEstimator, TransformerMixin):
+#     """Drops the defined columns from a DataFrame.
+
+#     Arguments:
+#     ----------
+#     - columns: list of strings,  columns to be dropped
+
+#     Returns:
+#     --------
+#     - X: DataFrame,  X minus the dropped columns
+#     """
+
+#     def __init__(self, columns):
+#         self.columns = columns
+
+#     def fit(self, X, y=None):
+#         return self
+
+#     def transform(self, X):
+#         assert isinstance(X, pd.DataFrame), "input must be DataFrame"
+
+#         try:
+#             return X.drop(self.columns, axis=1, inplace=True)
+        
+#         except KeyError:
+#             cols_error = list(set(self.columns) - set(X.columns))
+#             raise KeyError("DataFrame does not include: {}".format(cols_error))
+
+#     def get_feature_names(self):
+#         return self.X.drop(self.columns, axis=1).columns.tolist()
