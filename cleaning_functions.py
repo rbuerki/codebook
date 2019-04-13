@@ -322,7 +322,7 @@ def count_outliers_IQR_method(df, outlier_cols=None, IQR_dist = 1.5):
         outliers = [x for x in df[col] if x < lower or x > upper]
         if len(outliers) > 0:
             print(col + '\nIdentified outliers: {}'.format(len(outliers)))
-            print('Percentage of outliers: {:.1f}%\n'.format(
+            print('Percentage of total: {:.1f}%\n'.format(
                   (len(outliers)/len(df[col]))*100))
 
 
@@ -334,7 +334,7 @@ def remove_outliers_IQR_method(df, outlier_cols=None , IQR_dist = 1.5):
     Arguments:
     ----------
     - df: DataFrame
-    - outlier_cols: list, names of columns to clean, (default=None). 
+    - outlier_cols: list of strings, columns to clean, (default=None). 
         If nothing is passed, the whole dataframe will be transformed
     - IQR_dist: float, cut-off distance from quartiles (default=1.5)
 
@@ -347,23 +347,36 @@ def remove_outliers_IQR_method(df, outlier_cols=None , IQR_dist = 1.5):
     outlier_cols = outlier_cols if outlier_cols is not None else \
             list(df_out.select_dtypes(include = ['float64', 'int64']).columns)
     outer_row_count_1 = len(df_out)
+    rows_to_delete = []
+    
     for col in outlier_cols:
-        print(col)
-        row_count_1 = len(df_out)
-        distance = IQR_dist * (np.nanpercentile(df_out[col], 75) 
-                - np.nanpercentile(df_out[col], 25)) 
-        df_out.drop(df_out[df_out[col] > distance 
-                + np.nanpercentile(df_out[col], 75)].index, 
-                inplace=True)
-        df_out.drop(df_out[df_out[col] < np.nanpercentile(df_out[col], 25) 
-                - distance].index, 
-                inplace=True)
-        row_count_2 = len(df_out)
-        print("Rows removed: {}\n".format(row_count_1 - row_count_2))
+        row_count_1 = len(rows_to_delete)
+        q25 = np.nanpercentile(df_out[col], 25)
+        q75 = np.nanpercentile(df_out[col], 75)
+        iqr = q75 - q25        
+        distance = IQR_dist * iqr
+
+        df_high = df_out.loc[df_out[col] > q75 + distance]
+        for idx in list(df_high.index):
+            rows_to_delete.append(idx)
+        df_low = df_out.loc[df_out[col] < q25 - distance]
+        for idx in list(df_low.index):
+            rows_to_delete.append(idx)
+
+        row_diff = len(rows_to_delete) - row_count_1
+        print()
+        print(col + "\nRows to remove: {}\n".format(row_diff))
+ 
+
+    rows_to_delete = list(set(rows_to_delete))
+    df_out.drop(rows_to_delete, inplace=True, axis=0)
+    
     outer_row_count_2 = len(df_out)
+    assert len(rows_to_delete) == (outer_row_count_1 - outer_row_count_2)
     print("\nRows removed in total: {}\n" \
         .format(outer_row_count_1 - outer_row_count_2))
-
+    print("Percentage of original DataFrame: {:.1f}%".format(
+                  (len(rows_to_delete) / len(outer_row_count_1)) * 100))
     return df_out
 
 
