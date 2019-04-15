@@ -376,7 +376,7 @@ def remove_outliers_IQR_method(df, outlier_cols=None , IQR_dist = 1.5):
     print("\nRows removed in total: {}\n" \
         .format(outer_row_count_1 - outer_row_count_2))
     print("Percentage of original DataFrame: {:.1f}%".format(
-                  (len(rows_to_delete) / len(outer_row_count_1)) * 100))
+                  (len(rows_to_delete) / outer_row_count_1) * 100))
     return df_out
 
 
