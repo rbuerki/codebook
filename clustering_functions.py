@@ -17,7 +17,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns 
 
 
-def plot_pca_results(df, pca):
+def plot_pca_results(df, pca, figsize=(16,8)):
     ''' Create a DataFrame of the PCA results that includes dimension feature 
     weights and explained variance and visusalize the results with a bar chart
 
@@ -46,7 +46,7 @@ def plot_pca_results(df, pca):
     variance_ratios.index = dimensions
 
     # Create bar plot visualization: plot feature weights as function of components
-    fig, ax = plt.subplots(figsize = (16,8))
+    fig, ax = plt.subplots(figsize=figsize)
 
     components.plot(ax = ax, kind = 'bar');
     ax.set_ylabel("Feature Weights")
@@ -81,7 +81,7 @@ def create_biplot(orig_df, reduced_df, pca, facecolors='orange'):
     https://github.com/teddyroland/python-biplot
     '''
 
-    fig, ax = plt.subplots(figsize = (14,8))
+    fig, ax = plt.subplots(figsize=(14,8))
 
     # Scatterplot of the reduced data    
     ax.scatter(x=reduced_df.loc[:, 'Dimension 1'], y=reduced_df.loc[:, 'Dimension 2'], 
@@ -106,7 +106,7 @@ def create_biplot(orig_df, reduced_df, pca, facecolors='orange'):
 
 
 
-    def evaluate_kmeans(df, cluster_range, pca_dim_range=[0]):
+def evaluate_kmeans(df, cluster_range, pca_dim_range=[0]):
     """Plot silhouette scores and WCSS-Inertia ('Elbow') of k-means clustering 
     for the indicated numbers of clusters. It is possible to evaluate different 
     PCA dimensionality reductions. (Default is None.)
