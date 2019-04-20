@@ -182,3 +182,76 @@ def evaluate_kmeans(df, cluster_range, pca_dim_range=[0]):
     plt.xticks(range(cluster_range[0], cluster_range[-1] + 1, 1));
 
 
+
+def visualize_clusters(df, x_col, y_col, cluster_range, figsize=(16, 16), 
+        palette='rocket'):
+    """Visualize clusters on scatterplots for k-means clustering with sklearn.
+    
+    Arguments:
+    ----------
+    - df: DataFrame, containing the presumed clusters
+    - x_col: string, column label for data to plot on x-axis
+    - y_col: string, column label for data to plot on y-axis
+    - cluster_range: list of integers, desired number of clusters
+    - figsize: tuple (default=(16, 16))
+    - palette: string (default='rocket')
+    
+    Returns:
+    --------
+    - None, outputs a series of scatterplots for the desired cluster range.
+    """
+    
+    df = df.copy()
+    position = 0
+    plt.figure(figsize=figsize)
+
+    for n_clusters in cluster_range:
+        kmeans = KMeans(n_clusters=n_clusters)   
+        kmeans.fit(df)
+
+        # Assign the clusters to df
+        df['K_Cluster'] = kmeans.labels_
+        print("\nn_clusters:", n_clusters)
+        print(df['K_Cluster'].value_counts() / len(df))
+        
+        # Plot, note: explicitely set edgecolor=None for better visibility
+        position +=1
+        plt.subplot(np.rint((len(cluster_range)/2) + 0.1), 2 , position)
+        sns.scatterplot(x=x_col, y=y_col, hue='K_Cluster', data=df,
+                        edgecolor=None, palette=palette, legend='full');
+
+
+
+def display_cluster_median_values(df_fit, df_orig, cluster_range):
+    """Display a series of DataFrames for desired cluster range with median 
+    feature values and size for each cluster.
+    
+    Arguments:
+    ----------
+    - df_fit: dataframe, preprocessed data containing the presumed clusters
+    - df_orig: dataframe, original data of which median values will be displayed.
+        Index has to be identical to df_fit
+    - cluster_range: list of integers, desired number of clusters
+    
+    Returns:
+    --------
+    - None, displays a series of DataFrames with median values and size for 
+        different clusters.
+    """
+    
+    df_orig = df_orig.copy()
+    assert list(df_orig.index) == list(df_fit.index), \
+            "indices of df_fit, df_orig differ"
+    
+    for n_clusters in cluster_range:
+        kmeans = KMeans(n_clusters=n_clusters)   
+        kmeans.fit(df_fit)
+
+        # Assign the clusters to df and group
+        df_orig['K_Cluster'] = kmeans.labels_
+        df_display = df_orig.groupby(['K_Cluster']).agg([np.median])
+        df_size = pd.DataFrame(df_orig.groupby(
+                ['K_Cluster']).agg('count').iloc[:,0])
+        df_size.columns = ['k_size']
+        df_display = pd.concat([df_size, df_display], axis=1, sort=True)
+        display(df_display)
