@@ -205,11 +205,11 @@ def list_NaN(df):
         percent = round(df.isnull().sum() / len(df) * 100, 1)
         dtypes = df.dtypes
 
-        missing_data = pd.concat([total, percent, dtypes], axis=1, 
+        missing_data = pd.concat([total, percent, dtypes], axis=1,
                                  keys=['total', 'percent', 'dtype'])
         missing_data = missing_data.loc[missing_data['total'] != 0 \
                 ].sort_values(['total'], ascending=False)
-        print(missing_data)
+        display(missing_data)
     else:
         print("No empty cells in DataFrame.")
 
@@ -224,11 +224,11 @@ def handle_NaN(df, cols_to_impute_num=None, cols_to_impute_cat=None,
     ----------
     - cols_to_impute_num: list of num columns to impute median,
         (default=None)
-    - cols_to_impute_cat: list of categorical columns to impute mode, 
+    - cols_to_impute_cat: list of categorical columns to impute mode,
         (default=None)
-    - cols_to_drop: list of columns to drop entirely, 
+    - cols_to_drop: list of columns to drop entirely,
         (default=None)
-    - drop_all_NaN: bool, if True ALL remaining rows with NaN will be removed, 
+    - drop_all_NaN: bool, if True ALL remaining rows with NaN will be removed,
         (default=False)
 
     Returns:
@@ -236,7 +236,7 @@ def handle_NaN(df, cols_to_impute_num=None, cols_to_impute_cat=None,
     - df_NaN: DataFrame, transformed copy of original DataFrame
     """
     df_NaN = df.copy()
-    if cols_to_impute_num != None:   
+    if cols_to_impute_num is not None:
         for col in cols_to_impute_num:
             if col in df_NaN.columns:
                 print("{} - median value to impute: {}".format(
@@ -244,7 +244,7 @@ def handle_NaN(df, cols_to_impute_num=None, cols_to_impute_cat=None,
                 df_NaN[col] = df_NaN[col].fillna(df_NaN[col].median())
             else:
                 print(col + " not found")
-    if cols_to_impute_cat != None:
+    if cols_to_impute_cat is not None:
         for col in cols_to_impute_cat:
             if col in df_NaN.columns:
                 print("{} - most frequent value to impute: {}".format(
@@ -253,7 +253,7 @@ def handle_NaN(df, cols_to_impute_num=None, cols_to_impute_cat=None,
                     df_NaN[col].value_counts().index[0])
             else:
                 print(col + " not found")
-    if cols_to_drop != None:
+    if cols_to_drop is not None:
         for col in cols_to_drop:
             if col in df_NaN.columns:
                 df_NaN.drop(col, axis=1, inplace=True)
@@ -294,8 +294,8 @@ def list_duplicates(df):
 ### OUTLIERS - Count and Removal
 
 
-def count_outliers_IQR_method(df, outlier_cols=None, IQR_dist = 1.5):
-    """Display outlier count in specified columns depending on distance 
+def count_outliers_IQR_method(df, outlier_cols=None, IQR_dist=1.5):
+    """Display outlier count in specified columns depending on distance
     from 1th / 3rd quartile. NaN are ignored.
 
     Arguments:
@@ -310,7 +310,7 @@ def count_outliers_IQR_method(df, outlier_cols=None, IQR_dist = 1.5):
     """
 
     outlier_cols = outlier_cols if outlier_cols is not None else \
-        list(df.select_dtypes(include = ['float64', 'int64']).columns)
+        list(df.select_dtypes(include=['float64', 'int64']).columns)
     for col in outlier_cols:
         q25, q75 = np.nanpercentile(df[col], 25), np.nanpercentile(df[col], 75)
         iqr = q75 - q25
@@ -325,15 +325,15 @@ def count_outliers_IQR_method(df, outlier_cols=None, IQR_dist = 1.5):
                   (len(outliers)/len(df[col]))*100))
 
 
-def remove_outliers_IQR_method(df, outlier_cols=None , IQR_dist = 1.5):
-    """Remove outliers in specified columns depending on distance from 
-    1th / 3rd quartile. NaN are ignored. Returns a transformed copy of the 
+def remove_outliers_IQR_method(df, outlier_cols=None, IQR_dist=1.5):
+    """Remove outliers in specified columns depending on distance from
+    1th / 3rd quartile. NaN are ignored. Returns a transformed copy of the
     original DataFrame.
-    
+
     Arguments:
     ----------
     - df: DataFrame
-    - outlier_cols: list of strings, columns to clean, (default=None). 
+    - outlier_cols: list of strings, columns to clean, (default=None).
         If nothing is passed, the whole dataframe will be transformed
     - IQR_dist: float, cut-off distance from quartiles (default=1.5)
 
@@ -347,12 +347,12 @@ def remove_outliers_IQR_method(df, outlier_cols=None , IQR_dist = 1.5):
             list(df_out.select_dtypes(include = ['float64', 'int64']).columns)
     outer_row_count_1 = len(df_out)
     rows_to_delete = []
-    
+
     for col in outlier_cols:
         row_count_1 = len(rows_to_delete)
         q25 = np.nanpercentile(df_out[col], 25)
         q75 = np.nanpercentile(df_out[col], 75)
-        iqr = q75 - q25        
+        iqr = q75 - q25
         distance = IQR_dist * iqr
 
         df_high = df_out.loc[df_out[col] > q75 + distance]
@@ -365,11 +365,10 @@ def remove_outliers_IQR_method(df, outlier_cols=None , IQR_dist = 1.5):
         row_diff = len(rows_to_delete) - row_count_1
         print()
         print(col + "\nRows to remove: {}\n".format(row_diff))
- 
 
     rows_to_delete = list(set(rows_to_delete))
     df_out.drop(rows_to_delete, inplace=True, axis=0)
-    
+
     outer_row_count_2 = len(df_out)
     assert len(rows_to_delete) == (outer_row_count_1 - outer_row_count_2)
     print("\nRows removed in total: {}" \
@@ -382,14 +381,14 @@ def remove_outliers_IQR_method(df, outlier_cols=None , IQR_dist = 1.5):
 ### TRANSFORMATION
 
 def apply_log(df, cols_to_transform=None, treat_NaN=False, rename=False):
-    """Transform values of selected columns to natural log. NaN are not 
-    affected by default, parameter can be changed. Returns a transformed 
+    """Transform values of selected columns to natural log. NaN are not
+    affected by default, parameter can be changed. Returns a transformed
     DataFrame, column names have "_log" appended if parameter is set.
 
     Arguments:
     ----------
     - df: DataFrame
-    - cols_to_transform: list of columns that will have jy-transformation 
+    - cols_to_transform: list of columns that will have jy-transformation
         applied, (default is all numerical columns)
     - treat_NaN: bool, set NaN to small negative value, (default=False)
     - rename: bool, rename column with appendix, (default=False)
@@ -401,32 +400,32 @@ def apply_log(df, cols_to_transform=None, treat_NaN=False, rename=False):
 
     df_log = df.copy()
     cols_to_transform = cols_to_transform if cols_to_transform is not None else \
-        list(df_log.select_dtypes(include = ['float64', 'int64']).columns)
+        list(df_log.select_dtypes(include=['float64', 'int64']).columns)
 
     for col in df_log[cols_to_transform]:
         if col in df_log:
-            df_log[col] = df_log[col].apply(lambda x: np.log(max(x,0.001)))
+            df_log[col] = df_log[col].apply(lambda x: np.log(max(x, 0.001)))
             if treat_NaN:
                 df_log[col].replace(np.nan, -1, inplace=True)
         else:
             print(col + " not found")
 
-        #rename transformed columns
+        # Eename transformed columns
         if rename:
-            df_log.rename(columns={col : col+'_log'}, inplace=True)
+            df_log.rename(columns={col: col+'_log'}, inplace=True)
 
     return df_log
 
 
 def apply_log10(df, cols_to_transform=None, treat_NaN=False, rename=False):
-    """Transform values of selected columns to natural log. NaN are not 
-    affected by default, parameter can be changed. Returns a transformed 
+    """Transform values of selected columns to natural log. NaN are not
+    affected by default, parameter can be changed. Returns a transformed
     DataFrame, column names have "_log10" appended if parameter is set.
 
     Arguments:
     ----------
     - df: DataFrame
-    - cols_to_transform: list of columns that will have jy-transformation 
+    - cols_to_transform: list of columns that will have jy-transformation
         applied, (default is all numerical columns)
     - treat_NaN: bool, set NaN to small negative value, (default=False)
     - rename: bool, rename column with appendix, (default=False)
@@ -438,35 +437,34 @@ def apply_log10(df, cols_to_transform=None, treat_NaN=False, rename=False):
 
     df_log = df.copy()
     cols_to_transform = cols_to_transform if cols_to_transform is not None else \
-        list(df_log.select_dtypes(include = ['float64', 'int64']).columns)
-
+        list(df_log.select_dtypes(include=['float64', 'int64']).columns)
 
     for col in df_log[cols_to_transform]:
         if col in df_log:
-            df_log[col] = df_log[col].apply(lambda x: np.log10(max(x,0.001)))
+            df_log[col] = df_log[col].apply(lambda x: np.log10(max(x, 0.001)))
             if treat_NaN:
                 df_log[col].replace(np.nan, -1, inplace=True)
         else:
             print(col + " not found")
 
-        #rename transformed columns
+        # Rename transformed columns
         if rename:
-            df_log.rename(columns={col : col+'_log10'}, inplace=True)
+            df_log.rename(columns={col: col+'_log10'}, inplace=True)
 
     return df_log
 
 
 def apply_box_cox(df, cols_to_transform=None, rename=False):
-    """Transform values of selected columns with box-cox. Returns transformed 
+    """Transform values of selected columns with box-cox. Returns transformed
     DataFrame, column names have "_bc" appended if parameter is set.
-    NOTE: Cannot handle NaN and negative values. Normally bc can works on 
-    positive values only, this function has a little workaround is included to 
+    NOTE: Cannot handle NaN and negative values. Normally bc can works on
+    positive values only, this function has a little workaround is included to
     set 0 values to 0.01.
 
     Arguments:
     ----------
     - df: DataFrame
-    - cols_to_transform: list of columns that will have jy-transformation 
+    - cols_to_transform: list of columns that will have jy-transformation
         applied, (default is all numerical columns)
     - treat_NaN: bool, set NaN to small negative value, (default=False)
     - rename: bool, rename column with appendix, (default=False)
@@ -482,7 +480,7 @@ def apply_box_cox(df, cols_to_transform=None, rename=False):
 
     for col in df_bc[cols_to_transform]:
         if col in df:
-            df_bc[col] = df_bc[col].apply(lambda x : x + 0.001 if x == 0 else x)
+            df_bc[col] = df_bc[col].apply(lambda x: x + 0.001 if x == 0 else x)
             df_bc[col] = stats.boxcox(df_bc[col])[0]
         else:
             print(col + " not found")
@@ -495,15 +493,15 @@ def apply_box_cox(df, cols_to_transform=None, rename=False):
 
 
 def apply_yeo_j(df, cols_to_transform=None, rename=False):
-    """Transform values of selected columns with yeo-johnson. Returns transformed 
+    """Transform values of selected columns with yeo-johnson. Returns transformed
     DataFrame, column names have "_yj" appended if parameter is set.
-    NOTE: Cannot handle NaN but contrary to box-cox, yeo-johnson works also on 
+    NOTE: Cannot handle NaN but contrary to box-cox, yeo-johnson works also on
     negative and zero values.
 
     Arguments:
     ----------
     - df: DataFrame
-    - cols_to_transform: list of columns that will have jy-transformation 
+    - cols_to_transform: list of columns that will have jy-transformation
         applied, (default is all numerical columns)
     - rename: bool, rename column with appendix, (default=False)
 
@@ -513,7 +511,7 @@ def apply_yeo_j(df, cols_to_transform=None, rename=False):
     """
     df_yj = df.copy()
     cols_to_transfrom = cols_to_transform if cols_to_transform is not None else \
-        list(df_yj.select_dtypes(include = ['float64', 'int64']).columns)
+        list(df_yj.select_dtypes(include=['float64', 'int64']).columns)
 
     for col in df_yj[cols_to_transform]:
         if col in df_yj:
@@ -521,7 +519,7 @@ def apply_yeo_j(df, cols_to_transform=None, rename=False):
         else:
             print(col + " not found")
 
-        #rename transformed columns
+        # Rename transformed columns
         if rename:
             df_yj.rename(columns={col: col+'_yj'}, inplace=True)
 
