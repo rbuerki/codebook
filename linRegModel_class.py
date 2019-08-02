@@ -195,9 +195,9 @@ class LinRegModel:
             'target column must be numerical'
 
         # cleaning rows with NaN in target col
-        df = self._df.dropna(subset=[self._target_col], axis=0)
+        self._df = self._df.dropna(subset=[self._target_col], axis=0)
         # dropping columns with all NaN
-        df = self._df.dropna(how='all', axis=1)
+        self._df = self._df.dropna(how='all', axis=1)
 
         # impute mean for missing values in num cols
         for col in self._df.select_dtypes(include=['float', 'int']).columns:
