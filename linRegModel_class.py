@@ -33,7 +33,7 @@ class LinRegModel:
         try:
             return("{}\n\nRMSE on test data {:.2f}, r2-score {:.2f}."
                    .format(self._model, self._rmse, self._rsquared))
-        except:
+        except Exception:
             return(str(self._model)) 
 
     def go_quickDirty(self, dummy_na=True, test_size=.3, rand_state=666):
@@ -80,7 +80,7 @@ class LinRegModel:
         self.preprocess_NaN_cat_for_LinRegModel()
         self.split_fit_predict_for_linRegModel()
 
-    def go_preprocessed(df, target_col, test_size=.3, rand_state=666):
+    def go_preprocessed(self, test_size=.3, rand_state=666):
         '''
         This function will:
         1. Split the data into an X matrix and a target vector y
@@ -91,8 +91,6 @@ class LinRegModel:
         6. Obtain RMSE score and rsquared value
         
         ARGUMENTS:
-        dummy_na: bool holding whether to dummy NA vals of categorical
-            columns in own column or to ignore them (default: True)
         test_size: proportion of data to set aside in test dataset
             (default: 0.3)
         rand_state: random state for splitting the data into training and
