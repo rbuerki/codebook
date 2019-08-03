@@ -170,7 +170,7 @@ class LogRegModel:
         self._test_preds = self._log_model.predict(self._X_test)
         self._test_probs = self._log_model.predict_proba(self._X_test)
 
-    def evaluate_model(self, naive_name=None):
+    def evaluate_model(self):
         """Evaluate a machine learning model on four metrics:
         ROC AUC, precision score, recall score, and f1 score."""
 
@@ -178,15 +178,38 @@ class LogRegModel:
         self._auc = roc_auc_score(self._y_test, self._test_probs[:, 1])  #!
 
         # Print the metrics
-        if naive_name:
-            print(naive_name)
-        else:
-            print(repr(self._log_model).split('(')[0])
+        print(repr(self._log_model).split('(')[0])
         print("\nROC AUC:", round(self._auc, 4))
         # Iterate through remaining metrics, use .__name__ attribute
         for metric in [precision_score, recall_score, f1_score]:
             print("{}: {}".format(metric.__name__,
                   round(metric(self._y_test, self._test_preds), 4)))
+
+    def compare_to_naive(self, name="Naive Baseline"):
+        """For a naive baseline, we can randomly guess that an instance is of
+        the positive class in the same frequence of the positive classified
+        instances in the training data. We'll assess the predictions using the
+        same metrics as the proper baseline model.
+        """
+
+        np.random.seed(self._random_state)
+        naive_guess = np.random.binomial(1, p=np.mean(self._y_train),
+                                         size=len(self._y_test))
+
+        print("Percentage of positive class in training data is:",
+              round(np.mean(self._y_train), 4))
+        print("\n")
+
+        # Print the metrics
+
+        print(name)
+        print("\nROC AUC:", roc_auc_score(self._y_test,
+              np.repeat(np.mean(self._y_train), len(self._y_test))))
+
+        # Iterate through remaining metrics, use .__name__ attribute
+        for metric in [precision_score, recall_score, f1_score]:
+            print("{}: {}".format(metric.__name__,
+                  round(metric(self._y_test, naive_guess), 4)))
 
     def plot_learning_curves(self, scoring='neg_log_loss', n_folds=5):
         """
@@ -255,10 +278,21 @@ class LogRegModel:
 
         print(classification_report(self._y_test, self._test_preds))
 
-    def plot_confusion_matrix(self):
-        """Plot confusion matrix for evaluated model."""
+    def print_confusion_matrix(self):
+        """Print and confusion matrix and detailed metrics for evaluated model.
+        """
+        conf_matrix = confusion_matrix(self._y_test, self._test_preds)
+        tn, fp, fn, tp = conf_matrix.ravel()
 
-        print(confusion_matrix(self._y_test, self._test_preds))
+        print(conf_matrix)
+        print("\n")
+        for value, name in {tn: "True negatives",
+                            fp: "False positives",
+                            fn: "False negatives",
+                            tp: "True positives",
+                            }.items():
+            print("{}: {} ({:.2f}%)".format(name, value,
+                                        value / conf_matrix.sum() * 100))
 
     def print_coef_weights(self, n_bootstrap=100):
         """ Output estimates for coefficient weights and corresponding error.
