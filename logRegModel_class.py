@@ -3,7 +3,7 @@ import pandas as pd
 
 from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import train_test_split, learning_curve
-from sklearn.metrics import f1_score, log_loss, confusion_matrix, \
+from sklearn.metrics import f1_score, roc_auc_score, confusion_matrix, \
     classification_report
 from sklearn.utils import resample  # for error calculation of feature weights
 
@@ -36,8 +36,8 @@ class LogRegModel:
         """
 
         try:
-            return("{}\n\nF1-score on test data {:.2f}, logloss {:.2f}."
-                   .format(self._model, self._f1_score, self._logloss))
+            return("{}\n\nF1-score on test data {:.2f}, AUC-score {:.2f}."
+                   .format(self._model, self._f1_score, self._auc))
         except Exception:
             return(str(self._model))
 
@@ -52,7 +52,7 @@ class LogRegModel:
         7. Instantiate the model
         8. Fit the model to the training data
         9. Predict the target for the training data and the test data
-        10. Obtain F1-score and logloss
+        10. Obtain F1-score and ROC-AUC-score
 
         Note: you can input any unprepared dataset, NA values will be handled in a simple way, ALL NON NUMERIC variables dummied. But there
         is NO OUTLIER TREATMENT OR SCALING. So you better make sure
@@ -70,7 +70,7 @@ class LogRegModel:
         Returns:
         --------
         - f1_score: ...
-        - logloss: ...
+        - auc_score: ROC-AUC score
         - logreg_model: sklearn model object
         - X_train, X_test, y_train, y_test: output from sklearn train test
             split used for optimal model
@@ -91,7 +91,7 @@ class LogRegModel:
         3. Instantiate a LogisticRegression model with default parameters
         4. Fit the model to the training data
         5. Predict the target for the training data and the test data
-        6. Obtain F1-score and logloss
+        6. Obtain F1-score and ROC-AUC-Score
 
         Arguments:
         ----------
@@ -103,7 +103,7 @@ class LogRegModel:
         Returns:
         --------
         - f1_score: ...
-        - logloss: ...
+        - auc_score: ROC-AUC score
         - logreg_model: sklearn model object
         - X_train, X_test, y_train, y_test: output from sklearn train test
             split used for optimal model
@@ -192,6 +192,11 @@ class LogRegModel:
 
         print(classification_report(self._y_test, self._test_preds))
 
+    def plot_confusion_matrix(self):
+        """Print classification report for evaluated model."""
+
+        print(confusion_matrix(self._y_test, self._test_preds))
+
     def preprocess_NaN_cat_for_logRegModel(self):
         """This 'hidden' function is called indirectly and will:
         1. Drop the rows with missing target values
@@ -244,4 +249,4 @@ class LogRegModel:
         # predict and score the model
         self._test_preds = self._Log_model.predict(self._X_test)
         self._f1_score = f1_score(self._y_test, self._test_preds)
-        self._logloss = log_loss(self._y_test, self._test_preds)
+        self._auc = roc_auc_score(self._y_test, self._test_preds)
