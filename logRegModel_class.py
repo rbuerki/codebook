@@ -82,8 +82,8 @@ class LogRegModel:
         self._random_state = random_state
 
         # Call hidden functions
-        self.preprocess_NaN_cat_for_logRegModel()
-        self.split_fit_predict_for_logRegModel()
+        self.preprocess_NaN_cat_model()
+        self.split_fit_predict_model()
         self.evaluate_model()
 
     def go_preprocessed(self, test_size=.3, random_state=666):
@@ -115,37 +115,78 @@ class LogRegModel:
         self._random_state = random_state
 
         # Call 'hidden' function
-        self.split_fit_predict_for_logRegModel()
+        self.split_fit_predict_model()
         self.evaluate_model()
 
-    def print_coef_weights(self, n_bootstrap=100):
-        """ Output estimates for coefficient weights and corresponding error.
-        The error is calculated using bootstrap resamplings of the data.
-
-        Arguments:
-        ----------
-        n_bootstrap: int, number of bootstrap resamplings (default=10)
-
-        Returns:
-        --------
-        coefs_df: dataframe, holding estimate for coeff weights and error
+    def preprocess_NaN_cat_model(self):
+        """This 'hidden' function is called indirectly and will:
+        1. Drop the rows with missing target values
+        2. Drop columns with NaN for all the values
+        3. Use create_dummy_df to dummy categorical columns
+        4. Fill the mean of the column for any missing values
         """
 
-        coefs_df = pd.DataFrame(index=self._X_train.columns)
-        coefs_df['effect'] = self._model.coef_.round(1)
+        assert self._df[self._target_col].dtype == 'int64' or \
+            self._df[self._target_col].dtype == 'float64', \
+            'target column must be numerical'
 
-        # calculate modulo of coefs_ for sorting the df only, drop then
-        coefs_df['abs_coefs'] = np.abs(coefs_df['effect'])
-        coefs_df = coefs_df.sort_values('abs_coefs', ascending=False)
-        coefs_df.drop('abs_coefs', axis=1, inplace=True)
+        # Clean rows with NaN in target col
+        self._df = self._df.dropna(subset=[self._target_col], axis=0)
+        # Drop columns with all NaN
+        self._df = self._df.dropna(how='all', axis=1)
+        # Impute mean for missing values in num cols
+        for col in self._df.select_dtypes(include=['float', 'int']).columns:
+            self._df[col].fillna(self._df[col].mean(), inplace=True)
+        # OHE non-numerical columns and drop original columns
+        for col in self._df.select_dtypes(
+                include=['object', 'category']).columns:
+            self._df = pd.concat([self._df.drop(col, axis=1), \
+                pd.get_dummies(self._df[col], prefix=col, prefix_sep='_',
+                drop_first=True, dummy_na=self._dummy_na)], axis=1)
 
-        # add uncertainty with help of bootstrap resamling
-        np.random.seed(1)
-        err = np.std([self._model.fit(*resample(self._X_train, self._y_train))
-                     .coef_ for i in range(100)], 0)
-        coefs_df['error'] = err.round(0)
+    def split_fit_predict_model(self):
+        """This 'hidden' function is called indirectly and will:
+        1. Split the data into an X matrix and a target vector y
+        2. Create training and test sets of data
+        3. Instantiate a LogisticRegression model with default parameters
+        4. Fit the model to the training data
+        5. Predict the target for the training data and the test data
+        """
 
-        return coefs_df
+        # Separate target column
+        X = self._df.drop(self._target_col, axis=1)
+        y = self._df[self._target_col].copy()
+
+        # Split into train and test
+        self._X_train, self._X_test, self._y_train, self._y_test = \
+            train_test_split(X, y, test_size=self._test_size,
+                             random_state=self._random_state)
+
+        # Instantiate with normalized values
+        self._log_model = self._model
+        self._log_model.fit(self._X_train, self._y_train)
+
+        # Predict and score the model
+        self._test_preds = self._log_model.predict(self._X_test)
+        self._test_probs = self._log_model.predict_proba(self._X_test)
+
+    def evaluate_model(self, naive_name=None):
+        """Evaluate a machine learning model on four metrics:
+        ROC AUC, precision score, recall score, and f1 score."""
+
+        self._f1_score = f1_score(self._y_test, self._test_preds)
+        self._auc = roc_auc_score(self._y_test, self._test_probs[:, 1])  #!
+
+        # Print the metrics
+        if naive_name:
+            print(naive_name)
+        else:
+            print(repr(self._log_model).split('(')[0])
+        print("\nROC AUC:", round(self._auc, 4))
+        # Iterate through remaining metrics, use .__name__ attribute
+        for metric in [precision_score, recall_score, f1_score]:
+            print("{}: {}".format(metric.__name__,
+                  round(metric(self._y_test, self._test_preds), 4)))
 
     def plot_learning_curves(self, scoring='neg_log_loss', n_folds=5):
         """
@@ -215,73 +256,35 @@ class LogRegModel:
         print(classification_report(self._y_test, self._test_preds))
 
     def plot_confusion_matrix(self):
-        """Print classification report for evaluated model."""
+        """Plot confusion matrix for evaluated model."""
 
         print(confusion_matrix(self._y_test, self._test_preds))
 
-    def preprocess_NaN_cat_for_logRegModel(self):
-        """This 'hidden' function is called indirectly and will:
-        1. Drop the rows with missing target values
-        2. Drop columns with NaN for all the values
-        3. Use create_dummy_df to dummy categorical columns
-        4. Fill the mean of the column for any missing values
+    def print_coef_weights(self, n_bootstrap=100):
+        """ Output estimates for coefficient weights and corresponding error.
+        The error is calculated using bootstrap resamplings of the data.
+
+        Arguments:
+        ----------
+        n_bootstrap: int, number of bootstrap resamplings (default=10)
+
+        Returns:
+        --------
+        coefs_df: dataframe, holding estimate for coeff weights and error
         """
 
-        assert self._df[self._target_col].dtype == 'int64' or \
-            self._df[self._target_col].dtype == 'float64', \
-            'target column must be numerical'
+        coefs_df = pd.DataFrame(index=self._X_train.columns)
+        coefs_df['effect'] = self._model.coef_.round(1)
 
-        # Clean rows with NaN in target col
-        self._df = self._df.dropna(subset=[self._target_col], axis=0)
-        # Drop columns with all NaN
-        self._df = self._df.dropna(how='all', axis=1)
-        # Impute mean for missing values in num cols
-        for col in self._df.select_dtypes(include=['float', 'int']).columns:
-            self._df[col].fillna(self._df[col].mean(), inplace=True)
-        # OHE non-numerical columns and drop original columns
-        for col in self._df.select_dtypes(
-                include=['object', 'category']).columns:
-            self._df = pd.concat([self._df.drop(col, axis=1), \
-                pd.get_dummies(self._df[col], prefix=col, prefix_sep='_',
-                drop_first=True, dummy_na=self._dummy_na)], axis=1)
+        # calculate modulo of coefs_ for sorting the df only, drop then
+        coefs_df['abs_coefs'] = np.abs(coefs_df['effect'])
+        coefs_df = coefs_df.sort_values('abs_coefs', ascending=False)
+        coefs_df.drop('abs_coefs', axis=1, inplace=True)
 
-    def split_fit_predict_for_logRegModel(self):
-        """This 'hidden' function is called indirectly and will:
-        1. Split the data into an X matrix and a target vector y
-        2. Create training and test sets of data
-        3. Instantiate a LogisticRegression model with default parameters
-        4. Fit the model to the training data
-        5. Predict the target for the training data and the test data
-        """
+        # add uncertainty with help of bootstrap resamling
+        np.random.seed(1)
+        err = np.std([self._model.fit(*resample(self._X_train, self._y_train))
+                     .coef_ for i in range(100)], 0)
+        coefs_df['error'] = err.round(0)
 
-        # Separate target column
-        X = self._df.drop(self._target_col, axis=1)
-        y = self._df[self._target_col].copy()
-
-        # Split into train and test
-        self._X_train, self._X_test, self._y_train, self._y_test = \
-            train_test_split(X, y, test_size=self._test_size,
-                             random_state=self._random_state)
-
-        # Instantiate with normalized values
-        self._log_model = self._model
-        self._log_model.fit(self._X_train, self._y_train)
-
-        # Predict and score the model
-        self._test_preds = self._log_model.predict(self._X_test)
-        self._test_probs = self._log_model.predict_proba(self._X_test)
-
-    def evaluate_model(self):
-        """Evaluate a machine learning model on four metrics:
-        ROC AUC, precision score, recall score, and f1 score."""
-
-        self._f1_score = f1_score(self._y_test, self._test_preds)
-        self._auc = roc_auc_score(self._y_test, self._test_probs[:, 1])  #!
-
-        # Print the metrics
-        print(repr(self._log_model).split('(')[0])
-        print("\nROC AUC:", round(self._auc, 4))
-        # Iterate through remaining metrics, use .__name__ attribute
-        for metric in [precision_score, recall_score, f1_score]:
-            print("{}: {}".format(metric.__name__,
-                  round(metric(self._y_test, self._test_preds), 4)))
+        return coefs_df
