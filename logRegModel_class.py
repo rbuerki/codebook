@@ -3,13 +3,14 @@ import pandas as pd
 
 from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import train_test_split, learning_curve
-from sklearn.metrics import f1_score, roc_auc_score, confusion_matrix, \
-    classification_report
+from sklearn.metrics import f1_score, roc_auc_score, roc_curve, \
+    precision_score, recall_score, confusion_matrix, classification_report
 from sklearn.utils import resample  # for error calculation of feature weights
 
 import matplotlib.pyplot as plt
 import seaborn as sns
 sns.set()
+color = 'rebeccapurple'
 
 
 class LogRegModel:
@@ -83,6 +84,7 @@ class LogRegModel:
         # Call hidden functions
         self.preprocess_NaN_cat_for_logRegModel()
         self.split_fit_predict_for_logRegModel()
+        self.evaluate_model()
 
     def go_preprocessed(self, test_size=.3, random_state=666):
         """ This function will:
@@ -114,6 +116,7 @@ class LogRegModel:
 
         # Call 'hidden' function
         self.split_fit_predict_for_logRegModel()
+        self.evaluate_model()
 
     def print_coef_weights(self, n_bootstrap=100):
         """ Output estimates for coefficient weights and corresponding error.
@@ -157,7 +160,7 @@ class LogRegModel:
         # Apply sklearn learning_curve utility on X_train with n-fold CV
         N, trainCurve, valCurve = learning_curve(self._model,
             self._X_train, self._y_train, cv=n_folds,
-            scoring=scoring, train_sizes=np.linspace(0.01,1.0,20),
+            scoring=scoring, train_sizes=np.linspace(0.01, 1.0, 20),
             n_jobs=-1, verbose=1)
 
         # Calculate means and std deviation
@@ -168,14 +171,14 @@ class LogRegModel:
 
         # Plot learning curves
         plt.figure(figsize=(16, 4))
-        plt.plot(N, trainCurveMean, color='rebeccapurple',
+        plt.plot(N, trainCurveMean, color=color,
                  marker='o', label='training score')
         plt.plot(N, valCurveMean, color='yellow', marker='o',
                  label='validation score')
         plt.fill_between(N, trainCurveMean - trainCurveStd, trainCurveMean +
-                         trainCurveStd, alpha=0.2, color="rebeccapurple")
+                         trainCurveStd, alpha=0.2, color=color)
         plt.fill_between(N, valCurveMean - valCurveStd, valCurveMean +
-                         valCurveStd, alpha=0.2, color="yellow")
+                         valCurveStd, alpha=0.2, color='yellow')
         plt.hlines(np.mean([trainCurveMean[-1], valCurveMean[-1]]), N[0],
                    N[-1], color='black', linestyle='dashed')
 
@@ -185,6 +188,25 @@ class LogRegModel:
         plt.xlabel('training size')
         plt.ylabel(scoring)
         plt.title("Learning Curves {}".format(self._model))
+        plt.legend(loc='lower right');
+
+    def plot_ROC_curve(self):
+        """Plot area under the ROC-curve (ROC-AUC)."""
+
+        # Calculate ROC-curve
+        fpr, tpr, thresholds = roc_curve(self._y_test, self._test_probs[:, 1])
+
+        # Plot ROC curve
+        plt.figure(figsize=(8, 8))
+        plt.plot(fpr, tpr, label="{} (area = {:.3f})".format("ROC AUC:",
+                 self._auc), color=color)
+        plt.fill_between(fpr, tpr, alpha=0.2, color=color)
+        plt.plot([0, 1], [0, 1], 'k--')
+        plt.xlim([0.0, 1.0])
+        plt.ylim([0.0, 1.0])
+        plt.xlabel('False Positive Rate (1 - Specificity)', size=12)
+        plt.ylabel('True Positive Rate (Sensitivity)', size=12)
+        plt.title('ROC - Aera under the curve', size=12)
         plt.legend(loc='lower right');
 
     def print_classification_report(self):
@@ -230,23 +252,36 @@ class LogRegModel:
         3. Instantiate a LogisticRegression model with default parameters
         4. Fit the model to the training data
         5. Predict the target for the training data and the test data
-        6. Obtain RMSE score and rsquared value
         """
 
-        # separate target column
+        # Separate target column
         X = self._df.drop(self._target_col, axis=1)
         y = self._df[self._target_col].copy()
 
-        # split into train and test
+        # Split into train and test
         self._X_train, self._X_test, self._y_train, self._y_test = \
             train_test_split(X, y, test_size=self._test_size,
                              random_state=self._random_state)
 
-        # instantiate with normalized values
-        self._Log_model = self._model
-        self._Log_model.fit(self._X_train, self._y_train)
+        # Instantiate with normalized values
+        self._log_model = self._model
+        self._log_model.fit(self._X_train, self._y_train)
 
-        # predict and score the model
-        self._test_preds = self._Log_model.predict(self._X_test)
+        # Predict and score the model
+        self._test_preds = self._log_model.predict(self._X_test)
+        self._test_probs = self._log_model.predict_proba(self._X_test)
+
+    def evaluate_model(self):
+        """Evaluate a machine learning model on four metrics:
+        ROC AUC, precision score, recall score, and f1 score."""
+
         self._f1_score = f1_score(self._y_test, self._test_preds)
-        self._auc = roc_auc_score(self._y_test, self._test_preds)
+        self._auc = roc_auc_score(self._y_test, self._test_probs[:, 1])  #!
+
+        # Print the metrics
+        print(repr(self._log_model).split('(')[0])
+        print("\nROC AUC:", round(self._auc, 4))
+        # Iterate through remaining metrics, use .__name__ attribute
+        for metric in [precision_score, recall_score, f1_score]:
+            print("{}: {}".format(metric.__name__,
+                  round(metric(self._y_test, self._test_preds), 4)))
