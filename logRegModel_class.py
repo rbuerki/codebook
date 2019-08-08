@@ -58,9 +58,11 @@ class LogRegModel:
         10. Predict the target for the training data and the test data
         11. Obtain F1-score and ROC-AUC-score
 
-        Note: you can input any unprepared dataset, NA values will be handled in a simple way, ALL NON NUMERIC variables dummied. But there
-        is NO OUTLIER TREATMENT OR SCALING. So you better make sure
-        to set the parameter 'normalize=True' for your model input. (???)
+        Note: you can input any unprepared dataset, NA values will be handled
+        in a simple way, all non-numeric variables dummied. Standard scaling is
+        optional, but there is no outlier treatment. Some of these operations
+        should not be applied before splitting into test and training sets, but
+        are for simplicity.
 
         Arguments:
         ----------
@@ -75,7 +77,7 @@ class LogRegModel:
 
         Returns:
         --------
-        - f1_score: ...
+        - f1_score: harmonic mean of precision and recall
         - auc_score: ROC-AUC score
         - logreg_model: sklearn model object
         - X_train, X_test, y_train, y_test: output from sklearn train test
@@ -110,7 +112,7 @@ class LogRegModel:
 
         Returns:
         --------
-        - f1_score: ...
+        - f1_score: harmonic mean of precision and recall
         - auc_score: ROC-AUC score
         - logreg_model: sklearn model object
         - X_train, X_test, y_train, y_test: output from sklearn train test
@@ -149,10 +151,9 @@ class LogRegModel:
         # OHE non-numerical columns and drop original columns
         for col in self._df.select_dtypes(
                 include=['object', 'category']).columns:
-            self._df = pd.concat([self._df.drop(col, axis=1), \
+            self._df = pd.concat([self._df.drop(col, axis=1),
                 pd.get_dummies(self._df[col], prefix=col, prefix_sep='_',
                 drop_first=True, dummy_na=self._dummy_na)], axis=1)
-
 
     def split_fit_predict_model(self):
         """This 'hidden' function is called indirectly and will:
@@ -302,8 +303,10 @@ class LogRegModel:
                                             value / conf_matrix.sum() * 100))
         print("\nProportion of misclassified instances in total:",
               round((fp+fn) / (tp+fp+tn+fn), 2))
-        print("Proportion of misclassified positives:", round(fp/(fp+tp), 2))
-        print("Proportion of misclassified negatives:", round(fn/(fn+tn), 2))
+        print("Typ I error (Number of items wrongly identified as " +
+              "positive out of total true negatives):", round(fp/(tn+fp), 2))
+        print("Type II error (Number of items wrongly identified as " +
+              "negative out of total true positives):", round(fn/(tp+fn), 2))
 
     def print_coef_weights(self, n_bootstrap=10):
         """ Output the estimates for coefficient weights and corresponding
