@@ -1,6 +1,9 @@
 # Created by https://www.gitignore.io/api/python,windows,jupyternotebook
 # Edit at https://www.gitignore.io/?templates=python,windows,jupyternotebook
 
+#My own stuff
+/data
+
 ### JupyterNotebook ###
 .ipynb_checkpoints
 */.ipynb_checkpoints/*
