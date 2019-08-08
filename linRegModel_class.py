@@ -110,13 +110,13 @@ class LinRegModel:
         # call 'hidden' function
         self.split_fit_predict_for_linRegModel()
 
-    def print_coef_weights(self, n_bootstrap=100):
+    def print_coef_weights(self, n_bootstrap=10):
         '''
         Output estimates for coefficient weights and corresponding error. 
         The error is calculated using bootstrap resamplings of the data.
 
         ARGUMENTS:
-        n_bootstrap: number of bootstrap resamplings (as int)
+        n_bootstrap: int, amount of bootstrap resamplings (default=10)
 
         RETURNS:
         coefs_df: dataframe holding estimate for coeff weights and error
@@ -132,7 +132,7 @@ class LinRegModel:
         # add uncertainty with help of bootstrap resamling
         np.random.seed(1)
         err = np.std([self._model.fit(*resample(self._X_train, self._y_train))
-                     .coef_ for i in range(100)], 0)
+                     .coef_ for i in range(n_bootstrap)], 0)
         coefs_df['error'] = err.round(0)
 
         return coefs_df

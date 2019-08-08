@@ -162,23 +162,20 @@ class LogRegModel:
             train_test_split(X, y, test_size=self._test_size,
                              random_state=self._random_state)
 
-        # Instantiate with normalized values
-        self._log_model = self._model
-        self._log_model.fit(self._X_train, self._y_train)
-
-        # Predict and score the model
-        self._test_preds = self._log_model.predict(self._X_test)
-        self._test_probs = self._log_model.predict_proba(self._X_test)
+        # Fit and predict the model
+        self._model.fit(self._X_train, self._y_train)
+        self._test_preds = self._model.predict(self._X_test)
+        self._test_probs = self._model.predict_proba(self._X_test)
 
     def evaluate_model(self):
         """Evaluate a machine learning model on four metrics:
         ROC AUC, precision score, recall score, and f1 score."""
 
         self._f1_score = f1_score(self._y_test, self._test_preds)
-        self._auc = roc_auc_score(self._y_test, self._test_probs[:, 1])  #!
+        self._auc = roc_auc_score(self._y_test, self._test_probs[:, 1])  # !
 
         # Print the metrics
-        print(repr(self._log_model).split('(')[0])
+        print(repr(self._model).split('(')[0])
         print("\nROC AUC:", round(self._auc, 4))
         # Iterate through remaining metrics, use .__name__ attribute
         for metric in [precision_score, recall_score, f1_score]:
@@ -286,17 +283,23 @@ class LogRegModel:
 
         print(conf_matrix)
         print("\n")
-        for value, name in {tn: "True negatives",
+        for value, name in {tp: "True positives",
                             fp: "False positives",
+                            tn: "True negatives",
                             fn: "False negatives",
-                            tp: "True positives",
                             }.items():
             print("{}: {} ({:.2f}%)".format(name, value,
-                                        value / conf_matrix.sum() * 100))
+                                            value / conf_matrix.sum() * 100))
+        print("\nProportion of misclassified instances in total:",
+              ((fp+fn) / (tp+fp+tn+fn)))
+        print("Proportion of misclassified positives:", (fp/(fp+tp)))
+        print("Proportion of misclassified negatives:", (fn/(fn+tn)))
 
-    def print_coef_weights(self, n_bootstrap=100):
-        """ Output estimates for coefficient weights and corresponding error.
-        The error is calculated using bootstrap resamplings of the data.
+    def print_coef_weights(self, n_bootstrap=10):
+        """ Output the estimates for coefficient weights and corresponding
+        error. The error is calculated with help of bootstrap resamplings. This
+        method may ouptut better results for models using L2 regularization
+        (which is creating sparse feature sets).
 
         Arguments:
         ----------
@@ -304,21 +307,22 @@ class LogRegModel:
 
         Returns:
         --------
-        coefs_df: dataframe, holding estimate for coeff weights and error
+        coef_df: dataframe, holding estimate for coeff weights and error
         """
 
-        coefs_df = pd.DataFrame(index=self._X_train.columns)
-        coefs_df['effect'] = self._model.coef_.round(1)
+        self._coef = self._model.coef_[0]
+        coef_df = pd.DataFrame(index=self._X_train.columns)
+        coef_df['effect'] = self._coef.round(1)
 
-        # calculate modulo of coefs_ for sorting the df only, drop then
-        coefs_df['abs_coefs'] = np.abs(coefs_df['effect'])
-        coefs_df = coefs_df.sort_values('abs_coefs', ascending=False)
-        coefs_df.drop('abs_coefs', axis=1, inplace=True)
+        # Calculate modulo of coef just for sorting the df, then drop
+        coef_df['abs_coef'] = np.abs(coef_df['effect'])
+        coef_df = coef_df.sort_values('abs_coef', ascending=False)
+        coef_df.drop('abs_coef', axis=1, inplace=True)
 
-        # add uncertainty with help of bootstrap resamling
+        # Add uncertainty measure with help of bootstrap resamling
         np.random.seed(1)
         err = np.std([self._model.fit(*resample(self._X_train, self._y_train))
-                     .coef_ for i in range(100)], 0)
-        coefs_df['error'] = err.round(0)
+                     .coef_[0] for i in range(n_bootstrap)], 0)
+        coef_df['error'] = err.round(0)
 
-        return coefs_df
+        return coef_df
