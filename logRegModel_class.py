@@ -307,7 +307,9 @@ class LogRegModel:
 
         Returns:
         --------
-        coef_df: dataframe, holding estimate for coeff weights and error
+        None, displays two dataframes, one with with coef weights for all
+        features separately, and one with cumulated weights for the categorical
+        features.
         """
 
         self._coef = self._model.coef_[0]
@@ -325,4 +327,17 @@ class LogRegModel:
                      .coef_[0] for i in range(n_bootstrap)], 0)
         coef_df['error'] = err.round(0)
 
-        return coef_df
+        display(coef_df)
+        print('\n')
+
+        # Create df with cumulative weights for categorical features
+        coef_df['category'] = coef_df.index.str.split('_').str.get(0)
+        # coef_df['sub-category'] = coef_df[1].str.split('-').str.get(1)
+        coef_df_cum = coef_df.groupby('category').sum().sort_values('effect',
+                ascending=False)
+
+        coef_df_cum['abs_coef'] = np.abs(coef_df_cum['effect'])
+        coef_df_cum = coef_df_cum.sort_values('abs_coef', ascending=False)
+        coef_df_cum.drop('abs_coef', axis=1, inplace=True)
+
+        display(coef_df_cum)
