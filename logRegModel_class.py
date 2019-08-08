@@ -2,6 +2,7 @@ import numpy as np
 import pandas as pd
 
 from sklearn.linear_model import LogisticRegression
+from sklearn.preprocessing import scale
 from sklearn.model_selection import train_test_split, learning_curve
 from sklearn.metrics import f1_score, roc_auc_score, roc_curve, \
     precision_score, recall_score, confusion_matrix, classification_report
@@ -42,18 +43,20 @@ class LogRegModel:
         except Exception:
             return(str(self._model))
 
-    def go_quickDirty(self, dummy_na=True, test_size=0.3, random_state=666):
+    def go_quickDirty(self, dummy_na=True, transform=True,
+                      test_size=0.3, random_state=666):
         """ This function will:
-        1. Drop the rows with missing target values
-        2. Drop columns with NaN for all the values
-        3. Use create_dummy_df to dummy categorical columns
-        4. Fill the mean of the column for any missing values
-        5. Split the data into an X matrix and a target vector y
-        6. Create training and test sets of data
-        7. Instantiate the model
-        8. Fit the model to the training data
-        9. Predict the target for the training data and the test data
-        10. Obtain F1-score and ROC-AUC-score
+         1. Drop the rows with missing target values
+         2. Drop columns with NaN for all the values
+         3. Fill the mean of the column for any missing numerical values
+         4. Standard-scale the numerical features (only if transform=True!)
+         5. Use create_dummy_df to dummy categorical columns
+         6. Split the data into an X matrix and a target vector y
+         7. Create training and test sets of data
+         8. Instantiate the model
+         9. Fit the model to the training data
+        10. Predict the target for the training data and the test data
+        11. Obtain F1-score and ROC-AUC-score
 
         Note: you can input any unprepared dataset, NA values will be handled in a simple way, ALL NON NUMERIC variables dummied. But there
         is NO OUTLIER TREATMENT OR SCALING. So you better make sure
@@ -63,6 +66,8 @@ class LogRegModel:
         ----------
         - dummy_na: bool, holding whether to dummy NA vals of categorical
             columns in own column or to ignore them (default=True)
+        - transform: bool, holding whether to normalize and scale the numerical
+            features or to leave them as is (deflault=True)
         - test_size: float, proportion of data to set aside in test dataset
             (default=0.3)
         - random_state: int, random state for splitting the data into training
@@ -79,6 +84,7 @@ class LogRegModel:
 
         self._dummy_na = dummy_na
         self._test_size = test_size
+        self._transform = transform
         self._random_state = random_state
 
         # Call hidden functions
@@ -122,8 +128,8 @@ class LogRegModel:
         """This 'hidden' function is called indirectly and will:
         1. Drop the rows with missing target values
         2. Drop columns with NaN for all the values
+        4. Fill the mean of the column for any missing numerical values
         3. Use create_dummy_df to dummy categorical columns
-        4. Fill the mean of the column for any missing values
         """
 
         assert self._df[self._target_col].dtype == 'int64' or \
@@ -137,12 +143,16 @@ class LogRegModel:
         # Impute mean for missing values in num cols
         for col in self._df.select_dtypes(include=['float', 'int']).columns:
             self._df[col].fillna(self._df[col].mean(), inplace=True)
+            # Standard-scale numerical data if param transform=True
+            if self._transform:
+                self._df[col] = scale(self._df[col])
         # OHE non-numerical columns and drop original columns
         for col in self._df.select_dtypes(
                 include=['object', 'category']).columns:
             self._df = pd.concat([self._df.drop(col, axis=1), \
                 pd.get_dummies(self._df[col], prefix=col, prefix_sep='_',
                 drop_first=True, dummy_na=self._dummy_na)], axis=1)
+
 
     def split_fit_predict_model(self):
         """This 'hidden' function is called indirectly and will:
@@ -291,9 +301,9 @@ class LogRegModel:
             print("{}: {} ({:.2f}%)".format(name, value,
                                             value / conf_matrix.sum() * 100))
         print("\nProportion of misclassified instances in total:",
-              ((fp+fn) / (tp+fp+tn+fn)))
-        print("Proportion of misclassified positives:", (fp/(fp+tp)))
-        print("Proportion of misclassified negatives:", (fn/(fn+tn)))
+              round((fp+fn) / (tp+fp+tn+fn), 2))
+        print("Proportion of misclassified positives:", round(fp/(fp+tp), 2))
+        print("Proportion of misclassified negatives:", round(fn/(fn+tn), 2))
 
     def print_coef_weights(self, n_bootstrap=10):
         """ Output the estimates for coefficient weights and corresponding
