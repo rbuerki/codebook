@@ -1,5 +1,6 @@
 import numpy as np
 import pandas as pd
+from pandas.api.types import is_numeric_dtype
 
 from sklearn.linear_model import LogisticRegression
 from sklearn.preprocessing import scale
@@ -80,7 +81,7 @@ class LogRegModel:
             split used for optimal model
         """
 
-        self.tree_based = tree_based
+        self._tree_based = tree_based
         self._dummy_na = dummy_na
         self._test_size = test_size
         self._transform = transform
@@ -88,14 +89,9 @@ class LogRegModel:
 
         # Call hidden functions
 
-        if tree_based:
-            self.preprocess_NaN_cat_model()
-            self.split_fit_predict_model()
-            self.evaluate_model()
-        else:
-            self.preprocess_NaN_tree_based_cat_model()
-            self.split_fit_predict_model()
-            self.evaluate_model()   
+        self.preprocess_NaN_cat_model()
+        self.split_fit_predict_model()
+        self.evaluate_model()
 
     def go_preprocessed(self, test_size=.3, random_state=666):
         """ This function is for datasets that have been manually preprocessed.
@@ -131,61 +127,52 @@ class LogRegModel:
         self.evaluate_model()
 
     def preprocess_NaN_cat_model(self):
-        """This 'hidden' function for preprocessing is for non-trees-based
-        algorithms only. It is called indirectly by go_quickDirty() and will:
+        """This 'hidden' function is called indirectly by go_quickDirty()
+        and will:
         1. Drop the rows with missing target values
         2. Drop columns with NaN for all the values
-        4. Fill the mean of the column for any missing numerical values
-        5. Standard-scale the numerical features (only if transform=True!)
-        3. Use create_dummy_df to dummy categorical columns
+
+        for non-tree-based models:
+        3. Fill the mean of the column for any missing numerical values
+        4. Standard-scale the numerical features (only if transform=True!)
+        5. Use create_dummy_df to dummy categorical columns
+
+        for tree-based models:
+        3. Fill in the distinct value '-999' for any missing numeric values
+        4. Label-encode the categorical columns
         """
 
-        assert self._df[self._target_col].dtype == 'int64' or \
-            self._df[self._target_col].dtype == 'float64', \
-            'target column must be numerical'
+        assert is_numeric_dtype(self._df[self._target_col]), \
+                'target column must be numerical'
 
         # Clean rows with NaN in target col
         self._df = self._df.dropna(subset=[self._target_col], axis=0)
         # Drop columns with all NaN
         self._df = self._df.dropna(how='all', axis=1)
-        # Impute mean for missing values in num cols
-        for col in self._df.select_dtypes(include=['float', 'int']).columns:
-            self._df[col].fillna(self._df[col].mean(), inplace=True)
-            # Standard-scale numerical data if param transform=True
-            if self._transform:
-                self._df[col] = scale(self._df[col])
-        # OHE non-numerical columns and drop original columns
-        for col in self._df.select_dtypes(
-                include=['object', 'category']).columns:
-            self._df = pd.concat([self._df.drop(col, axis=1),
-                pd.get_dummies(self._df[col], prefix=col, prefix_sep='_',
-                drop_first=True, dummy_na=self._dummy_na)], axis=1)
 
-    def preprocess_NaN_tree_based_cat_model(self):
-        """This 'hidden' function for preprocessing is for tree-based
-        algorithms only. It is called indirectly by go_quickDirty() and will:
-        1. Drop the rows with missing target values
-        2. Drop columns with NaN for all the values
-        4. Fill in the distinct value '-999' for any missing numeric values
-        3. Label-encode the categorical columns
-        """
+        if self._tree_based:
+            # Impute distinct value for remaining missing values
+            for col in self._df.select_dtypes(
+                    include=['float', 'int']).columns:
+                self._df[col] = self._df[col].fillna(-999)
+            # OHE non-numerical columns and drop original columns
+            for col in self._df.select_dtypes(
+                    include=['object', 'category']).columns:
+                self._df[col] = self._df[col].factorize()[0]
 
-        assert self._df[self._target_col].dtype == 'int64' or \
-            self._df[self._target_col].dtype == 'float64', \
-            'target column must be numerical'
-
-        # Clean rows with NaN in target col
-        self._df = self._df.dropna(subset=[self._target_col], axis=0)
-        # Drop columns with all NaN
-        self._df = self._df.dropna(how='all', axis=1)
-        # Impute distinct value for remaining missing values
-        for col in self._df.select_dtypes(
-                include=['float', 'int']).columns:
-            self._df[col] = self._df[col].fillna(-999)
-        # OHE non-numerical columns and drop original columns
-        for col in self._df.select_dtypes(
-                include=['object', 'category']).columns:
-            self._df[col] = self._df[col].factorize()[0]
+        else:
+            # Impute mean for missing values in num cols
+            for col in self._df.select_dtypes(include=['float', 'int']).columns:
+                self._df[col].fillna(self._df[col].mean(), inplace=True)
+                # Standard-scale numerical data if param transform=True
+                if self._transform:
+                    self._df[col] = scale(self._df[col])
+            # OHE non-numerical columns and drop original columns
+            for col in self._df.select_dtypes(
+                    include=['object', 'category']).columns:
+                self._df = pd.concat([self._df.drop(col, axis=1),
+                    pd.get_dummies(self._df[col], prefix=col, prefix_sep='_',
+                    drop_first=True, dummy_na=self._dummy_na)], axis=1)
 
     def split_fit_predict_model(self):
         """This 'hidden' function is called indirectly and will:
