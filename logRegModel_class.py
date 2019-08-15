@@ -344,6 +344,8 @@ class LogRegModel:
         features.
         """
 
+        assert self._tree_based is False, "works for linear models only"
+
         self._coef = self._model.coef_[0]
         coef_df = pd.DataFrame(index=self._X_train.columns)
         coef_df['effect'] = self._coef.round(1)
@@ -374,28 +376,35 @@ class LogRegModel:
 
         display(coef_df_cum)
 
-    def preprocess_NaN_tree_based_cat_model(self):
-        """This 'hidden' function for preprocessing is for tree-based
-        algorithms only. It is called indirectly by go_quickDirty() and will:
-        1. Drop the rows with missing target values
-        2. Drop columns with NaN for all the values
-        4. Fill in the distinct value '-999' for any missing numeric values
-        3. Label-encode the categorical columns
-        """
+    def plot_feature_weights(self, max_cols=None):
 
-        assert self._df[self._target_col].dtype == 'int64' or \
-            self._df[self._target_col].dtype == 'float64', \
-            'target column must be numerical'
+        assert self._tree_based, "works for tree-based models only"
 
-        # Clean rows with NaN in target col
-        self._df = self._df.dropna(subset=[self._target_col], axis=0)
-        # Drop columns with all NaN
-        self._df = self._df.dropna(how='all', axis=1)
-        # Impute distinct value for remaining missing values
-        for col in self._df.select_dtypes(
-                include=['float', 'int']).columns:
-            self._df[col] = self._df[col].fillna(-999)
-        # OHE non-numerical columns and drop original columns
-        for col in self._df.select_dtypes(
-                include=['object', 'category']).columns:
-            self._df[col] = self._df[col].factorize()[0]
+        self._weights = self._model.feature_importances_
+        self._weights_named_df = pd.DataFrame(sorted(zip(self._weights,
+                                                         self._X_train.columns),
+                                              reverse=True))
+
+        if max_cols is not None:
+            self._weights_named_df = self._weights_named_df.iloc[:, :max_cols]
+        else:
+            plt.figure(figsize=(16, 5))
+            plt.bar(np.arange(len(self._weights_named_df)),
+                    self._weights_named_df[0],
+                    width=0.5,
+                    align="center",
+                    color='yellow',
+                    label="Feature Weight")
+            plt.bar(np.arange(len(self._weights_named_df)) - 0.3,
+                    np.cumsum(self._weights_named_df[0]),
+                    width=0.4,
+                    align="center",
+                    color=color,
+                    label="Cumulative Feature Weights")
+            plt.title("Normalized Weights for Predictive Features / Attributes")
+            plt.ylabel("Weights")
+            plt.xlabel("Features / Attributes")
+            plt.xticks(np.arange(len(self._weights_named_df)),
+                       self._weights_named_df[1],
+                       rotation=90)
+            plt.legend(loc='upper left');
