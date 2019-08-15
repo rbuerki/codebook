@@ -2,7 +2,6 @@ import numpy as np
 import pandas as pd
 from pandas.api.types import is_numeric_dtype
 
-from sklearn.linear_model import LogisticRegression
 from sklearn.preprocessing import scale
 from sklearn.model_selection import train_test_split, learning_curve
 from sklearn.metrics import f1_score, roc_auc_score, roc_curve, \
@@ -15,7 +14,7 @@ sns.set()
 color = 'rebeccapurple'
 
 
-class LogRegModel:
+class BaselineClassification:
     """ Logistic Regression class for applying and evaluating
     different logistic regression models.
     """
