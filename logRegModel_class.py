@@ -43,33 +43,29 @@ class LogRegModel:
         except Exception:
             return(str(self._model))
 
-    def go_quickDirty(self, dummy_na=True, transform=True,
+    def go_quickDirty(self, tree_based, dummy_na=True, transform=True,
                       test_size=0.3, random_state=666):
-        """ This function will:
-         1. Drop the rows with missing target values
-         2. Drop columns with NaN for all the values
-         3. Fill the mean of the column for any missing numerical values
-         4. Standard-scale the numerical features (only if transform=True!)
-         5. Use create_dummy_df to dummy categorical columns
-         6. Split the data into an X matrix and a target vector y
-         7. Create training and test sets of data
-         8. Instantiate the model
-         9. Fit the model to the training data
-        10. Predict the target for the training data and the test data
-        11. Obtain F1-score and ROC-AUC-score
+        """ This function will call three hidden functions:
+         1. Preprocess data according to model type (tree_based vs. other)
+         2. Split, fit, predict
+         3. Evaluate and output metrics
 
-        Note: you can input any unprepared dataset, NA values will be handled
-        in a simple way, all non-numeric variables dummied. Standard scaling is
-        optional, but there is no outlier treatment. Some of these operations
-        should not be applied before splitting into test and training sets, but
-        are for simplicity.
+        Note: you can input any unprepared dataset, NaN values will be handled
+        in a simple way, as will categorical values. Standard scaling is
+        optional for non-tree based models, but there is no outlier treatment.
+        Some of these operations should not be applied before splitting into
+        test and training sets, but they are here for simplicity.
 
         Arguments:
         ----------
+        - tree_based: bool, holding wheter preprocessing should be performed
+            for tree-based models or other
         - dummy_na: bool, holding whether to dummy NA vals of categorical
-            columns in own column or to ignore them (default=True)
+            columns in own column or to ignore them (default=True).
+            This argument is ignored if tree_based=True.
         - transform: bool, holding whether to normalize and scale the numerical
             features or to leave them as is (deflault=True)
+            This argument is ignored if tree_based=True.
         - test_size: float, proportion of data to set aside in test dataset
             (default=0.3)
         - random_state: int, random state for splitting the data into training
@@ -84,18 +80,26 @@ class LogRegModel:
             split used for optimal model
         """
 
+        self.tree_based = tree_based
         self._dummy_na = dummy_na
         self._test_size = test_size
         self._transform = transform
         self._random_state = random_state
 
         # Call hidden functions
-        self.preprocess_NaN_cat_model()
-        self.split_fit_predict_model()
-        self.evaluate_model()
+
+        if tree_based:
+            self.preprocess_NaN_cat_model()
+            self.split_fit_predict_model()
+            self.evaluate_model()
+        else:
+            self.preprocess_NaN_tree_based_cat_model()
+            self.split_fit_predict_model()
+            self.evaluate_model()   
 
     def go_preprocessed(self, test_size=.3, random_state=666):
-        """ This function will:
+        """ This function is for datasets that have been manually preprocessed.
+        It will:
         1. Split the data into an X matrix and a target vector y
         2. Create training and test sets of data
         3. Instantiate a LogisticRegression model with default parameters
@@ -127,10 +131,12 @@ class LogRegModel:
         self.evaluate_model()
 
     def preprocess_NaN_cat_model(self):
-        """This 'hidden' function is called indirectly and will:
+        """This 'hidden' function for preprocessing is for non-trees-based
+        algorithms only. It is called indirectly by go_quickDirty() and will:
         1. Drop the rows with missing target values
         2. Drop columns with NaN for all the values
         4. Fill the mean of the column for any missing numerical values
+        5. Standard-scale the numerical features (only if transform=True!)
         3. Use create_dummy_df to dummy categorical columns
         """
 
@@ -154,6 +160,32 @@ class LogRegModel:
             self._df = pd.concat([self._df.drop(col, axis=1),
                 pd.get_dummies(self._df[col], prefix=col, prefix_sep='_',
                 drop_first=True, dummy_na=self._dummy_na)], axis=1)
+
+    def preprocess_NaN_tree_based_cat_model(self):
+        """This 'hidden' function for preprocessing is for tree-based
+        algorithms only. It is called indirectly by go_quickDirty() and will:
+        1. Drop the rows with missing target values
+        2. Drop columns with NaN for all the values
+        4. Fill in the distinct value '-999' for any missing numeric values
+        3. Label-encode the categorical columns
+        """
+
+        assert self._df[self._target_col].dtype == 'int64' or \
+            self._df[self._target_col].dtype == 'float64', \
+            'target column must be numerical'
+
+        # Clean rows with NaN in target col
+        self._df = self._df.dropna(subset=[self._target_col], axis=0)
+        # Drop columns with all NaN
+        self._df = self._df.dropna(how='all', axis=1)
+        # Impute distinct value for remaining missing values
+        for col in self._df.select_dtypes(
+                include=['float', 'int']).columns:
+            self._df[col] = self._df[col].fillna(-999)
+        # OHE non-numerical columns and drop original columns
+        for col in self._df.select_dtypes(
+                include=['object', 'category']).columns:
+            self._df[col] = self._df[col].factorize()[0]
 
     def split_fit_predict_model(self):
         """This 'hidden' function is called indirectly and will:
@@ -354,3 +386,29 @@ class LogRegModel:
         coef_df_cum.drop('abs_coef', axis=1, inplace=True)
 
         display(coef_df_cum)
+
+    def preprocess_NaN_tree_based_cat_model(self):
+        """This 'hidden' function for preprocessing is for tree-based
+        algorithms only. It is called indirectly by go_quickDirty() and will:
+        1. Drop the rows with missing target values
+        2. Drop columns with NaN for all the values
+        4. Fill in the distinct value '-999' for any missing numeric values
+        3. Label-encode the categorical columns
+        """
+
+        assert self._df[self._target_col].dtype == 'int64' or \
+            self._df[self._target_col].dtype == 'float64', \
+            'target column must be numerical'
+
+        # Clean rows with NaN in target col
+        self._df = self._df.dropna(subset=[self._target_col], axis=0)
+        # Drop columns with all NaN
+        self._df = self._df.dropna(how='all', axis=1)
+        # Impute distinct value for remaining missing values
+        for col in self._df.select_dtypes(
+                include=['float', 'int']).columns:
+            self._df[col] = self._df[col].fillna(-999)
+        # OHE non-numerical columns and drop original columns
+        for col in self._df.select_dtypes(
+                include=['object', 'category']).columns:
+            self._df[col] = self._df[col].factorize()[0]
