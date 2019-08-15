@@ -15,8 +15,8 @@ color = 'rebeccapurple'
 
 
 class BaselineClassification:
-    """ Logistic Regression class for applying and evaluating
-    different logistic regression models.
+    """ Classification class for applying and evaluating
+    different baseline classification models.
     """
 
     def __init__(self, df, target_col, model):
@@ -33,8 +33,9 @@ class BaselineClassification:
         self._model = model
 
     def __repr__(self):
-        """Function to output the characteristics of logRegModel instance.
-        Including the performance scores if the model is trained and evaluated.
+        """Function to output the characteristics of BaselineClassifiacation
+        instance. (Including the performance scores if the model is trained
+        and evaluated.
         """
 
         try:
@@ -53,8 +54,8 @@ class BaselineClassification:
         Note: you can input any unprepared dataset, NaN values will be handled
         in a simple way, as will categorical values. Standard scaling is
         optional for non-tree based models, but there is no outlier treatment.
-        Some of these operations should not be applied before splitting into
-        test and training sets, but they are here for simplicity.
+        Some of these operations should actually not be applied before splitting
+        into test and training sets, but they are here for simplicity.
 
         Arguments:
         ----------
@@ -73,10 +74,10 @@ class BaselineClassification:
 
         Returns:
         --------
-        - f1_score: harmonic mean of precision and recall
-        - auc_score: ROC-AUC score
-        - logreg_model: sklearn model object
-        - X_train, X_test, y_train, y_test: output from sklearn train test
+        - _f1_score: harmonic mean of precision and recall
+        - _auc_score: ROC-AUC score
+        - _model: sklearn model object
+        - _X_train, _X_test, _y_train, _y_test: output from sklearn train test
             split used for optimal model
         """
 
@@ -111,10 +112,10 @@ class BaselineClassification:
 
         Returns:
         --------
-        - f1_score: harmonic mean of precision and recall
-        - auc_score: ROC-AUC score
-        - logreg_model: sklearn model object
-        - X_train, X_test, y_train, y_test: output from sklearn train test
+        - _f1_score: harmonic mean of precision and recall
+        - _auc_score: ROC-AUC score
+        - _model: sklearn model object
+        - _X_train, _X_test, _y_train, _y_test: output from sklearn train test
             split used for optimal model
         """
 
