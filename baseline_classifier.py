@@ -215,8 +215,8 @@ class BaselineClassification:
     def compare_to_naive(self, name="Naive Baseline"):
         """For a naive baseline, we can randomly guess that an instance is of
         the positive class in the same frequence of the positive classified
-        instances in the training data. We'll assess the predictions using the
-        same metrics as the proper baseline model.
+        instances in the training data. The metrics are the same as for the
+        proper baseline model.
         """
 
         np.random.seed(self._random_state)
@@ -306,8 +306,8 @@ class BaselineClassification:
         print(classification_report(self._y_test, self._test_preds))
 
     def print_confusion_matrix(self):
-        """Print and confusion matrix and detailed metrics for evaluated model.
-        """
+        """Print confusion matrix and detailed metrics for evaluated model."""
+
         conf_matrix = confusion_matrix(self._y_test, self._test_preds)
         tn, fp, fn, tp = conf_matrix.ravel()
 
