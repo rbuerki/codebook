@@ -210,31 +210,26 @@ class BaselineRegression:
         print("\nRMSE:", round(self._rmse, 4))
         print("r2:", round(self._rsquared, 4))
 
-    # def compare_to_naive(self, name="Naive Baseline"):
-    #     """For a naive baseline, we can randomly guess that an instance is of
-    #     the positive class in the same frequence of the positive classified
-    #     instances in the training data. We'll assess the predictions using the
-    #     same metrics as the proper baseline model.
-    #     """
+    def compare_to_naive(self, name="Naive Baseline"):
+        """For a naive baseline, we can guess that has the a target value
+        equal to the mean value of all instances in the training set. The
+        metrics are the same as for the proper baseline model.
+        """
 
-    #     np.random.seed(self._random_state)
-    #     naive_guess = np.random.binomial(1, p=np.mean(self._y_train),
-    #                                      size=len(self._y_test))
+        naive_guess = np.full(len(self._y_test), np.mean(self._y_train))
 
-    #     print("Percentage of positive class in training data is:",
-    #           round(np.mean(self._y_train), 4))
-    #     print("\n")
+        print("Mean target value of training data is:",
+              round(np.mean(self._y_train), 4))
+        print("\n")
 
-    #     # Print the metrics
+        naive_mse = mean_squared_error(self._y_test, naive_guess)
+        naive_rmse = np.sqrt(naive_mse)
+        naive_rsquared = r2_score(self._y_test, naive_guess)
 
-    #     print(name)
-    #     print("\nROC AUC:", roc_auc_score(self._y_test,
-    #           np.repeat(np.mean(self._y_train), len(self._y_test))))
-
-    #     # Iterate through remaining metrics, use .__name__ attribute
-    #     for metric in [precision_score, recall_score, f1_score]:
-    #         print("{}: {}".format(metric.__name__,
-    #               round(metric(self._y_test, naive_guess), 4)))
+        # Print the metrics
+        print(name)
+        print("\nRMSE:", round(naive_rmse, 4))
+        print("r2:", round(naive_rsquared, 4))
 
     def plot_learning_curves(self, scoring='r2', n_folds=5):
         """
