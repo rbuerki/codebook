@@ -96,19 +96,47 @@ _NOTE: The functions in this notebook are for calculations on PROPORTIONS only!
   bounds based on a defined conficence level.
 
 
-### linRegModel_class.py 
+### baseline_regressor.py 
 
-`linRegModel`: Linear Regression class based on sklearn for applying and evaluating 
-linear models. Needs a sklearn linReg model object as input.
+`BaselineRegression`: Regression class based on sklearn for applying and evaluating 
+different models. Needs a sklearn regression model object as input.
 
 _Basic functions:_  
-- `go_quickDirty`: apply linear regression to unprepared / dirty data
-- `go_preprocessed`: apply linear regression to properly prepared data
+- `go_quickDirty`: Apply regression modelling to unprepared / dirty data. Preprocessing
+    varies for tree-based and non-tree-based models.
+- `go_preprocessed`: Apply regression modelling to properly prepared data.
 
 _Evaluation:_
 - `plot_learning_curves`: Display learning curves based on n-fold cross validation.
 - `print_coef_weights`: Output estimates for coefficient weights and corresponding 
-      error. The error is calculated using bootstrap resamplings of the data.
+      error for estimatores that have a coeff attribute (linear models)
+- `print_feature_weights`: Outputs feature weights for estimators that have a
+    get_feature_weights() method (tree-based models)
+
+
+### baseline_classifier.py 
+
+`BaselineClassification`: Classification class based on sklearn for applying and 
+evaluating different models. Needs a sklearn classification model object as input.
+
+_Basic functions:_  
+- `go_quickDirty`: Apply classification modelling to unprepared / dirty data. Preprocessing
+    varies for tree-based and non-tree-based models.
+- `go_preprocessed`: Apply classification modelling to properly prepared data.
+
+_Evaluation:
+- `compare_to_naive:` Compute metrics for a naive baseline as a comparison to 
+    the results of our not so naive baseline.
+- `plot_learning_curves`: Display learning curves based on n-fold cross validation.
+- `plot_ROC_curve`: Plot area under the ROC-curve (ROC-AUC).
+- `print_classification_report`: ... name says it all ... print simple classification
+    report for evaluated model.
+- `print_confusion matrix`: Print and confusion matrix and detailed metrics for 
+    evaluated model.
+- `print_coef_weights`: Output estimates for coefficient weights and corresponding 
+    error for estimatores that have a coeff attribute (linear models)
+- `print_feature_weights`: Outputs feature weights for estimators that have a
+    get_feature_weights() method (tree-based models)
 
 
 ## Install
