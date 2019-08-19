@@ -173,8 +173,6 @@ class BaselineRegression:
                     pd.get_dummies(self._df[col], prefix=col, prefix_sep='_',
                     drop_first=True, dummy_na=self._dummy_na)], axis=1)
 
-        print(self._df.head())
-
     def split_fit_predict_model(self):
         """This 'hidden' function is called indirectly and will:
         1. Split the data into an X matrix and a target vector y
