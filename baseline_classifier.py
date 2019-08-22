@@ -305,14 +305,20 @@ class BaselineClassification:
 
         print(classification_report(self._y_test, self._test_preds))
 
-    def print_confusion_matrix(self):
-        """Print confusion matrix and detailed metrics for evaluated model."""
+    def plot_confusion_matrix(self):
+        """Plot confusion matrix and print detailed metrics for evaluated
+        model."""
 
         conf_matrix = confusion_matrix(self._y_test, self._test_preds)
         tn, fp, fn, tp = conf_matrix.ravel()
 
-        print(conf_matrix)
-        print("\n")
+        label_names = np.sort(self._y_train.unique())
+        sns.heatmap(conf_matrix.T, square=True, annot=True, fmt='d',
+                    cbar=False, xticklabels=label_names,
+                    yticklabels=label_names)
+        plt.xlabel('true label')
+        plt.ylabel('predicted label')
+
         for value, name in {tp: "True positives",
                             fp: "False positives",
                             tn: "True negatives",
