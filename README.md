@@ -131,7 +131,7 @@ _Evaluation:
 - `plot_ROC_curve`: Plot area under the ROC-curve (ROC-AUC).
 - `print_classification_report`: ... name says it all ... print simple classification
     report for evaluated model.
-- `print_confusion matrix`: Print and confusion matrix and detailed metrics for 
+- `plot_confusion matrix`: Plot confusion matrix and detailed metrics for 
     evaluated model.
 - `print_coef_weights`: Output estimates for coefficient weights and corresponding 
     error for estimatores that have a coeff attribute (linear models)
