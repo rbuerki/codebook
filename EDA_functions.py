@@ -292,11 +292,11 @@ def plot_corr_strip_cat_target(df, target, figsize=(16, 32), palette='rocket'):
     """
 
     df_cat = df.select_dtypes(include=['category'])
-    pos=0
+    pos = 0
     plt.figure(figsize=figsize)
     for col in df_cat.columns:
         df_plot = df[[col, target]]
-        pos +=1
+        pos += 1
         plt.subplot(np.ceil(df_cat.shape[1] / 2), 2, pos)
         plt.tight_layout(w_pad=1)
         sns.stripplot(x=col, y=target, data=df_plot, palette=palette);
@@ -322,22 +322,22 @@ def plot_corr_point_cat_target(df, target, figsize=(16, 16), ylim=[0, 1],
     """
 
     df_cat = df.select_dtypes(include=['category'])
-    pos=0
+    pos = 0
     plt.figure(figsize=figsize)
     for col in df_cat.columns:
         df_plot = df[[col, target]].groupby(col, as_index=False).mean() \
                 .sort_values(by=target, ascending=False)
-        pos +=1
+        pos += 1
         plt.subplot(df_cat.shape[1], 2, pos)
         plt.tight_layout(w_pad=1)
         plt.ylim(ylim)
         sns.pointplot(x=col, y=target, data=df_plot,color=color)
         if df[col].nunique() <= 30:
-            pos +=1
+            pos += 1
             plt.subplot(df_cat.shape[1], 2, pos)
             df[col].value_counts().plot(kind='pie', cmap=cmap)
         else:
-            pos +=1;
+            pos += 1;
 
 
 # corr PairPlot numCols to numTarget - see here: https://www.kaggle.com/ekami66/detailed-exploratory-data-analysis-with-python
