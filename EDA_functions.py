@@ -13,7 +13,7 @@ Distributions:
 
 Correlations: 
 - plot_num_corrMap: Display heatmap to show correlations between all numerical 
-  columns in the Dataframe.    
+  columns in the Dataframe.
 - plot_corr_bar_num_target: Display sorted barchart to show correlations between 
   all numerical features and numerical target variable.
 - plot_corr_regression_num_target: Display regplots to visualize correlations 
@@ -38,7 +38,7 @@ from tqdm import tqdm
 
 
 def display_tail_transposed(df, max_row=200, max_col=200):
-    """Display transposed tail of DataFrame with all the features (original 
+    """Display transposed tail of DataFrame with all the features (original
     columns) as rows and values for 5 instances (original rows) as columns.
 
     Arguments:
@@ -53,8 +53,8 @@ def display_tail_transposed(df, max_row=200, max_col=200):
 
     """
 
-    with pd.option_context("display.max_rows", max_row): 
-        with pd.option_context("display.max_columns", max_col): 
+    with pd.option_context("display.max_rows", max_row):
+        with pd.option_context("display.max_columns", max_col):
             print(df.shape)
             display(df.tail().transpose())
 
@@ -63,7 +63,7 @@ def display_tail_transposed(df, max_row=200, max_col=200):
 
 def plot_num_hist(df, figsize=(16, 16), bins=50, color=color, kde=True):
     """Display histograms for all numerical columns in DataFrame.
-    
+
     Arguments:
     ----------
     - df: DataFrame
@@ -77,7 +77,7 @@ def plot_num_hist(df, figsize=(16, 16), bins=50, color=color, kde=True):
     - None. Displays plot.
     """
 
-    df_num = df.select_dtypes(include = ['float64', 'int64'])
+    df_num = df.select_dtypes(include=['float64', 'int64'])
     pos=0
     plt.figure(figsize=figsize)
     for col in df_num.columns:
@@ -101,7 +101,7 @@ def plot_num_box(df, figsize=(16, 16), color=color):
     - None. Displays plot.
     """
 
-    df_num = df.select_dtypes(include = ['float64', 'int64'])
+    df_num = df.select_dtypes(include=['float64', 'int64'])
     pos=0
     plt.figure(figsize=figsize)
     for col in df_num.columns:
@@ -112,7 +112,7 @@ def plot_num_box(df, figsize=(16, 16), color=color):
 
 
 def plot_cat_pies(df, figsize=(16, 16), cmap='viridis'):
-    """Display pieplots for all categorical columns in DataFrame with up to 
+    """Display pieplots for all categorical columns in DataFrame with up to
     30 values.
 
     Arguments:
@@ -134,19 +134,18 @@ def plot_cat_pies(df, figsize=(16, 16), cmap='viridis'):
         if df[col].nunique() <= 30:
             pos +=1
             plt.subplot(np.ceil(df_cat.shape[1] / 4), 4, pos)
-            plt.tight_layout(w_pad=1)            
-            df[col].value_counts().plot(kind='pie', cmap = cmap)
+            plt.tight_layout(w_pad=1)
+            df[col].value_counts().plot(kind='pie', cmap=cmap)
         else: catWithManyValues.append(df[col].name)
     if len(catWithManyValues) > 0:
         display("Not plotted: " + str(catWithManyValues));
 
 
-
 # CORRELATIONS
-    
+
 def plot_corr_map_num_all(df, figsize=(16, 16), cmap='magma'):
-    """Display heatmap to show correlations between all numerical 
-    columns in the Dataframe. 
+    """Display heatmap to show correlations between all numerical
+    columns in the Dataframe.
 
     Arguments:
     ----------
@@ -160,14 +159,14 @@ def plot_corr_map_num_all(df, figsize=(16, 16), cmap='magma'):
     """
 
     plt.figure(figsize=figsize)
-    df_num = df.select_dtypes(include = ['int64', 'float64'])
-    sns.heatmap(df_num.corr(), cmap=cmap, linecolor='white', 
+    df_num = df.select_dtypes(include=['int64', 'float64'])
+    sns.heatmap(df_num.corr(), cmap=cmap, linecolor='white',
                 linewidth=1, annot=True);
 
 
-def plot_corr_bar_num_target(df, target, figsize=(16, 6), 
+def plot_corr_bar_num_target(df, target, figsize=(16, 6),
                              color='rebeccapurple'):
-    """Display sorted barchart to show correlations between 
+    """Display sorted barchart to show correlations between
     all numerical features and numerical target variable.
 
     Arguments:
@@ -181,7 +180,7 @@ def plot_corr_bar_num_target(df, target, figsize=(16, 6),
     --------
     - None. Displays plot.
     """
-    
+
     df_num = df.select_dtypes(include = ['int64', 'float64'])
 
     plt.figure(figsize=figsize)
@@ -190,11 +189,11 @@ def plot_corr_bar_num_target(df, target, figsize=(16, 6),
     plt.show();
 
 
-def plot_corr_regression_num_target(df, target, figsize=(16, 16), 
-                                 color=['rebeccapurple', 'yellow']):
-    """Display regplots to visualize correlations between the numerical 
+def plot_corr_regression_num_target(df, target, figsize=(16, 16),
+                                    color=['rebeccapurple', 'yellow']):
+    """Display regplots to visualize correlations between the numerical
     features and numerical target variable.
-    
+
     Arguments:
     ----------
     - df: DataFrame
@@ -207,7 +206,7 @@ def plot_corr_regression_num_target(df, target, figsize=(16, 16),
     - None. Displays plots.
     """
 
-    df_num = df.select_dtypes(include = ['float64', 'int64']
+    df_num = df.select_dtypes(include=['float64', 'int64']
                               ).drop(target, axis=1)
     pos=0
     plt.figure(figsize=figsize)
@@ -215,12 +214,12 @@ def plot_corr_regression_num_target(df, target, figsize=(16, 16),
         pos +=1
         plt.subplot(np.ceil(df_num.shape[1] / 2), 2, pos)
         plt.tight_layout(w_pad=1)
-        sns.regplot(x=col, y=df[target], data=df_num, 
+        sns.regplot(x=col, y=df[target], data=df_num,
                     color=color[0], line_kws={'color': color[1]});
 
 
 def plot_corr_box_num_target(df, target, figsize=(16, 16), color=color):
-    """Display lineplots to show correlation details 
+    """Display lineplots to show correlation details
     between all numerical features and target classes.
 
     Arguments:
@@ -235,20 +234,20 @@ def plot_corr_box_num_target(df, target, figsize=(16, 16), color=color):
     - None. Displays plot.
     """
 
-    df_num = df.select_dtypes(include = ['float64', 'int64'])
+    df_num = df.select_dtypes(include=['float64', 'int64'])
     pos=0
     plt.figure(figsize=figsize)
     for col in df_num.columns:
         pos +=1
         plt.subplot(np.ceil(df_num.shape[1] / 2), 2, pos)
-        plt.tight_layout(w_pad=1)        
+        plt.tight_layout(w_pad=1)
         sns.boxplot(x=df[target].astype('category'), y=col, 
                     data=df_num, color=color);
 
 
 def plot_corr_line_num_target(df, target, figsize=(16, 16), ylim=[0, 1], 
                               color=color):
-    """Display lineplots to show correlation details 
+    """Display lineplots to show correlation details
     between all numerical features and target classes.
 
     Arguments:
@@ -264,7 +263,7 @@ def plot_corr_line_num_target(df, target, figsize=(16, 16), ylim=[0, 1],
     - None. Displays plot.
     """
 
-    df_num = df.select_dtypes(include = ['float64', 'int64'])
+    df_num = df.select_dtypes(include=['float64', 'int64'])
     pos=0
     plt.figure(figsize=figsize)
     for col in tqdm(df_num.columns):
@@ -277,7 +276,7 @@ def plot_corr_line_num_target(df, target, figsize=(16, 16), ylim=[0, 1],
 
 
 def plot_corr_strip_cat_target(df, target, figsize=(16, 32), palette='rocket'):
-    """Display stripplots to show correlations between 
+    """Display stripplots to show correlations between
     the categorical features and numerical target variable.
 
     Arguments:
@@ -292,7 +291,7 @@ def plot_corr_strip_cat_target(df, target, figsize=(16, 32), palette='rocket'):
     - None. Displays plot.
     """
 
-    df_cat = df.select_dtypes(include = ['category'])
+    df_cat = df.select_dtypes(include=['category'])
     pos=0
     plt.figure(figsize=figsize)
     for col in df_cat.columns:
@@ -303,9 +302,9 @@ def plot_corr_strip_cat_target(df, target, figsize=(16, 32), palette='rocket'):
         sns.stripplot(x=col, y=target, data=df_plot, palette=palette);
 
 
-def plot_corr_point_cat_target(df, target, figsize=(16, 16), ylim=[0,1], 
+def plot_corr_point_cat_target(df, target, figsize=(16, 16), ylim=[0, 1],
                                color=color, cmap='viridis'):
-    """Display pointplots (and corresponding piecharts) 
+    """Display pointplots (and corresponding piecharts)
     to show correlations between all categorical columns and target classes.
 
     Arguments:
@@ -322,7 +321,7 @@ def plot_corr_point_cat_target(df, target, figsize=(16, 16), ylim=[0,1],
     - None. Displays plot.
     """
 
-    df_cat = df.select_dtypes(include = ['category'])
+    df_cat = df.select_dtypes(include=['category'])
     pos=0
     plt.figure(figsize=figsize)
     for col in df_cat.columns:
@@ -336,9 +335,9 @@ def plot_corr_point_cat_target(df, target, figsize=(16, 16), ylim=[0,1],
         if df[col].nunique() <= 30:
             pos +=1
             plt.subplot(df_cat.shape[1], 2, pos)
-            df[col].value_counts().plot(kind='pie', cmap = cmap)
-        else: pos +=1;
-
+            df[col].value_counts().plot(kind='pie', cmap=cmap)
+        else:
+            pos +=1;
 
 
 # corr PairPlot numCols to numTarget - see here: https://www.kaggle.com/ekami66/detailed-exploratory-data-analysis-with-python
