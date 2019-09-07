@@ -117,9 +117,10 @@ def change_dtypes(df, cols_to_category=[], cols_to_object=[],
 
     Returns:
     --------
-    - df: transformed DataFrame
+    - df_type: transformed DataFrame
     """
 
+    df_type = df.copy()
     dtypes_dict = {tuple(cols_to_category): 'category',
                    tuple(cols_to_object): str,
                    tuple(cols_to_integer): np.int64,
@@ -129,20 +130,21 @@ def change_dtypes(df, cols_to_category=[], cols_to_object=[],
     for cols_list, datatype in dtypes_dict.items():
         if cols_list is not None:
             for col in cols_list:
-                if col in df.columns:
-                    df[col] = df[col].astype(datatype)
+                if col in df_type.columns:
+                    df_type[col] = df_type[col].astype(datatype)
                 else:
                     print(col + " not found")
 
     # different handling for datetime columns
     if cols_to_datetime is not None:
         for col in cols_to_datetime:
-            if col in df.columns:
-                df[col] = pd.to_datetime(df[col], format=datetime_pattern)
+            if col in df_type.columns:
+                df_type[col] = pd.to_datetime(
+                        df_type[col], format=datetime_pattern)
             else:
                 print(col + " not found")
 
-    return df
+    return df_type
 
 
 def delete_columns(df, cols_to_delete):
