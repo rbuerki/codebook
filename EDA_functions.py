@@ -1,6 +1,8 @@
 """ LIST OF FUNCTIONS
     -----------------
 
+- Display the value counts and respective proportion of the column total for
+in a nicely formatted dataframe for a single column or a list of columns.
 - display_tail_transposed: Display transposed tail of DataFrame with all the
 features (orig cols) as rows and values for 5 instances (orig rows) as cols.
 
@@ -49,7 +51,7 @@ def dislplay_value_counts_ptc(
     columns.
 
     Args:
-        df (pd.DataFrame): DataFrame to be analyzed
+        df (pd.DataFrame): DataFrame to analyze
         cols (Union[str, Iterable[str]]): Single column name string or
             list of column name strings
         n_rows ([int], optional): If not None, defines the max number
@@ -60,12 +62,16 @@ def dislplay_value_counts_ptc(
     for col in cols:
         counts = df[col].value_counts()
         pct = df[col].value_counts() / len(df)
-        df = pd.concat([counts, pct], axis=1, keys=["counts", "pct"])
+        df_out = pd.concat([counts, pct], axis=1, keys=["counts", "pct"])
+        caption_str = f"{col}"
         if n_rows is not None:
-            df = df.iloc[:n_rows, :]
+            df_out = df_out.iloc[:n_rows, :]
+            caption_str = f"{col}, top {n_rows}"
         display(
-            df.style.format({"counts": "{:,.0f}", "pct": "{:.1%}"})
-        ).set_caption(f"{col}")
+            df_out.style.format(
+                {"counts": "{:,.0f}", "pct": "{:.1%}"}
+            ).set_caption(caption_str)
+        )
 
 
 def display_tail_transposed(df, max_row=200, max_col=200):
