@@ -9,6 +9,7 @@ Dataframe values:
 - `display_tail_transposed`: Display transposed tail of the dataframe
    with all the orig cols as rows and values for 5 instances as columns.
 
+# TODO replace ...
 Distributions:
 - plot_num_hist: Display histograms for all numerical columns in DataFrame.
 - plot_num_box: Display boxplots for all numerical columns in DataFrame.
@@ -32,7 +33,7 @@ Correlations:
   to show correlations between all categorical columns and target classes.
 """
 
-from typing import Iterable, Optional, Tuple, Union
+from typing import Optional, Tuple, Union
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -64,9 +65,7 @@ def display_distinct_values(df: Union[pd.DataFrame, pd.Series]):
 
 
 def display_value_counts_ptc(
-    df: pd.DataFrame,
-    cols: Union[str, Iterable[str]],
-    n_rows: Optional[int] = None,
+    df: pd.DataFrame, n_rows: Optional[int] = None,
 ):
     """Display a dataframe containing the value counts and their
     respective pct for a column or a list of columns. The max
@@ -109,109 +108,111 @@ def display_tail_transposed(
 # DISTRIBUTIONS
 
 
-def plot_num_hist(
-    df: pd.DataFrame,
-    figsize: Tuple[int, int] = (14, 14),
-    *kwargs,  # TODO kwargs ...
+def plot_numerical_hist(
+    df: pd.DataFrame, figsize: Optional[Tuple[int, int]] = None, **kwargs
 ):
-    """Display histograms for all numerical columns in DataFrame."""
-    df_num = df.select_dtypes(include=["float64", "int64"])
-    pos = 0
+    """Display a histogram for every numerical column in the passed
+    dataframe. A good figsize is interfered if not explicitely passed.
+    Additional keyword arguments will be passed to the actual seaborn
+    plot function.
+    """
+    df_num = df.select_dtypes(include=np.number)
+    defaults = {"bins": 50, "color": COLOR, "kde": True}
+    kwargs = {**defaults, **kwargs}
+    if figsize is None:
+        height = df_num.shape[1] / 4 * 4  # ;-)
+        figsize = (14, height)
+
     plt.figure(figsize=figsize)
-    for col in df_num.columns:
-        pos += 1
+    for pos, col in enumerate(df_num.columns, 1):
         plt.subplot(np.ceil(df_num.shape[1] / 4), 4, pos)
         plt.tight_layout(w_pad=1)
-        sns.distplot(
-            df_num[col].dropna(), *kwargs, bins=50, color=COLOR, kde=True
-        )
+        sns.histplot(df_num[col].dropna(), **kwargs)
 
 
-def plot_num_box(df, figsize=(14, 16), color=COLOR):
-    """Display boxplots for all numerical columns in DataFrame.
-
-    Arguments:
-    ----------
-    - df: DataFrame
-    - figsize: tuple (default=(14, 16))
-    - color: string (default='rebeccapurple')
-
-    Returns:
-    --------
-    - None. Displays plot.
+def plot_numerical_box(
+    df: pd.DataFrame, figsize: Optional[Tuple[int, int]] = None, **kwargs
+):
+    """Display a boxplot for every numerical column in the passed
+    dataframe. A good figsize is interfered if not explicitely passed.
+    Additional keyword arguments will be passed to the actual seaborn
+    plot function.
     """
+    df_num = df.select_dtypes(include=np.number)
+    defaults = {"color": COLOR}
+    kwargs = {**defaults, **kwargs}
+    if figsize is None:
+        height = df_num.shape[1] / 4 * 4  # ;-)
+        figsize = (14, height)
 
-    df_num = df.select_dtypes(include=["float64", "int64"])
-    pos = 0
     plt.figure(figsize=figsize)
-    for col in df_num.columns:
-        pos += 1
+    for pos, col in enumerate(df_num.columns, 1):
         plt.subplot(np.ceil(df_num.shape[1] / 4), 4, pos)
         plt.tight_layout(w_pad=1)
-        sns.boxplot(y=col, data=df_num, color=COLOR)
+        sns.boxplot(y=col, data=df_num, **kwargs)
 
 
-def plot_cat_pies(df, figsize=(14, 16), cmap="viridis"):
-    """Display pieplots for all categorical columns in DataFrame with up to
-    30 values.
-
-    Arguments:
-    ----------
-    - df: DataFrame
-    - figsize: tuple (default=(14, 16))
-    - cmap: default is 'viridis'
-
-    Returns:
-    --------
-    - None. Displays plot.
+def plot_categorical_pies(
+    df: pd.DataFrame, figsize: Optional[Tuple[int, int]] = None, **kwargs
+):
+    """Display a pieplot for every categorical column in the passed
+    dataframe that has no more than 30 distinct values. A good 
+    figsize is interfered if not explicitely passed. Additional
+    keyword arguments will be passed to the actual pandas plot 
+    function.
     """
-
     df_cat = df.select_dtypes(include="category")
+    defaults = {"cmap": "viridis"}
+    kwargs = {**defaults, **kwargs}
+    if figsize is None:
+        height = df_cat.shape[1] / 3 * 4
+        figsize = (14, height)
+    cols_with_many_distinct_values = []
     pos = 0
-    catWithManyValues = []
+
     plt.figure(figsize=figsize)
     for col in df_cat.columns:
-        if df[col].nunique() <= 30:
+        if df_cat[col].nunique() <= 30:
             pos += 1
-            plt.subplot(np.ceil(df_cat.shape[1] / 4), 4, pos)
+            plt.subplot(np.ceil(df_cat.shape[1] / 3), 3, pos)
             plt.tight_layout(w_pad=1)
-            df[col].value_counts().plot(kind="pie", cmap=cmap)
+            df[col].value_counts().plot(kind="pie", **kwargs)
         else:
-            catWithManyValues.append(df[col].name)
-    if len(catWithManyValues) > 0:
-        display("Not plotted: " + str(catWithManyValues))
+            cols_with_many_distinct_values.append(col)
+
+    if len(cols_with_many_distinct_values) > 0:
+        display(f"Not plotted: {cols_with_many_distinct_values}")
 
 
 # CORRELATIONS
 
 
-def plot_corr_map_num_all(df, figsize=(14, 16), cmap="magma"):
-    """Display heatmap to show correlations between all numerical
-    columns in the Dataframe.
-
-    Arguments:
-    ----------
-    - df: DataFrame
-    - figsize: tuple (default=(14, 16))
-    - cmap: str, (default='magma')
-
-    Returns:
-    --------
-    - None. Displays plot.
+def plot_correlations_full_heatmap(
+    df: pd.DataFrame, figsize: Tuple[int, int] = (14, 10), **kwargs
+):
+    """Display heatmap to show correlations between all the numerical
+    columns in the Dataframe. Optional figsize and additional keyword
+    arguments will be passed to the actual seaborn plot function.
     """
+    df_num = df.select_dtypes(include=np.number)
+    defaults = {
+        "cmap": "magma",
+        "linecolor": "white",
+        "linewidth": 1,
+        "annot": True,
+    }
+    kwargs = {**defaults, **kwargs}
 
     plt.figure(figsize=figsize)
-    df_num = df.select_dtypes(include=["int64", "float64"])
-    sns.heatmap(
-        df_num.corr(), cmap=cmap, linecolor="white", linewidth=1, annot=True
-    )
+    sns.heatmap(df_num.corr(), **kwargs)
 
 
-def plot_corr_bar_num_target(
-    df, target, figsize=(14, 6), color="rebeccapurple"
+# TODO - continue here ...
+def plot_correlations_bar_num_target(
+    df, target_col, figsize=(14, 6), color="rebeccapurple"
 ):
     """Display sorted barchart to show correlations between
-    all numerical features and numerical target variable.
+    all numerical features and a numerical target variable.
 
     Arguments:
     ----------
