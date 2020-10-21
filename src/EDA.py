@@ -108,13 +108,16 @@ def display_tail_transposed(
 # DISTRIBUTIONS
 
 
-def plot_numerical_hist(
+# TODO: I most often don't need a separate df, only the column names ...
+
+
+def plot_numerical_histplots(
     df: pd.DataFrame, figsize: Optional[Tuple[int, int]] = None, **kwargs
 ):
     """Display a histogram for every numerical column in the passed
-    dataframe. A good figsize is interfered if not explicitely passed.
-    Additional keyword arguments will be passed to the actual seaborn
-    plot function.
+    dataframe. If not explicitely passed, a suitable figsize is
+    interfered. Additional keyword arguments will be passed to the
+    actual seaborn plot function.
     """
     df_num = df.select_dtypes(include=np.number)
     defaults = {"bins": 50, "color": COLOR, "kde": True}
@@ -128,15 +131,16 @@ def plot_numerical_hist(
         plt.subplot(np.ceil(df_num.shape[1] / 4), 4, pos)
         plt.tight_layout(w_pad=1)
         sns.histplot(df_num[col].dropna(), **kwargs)
+    plt.show()
 
 
-def plot_numerical_box(
+def plot_numerical_boxplots(
     df: pd.DataFrame, figsize: Optional[Tuple[int, int]] = None, **kwargs
 ):
     """Display a boxplot for every numerical column in the passed
-    dataframe. A good figsize is interfered if not explicitely passed.
-    Additional keyword arguments will be passed to the actual seaborn
-    plot function.
+    dataframe. If not explicitely passed, a suitable figsize is
+    interfered. Additional keyword arguments will be passed to the
+    actual seaborn plot function.
     """
     df_num = df.select_dtypes(include=np.number)
     defaults = {"color": COLOR}
@@ -150,15 +154,16 @@ def plot_numerical_box(
         plt.subplot(np.ceil(df_num.shape[1] / 4), 4, pos)
         plt.tight_layout(w_pad=1)
         sns.boxplot(y=col, data=df_num, **kwargs)
+    plt.show()
 
 
 def plot_categorical_pies(
     df: pd.DataFrame, figsize: Optional[Tuple[int, int]] = None, **kwargs
 ):
     """Display a pieplot for every categorical column in the passed
-    dataframe that has no more than 30 distinct values. A good 
-    figsize is interfered if not explicitely passed. Additional
-    keyword arguments will be passed to the actual pandas plot 
+    dataframe that has no more than 30 distinct values. If not
+    explicitely passed, a suitable figsize is interfered. Additional
+    keyword arguments will be passed to the actual pandas plot
     function.
     """
     df_cat = df.select_dtypes(include="category")
@@ -179,6 +184,7 @@ def plot_categorical_pies(
             df[col].value_counts().plot(kind="pie", **kwargs)
         else:
             cols_with_many_distinct_values.append(col)
+    plt.show()
 
     if len(cols_with_many_distinct_values) > 0:
         display(f"Not plotted: {cols_with_many_distinct_values}")
@@ -190,7 +196,7 @@ def plot_categorical_pies(
 def plot_correlations_full_heatmap(
     df: pd.DataFrame, figsize: Tuple[int, int] = (14, 10), **kwargs
 ):
-    """Display heatmap to show correlations between all the numerical
+    """Display a heatmap to show correlations between all the numerical
     columns in the Dataframe. Optional figsize and additional keyword
     arguments will be passed to the actual seaborn plot function.
     """
@@ -205,128 +211,136 @@ def plot_correlations_full_heatmap(
 
     plt.figure(figsize=figsize)
     sns.heatmap(df_num.corr(), **kwargs)
-
-
-# TODO - continue here ...
-def plot_correlations_bar_num_target(
-    df, target_col, figsize=(14, 6), color="rebeccapurple"
-):
-    """Display sorted barchart to show correlations between
-    all numerical features and a numerical target variable.
-
-    Arguments:
-    ----------
-    - df: DataFrame
-    - target: str, column label of numerical target variable
-    - figsize: tuple (default=(14, 6))
-    - color: str (default='rebeccapurple')
-
-    Returns:
-    --------
-    - None. Displays plot.
-    """
-
-    df_num = df.select_dtypes(include=["int64", "float64"])
-
-    plt.figure(figsize=figsize)
-    corr_target_series = df_num.corr()[target].sort_values(ascending=False)
-    corr_target_series.drop(target).plot.bar(color=COLOR)
     plt.show()
 
 
-def plot_corr_regression_num_target(
-    df, target, figsize=(14, 16), color=("rebeccapurple", "yellow")
+def plot_correlations_numeric_to_target_barchart(
+    df: pd.DataFrame,
+    target_col: str,
+    figsize: Tuple[int, int] = (14, 8),
+    **kwargs,
 ):
-    """Display regplots to visualize correlations between the numerical
-    features and numerical target variable.
-
-    Arguments:
-    ----------
-    - df: DataFrame
-    - target: str, column label of numerical target variable
-    - figsize: tuple (default=(14, 16))
-    - color: list of two strings (default=['rebeccapurple', 'yellow'])
-
-    Returns:
-    --------
-    - None. Displays plots.
+    """Display a barchart to show the correlations between the
+    numerical features and a numerical target variable. Optional
+    figsize and additional keyword arguments will be passed to
+    the actual pandas plot function.
     """
+    df_num = df.select_dtypes(include=np.number)
+    defaults = {"color": COLOR, "title": "Correlations to Target Variable"}
+    kwargs = {**defaults, **kwargs}
+    correlations = df_num.corr()[target_col].sort_values(ascending=False)
 
-    df_num = df.select_dtypes(include=["float64", "int64"]).drop(target, axis=1)
-    pos = 0
     plt.figure(figsize=figsize)
-    for col in df_num.columns:
-        pos += 1
+    correlations.drop(target_col).plot.bar(**kwargs)
+    plt.show()
+
+
+def plot_correlations_numeric_to_target_regressions(
+    df: pd.DataFrame,
+    target_col: str,
+    figsize: Optional[Tuple[int, int]] = None,
+    **kwargs,
+):
+    """Display a regplot for every numerical feature in the
+    passed dataframe to display the correlation to a numerical
+    target variable. If not explicitely passed, a suitable figsize
+    is interfered. Additional keyword arguments will be passed to
+    the actual pandas plot function.
+    """
+    df_num = df.select_dtypes(include=np.number).drop(target_col, axis=1)
+    defaults = {"color": COLOR, "line_kws": {"color": "yellow"}}
+    kwargs = {**defaults, **kwargs}
+    if figsize is None:
+        height = df_num.shape[1] / 2 * 4
+        figsize = (14, height)
+
+    plt.figure(figsize=figsize)
+    for pos, col in enumerate(df_num.columns, 1):
         plt.subplot(np.ceil(df_num.shape[1] / 2), 2, pos)
         plt.tight_layout(w_pad=1)
-        sns.regplot(
-            x=col,
-            y=df[target],
-            data=df_num,
-            color=COLOR[0],
-            line_kws={"color": color[1]},
-        )
+        sns.regplot(data=df, x=col, y=target_col, **kwargs)
+    plt.show()
 
 
-def plot_corr_box_num_target(df, target, figsize=(14, 16), color=COLOR):
-    """Display lineplots to show correlation details
-    between all numerical features and target classes.
+def plot_correlations_numeric_to_target_lineplots(
+    df: pd.DataFrame,
+    target_col: str,
+    figsize: Optional[Tuple[int, int]] = None,
+    ylim: Optional[Tuple[int, int]] = None,
+    **kwargs,
+):
+    """Display a lineplot for every numerical feature in the
+    passed dataframe to display the correlation to a numerical target
+    variable. If not explicitely passed, a suitable figsize is
+    interfered. The same is true for the ylim tuple. Additional
+    keyword arguments will be passed to the actual seaborn plot 
+    function.
 
-    Arguments:
-    ----------
-    - df: DataFrame
-    - target: str, column label of numerical target variable
-    - figsize: tuple (default=(14, 16))
-    - color: str (default='rebeccapurple')
-
-    Returns:
-    --------
-    - None. Displays plot.
+    This is a powerful visualization but it is computationally 
+    expensive and can be confusing on large datasets.
     """
+    df_num = df.select_dtypes(include=np.number)
+    try:
+        df_num = df_num.drop(target_col, axis=1)
+    except KeyError:
+        pass
+    defaults = {"color": COLOR}
+    kwargs = {**defaults, **kwargs}
 
-    df_num = df.select_dtypes(include=["float64", "int64"])
-    pos = 0
+    if figsize is None:
+        height = df_num.shape[1] / 2 * 4
+        figsize = (14, height)
+    if ylim is None:
+        upper = df[target_col].max()
+        lower = df[target_col].min()
+        ylim = (lower, upper)
+
     plt.figure(figsize=figsize)
-    for col in df_num.columns:
-        pos += 1
+    for pos, col in enumerate(df_num.columns, 1):
+        plt.subplot(np.ceil(df_num.shape[1] / 2), 2, pos)
+        plt.tight_layout(w_pad=1)
+        plt.ylim(*ylim)
+        plt.xlabel(col)
+        sns.lineplot(data=df, x=col, y=df[target_col], **kwargs)
+    plt.show()
+
+
+def plot_correlations_numeric_to_target_boxplots(
+    df: pd.DataFrame,
+    target_col: str,
+    figsize: Optional[Tuple[int, int]] = None,
+    **kwargs,
+):
+    """Display a boxplot for every numerical feature in the
+    passed dataframe to display the correlation to a target variable
+    made of categorical classes (dtype can be numeric). If not
+    explicitely passed, a suitable figsize is interfered. Additional
+    keyword arguments will be passed to the actual seaborn plot
+    function.
+    """
+    df_num = df.select_dtypes(include=np.number)
+    try:
+        df_num = df_num.drop(target_col, axis=1)
+    except KeyError:
+        pass
+    defaults = {"color": COLOR}
+    kwargs = {**defaults, **kwargs}
+
+    if figsize is None:
+        height = df_num.shape[1] / 2 * 4
+        figsize = (14, height)
+
+    plt.figure(figsize=figsize)
+    for pos, col in enumerate(df_num.columns, 1):
         plt.subplot(np.ceil(df_num.shape[1] / 2), 2, pos)
         plt.tight_layout(w_pad=1)
         sns.boxplot(
-            x=df[target].astype("category"), y=col, data=df_num, color=COLOR
+            data=df, x=df[target_col].astype("category"), y=col, **kwargs
         )
+    plt.show()
 
 
-def plot_corr_line_num_target(
-    df, target, figsize=(14, 16), ylim=(0, 1), color=COLOR
-):
-    """Display lineplots to show correlation details
-    between all numerical features and target classes.
-
-    Arguments:
-    ----------
-    - df: DataFrame
-    - target: str, column label of numerical target variable
-    - figsize: tuple (default=(14, 16))
-    - ylim: list of two int, limits for y-axis (default=[0, 1])
-    - color: str (default='rebeccapurple')
-
-    Returns:
-    --------
-    - None. Displays plot.
-    """
-
-    df_num = df.select_dtypes(include=["float64", "int64"])
-    pos = 0
-    plt.figure(figsize=figsize)
-    for col in tqdm(df_num.columns):
-        pos += 1
-        plt.subplot(np.ceil(df_num.shape[1] / 2), 2, pos)
-        plt.tight_layout(w_pad=1)
-        plt.ylim(ylim)
-        plt.xlabel(df[col].name)
-        sns.lineplot(x=col, y=target, data=df_num, color=COLOR)
-
-
+# TODO: Continue here ...
 def plot_corr_strip_cat_target(df, target, figsize=(14, 32), palette="rocket"):
     """Display stripplots to show correlations between
     the categorical features and numerical target variable.
