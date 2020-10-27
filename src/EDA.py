@@ -122,7 +122,7 @@ def plot_numeric_histplots(
 
     plt.figure(figsize=figsize)
     for pos, col in enumerate(num_cols, 1):
-        plt.subplot(np.ceil(len(num_cols) / 4), 4, pos)
+        plt.subplot(int(np.ceil(len(num_cols) / 4)), 4, pos)
         plt.tight_layout(w_pad=1)
         sns.histplot(df[col].dropna(), **kwargs)
     plt.show()
@@ -145,7 +145,7 @@ def plot_numeric_boxplots(
 
     plt.figure(figsize=figsize)
     for pos, col in enumerate(num_cols, 1):
-        plt.subplot(np.ceil(len(num_cols) / 4), 4, pos)
+        plt.subplot(int(np.ceil(len(num_cols) / 4)), 4, pos)
         plt.tight_layout(w_pad=1)
         sns.boxplot(y=col, data=df, **kwargs)
     plt.show()
@@ -173,7 +173,7 @@ def plot_categorical_pies(
     for col in cat_cols:
         if df[col].nunique() <= 30:
             pos += 1
-            plt.subplot(np.ceil(len(cat_cols) / 3), 3, pos)
+            plt.subplot(int(np.ceil(len(cat_cols) / 3)), 3, pos)
             plt.tight_layout(w_pad=1)
             df[col].value_counts().plot(kind="pie", **kwargs)
         else:
@@ -239,7 +239,6 @@ def plot_correlations_numeric_to_target_regressions(
     **kwargs,
 ):
     """Display a regplot for every numeric feature in the passed
-    dataframe to display the correlation to a numeric target variable.
     If not explicitely passed, a suitable figsize is interfered.
     Additional keyword arguments will be passed to the actual seaborn
     plot function.
@@ -258,7 +257,7 @@ def plot_correlations_numeric_to_target_regressions(
 
     plt.figure(figsize=figsize)
     for pos, col in enumerate(num_cols, 1):
-        plt.subplot(np.ceil(len(num_cols) / 2), 2, pos)
+        plt.subplot(int(np.ceil(len(num_cols) / 2)), 2, pos)
         plt.tight_layout(w_pad=1)
         sns.regplot(data=df, x=col, y=target_col, **kwargs)
     plt.show()
@@ -299,7 +298,7 @@ def plot_correlations_numeric_to_target_lineplots(
 
     plt.figure(figsize=figsize)
     for pos, col in enumerate(num_cols, 1):
-        plt.subplot(np.ceil(len(num_cols) / 2), 2, pos)
+        plt.subplot(int(np.ceil(len(num_cols) / 2)), 2, pos)
         plt.tight_layout(w_pad=1)
         plt.ylim(*ylim)
         plt.xlabel(col)
@@ -334,7 +333,7 @@ def plot_correlations_numeric_to_target_boxplots(
 
     plt.figure(figsize=figsize)
     for pos, col in enumerate(num_cols, 1):
-        plt.subplot(np.ceil(len(num_cols) / 2), 2, pos)
+        plt.subplot(int(np.ceil(len(num_cols) / 2)), 2, pos)
         plt.tight_layout(w_pad=1)
         sns.boxplot(
             data=df, x=df[target_col].astype("category"), y=col, **kwargs
@@ -386,7 +385,7 @@ def plot_correlations_numeric_to_target_pointplots_with_pies(
         sns.pointplot(x=col, y=target_col, data=df_plot, color="rebeccapurple")
         pos += 1
         if df[col].nunique() <= 30:
-            plt.subplot(np.ceil(len(cat_cols)), 2, pos)
+            plt.subplot(len(cat_cols), 2, pos)
             df[col].value_counts().plot(kind="pie", cmap="rocket")
     plt.show()
 
@@ -414,7 +413,7 @@ def plot_correlations_categorical_to_target_stripplots(
     for pos, col in enumerate(cat_cols, 1):
         df_plot = df[[col, target_col]]
         pos += 1
-        plt.subplot(np.ceil(len(cat_cols) / 2), 2, pos)
+        plt.subplot(int(np.ceil(len(cat_cols) / 2)), 2, pos)
         plt.tight_layout(w_pad=1)
         sns.stripplot(x=col, y=target_col, data=df_plot, **kwargs)
     plt.show()
