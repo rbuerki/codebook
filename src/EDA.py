@@ -6,31 +6,40 @@ Dataframe values:
    of distinct values for each column of the passed dataframe.
 - `display_value_counts_ptc`: Display a dataframe containing the value
    counts and their respective pct for a column or a list of columns.
-- `display_tail_transposed`: Display transposed tail of the dataframe
-   with all the orig cols as rows and values for 5 instances as columns.
+- `display_tail_transposed`: Display transposed tail of the passed 
+   dataframe with cols shown as rows and values for 5 instances as cols.
 
-# TODO replace ...
 Distributions:
-- plot_num_hist: Display histograms for all numeric columns in DataFrame.
-- plot_num_box: Display boxplots for all numeric columns in DataFrame.
-- plot_cat_pies: Display pieplots for all categorical columns in DataFrame with
-  up to 30 unique values.
+- `plot_numeric_histograms`: Display a histogram for every numeric column
+  in the passed dataframe.
+- `plot_numeric_boxplots`: Display a boxplot for every numeric column in 
+  the passed dataframe.
+- `plot_categorical_pies`: Display a pieplot for every categorical column 
+  in the passed dataframe that has no more than 30 distinct values.
 
 Correlations:
-- plot_num_corrMap: Display heatmap to show correlations between all numeric
-  columns in the Dataframe.
-- plot_corr_bar_num_target: Display sorted barchart to show correlations between
-  all numeric features and numeric target variable.
-- plot_corr_regression_num_target: Display regplots to visualize correlations
-  between the numeric features and numeric target variable.
-- plot_corr_box_num_target: Display boxplots to show correlations between all
-  numeric features and target classes.
-- plot_corr_line_num_target: Display lineplots to show correlation details
-  between all numeric features and target classes.
-- plot_corr_strip_cat_target: Display stripplots to show correlations between
-  the categorical features and numeric target variable.
-- plot_corr_point_cat_target: Display pointplots (and corresponding piecharts)
-  to show correlations between all categorical columns and target classes.
+- `plot_correlations_full_heatmap`: Display a heatmap to show
+  correlations   between all numeric columns in the Dataframe.
+- `plot_correlations_numeric_to_target_barchart`: Display a barchart to
+  show the correlations between the numeric features and a numeric 
+  target variable.
+- `plot_correlations_numeric_to_target_regressions`: Display a regplot
+  for every numeric feature in the passed dataframe to show correlations
+  to a numeric target variable.
+- `plot_correlations_numeric_to_target_lineplots`: Display a lineplot 
+  for every numeric feature in the passed dataframe to display the 
+  correlation to a numeric target variable.
+- `plot_correlations_numeric_to_target_boxplots`: Display a boxplot for
+  every numeric feature in the passed dataframe to display the
+  correlation to a target variable made of categorical classes (dtype
+  can be numeric).
+- `plot_correlations_numeric_to_target_pointplots_with_pies`: Display a
+  pointplot (and corresponding piechart) for every numeric feature in
+  the passed dataframe to display the correlation to a target variable
+  of categorical classes (dtype can be numeric).
+- `plot_correlations_categorical_to_target_stripplots`: Display a
+  stripplot for each categorical feature in the passed dataframe to
+  show the correlation to a numeric target variable.
 """
 
 from typing import Optional, Tuple, Union
@@ -91,9 +100,9 @@ def display_value_counts_ptc(
 def display_tail_transposed(
     df: pd.DataFrame, max_row: int = 100, random_state: Optional[int] = None
 ):
-    """Display transposed tail of the dataframe with the orig
-    columns as rows and values for 5 sample instances as columns.
-    The max number of rows can be adapted (defaults to 100).
+    """Display transposed tail of the passed dataframe with the
+    columns shown as rows and values for 5 sample instances as
+    columns. The max number of rows can be adapted (defaults to 100).
     A random state seed can be specified (defaults to None).
     """
     df = df.sample(frac=1, random_state=random_state)
@@ -105,7 +114,7 @@ def display_tail_transposed(
 # DISTRIBUTIONS
 
 
-def plot_numeric_histplots(
+def plot_numeric_histograms(
     df: pd.DataFrame, figsize: Optional[Tuple[int, int]] = None, **kwargs
 ):
     """Display a histogram for every numeric column in the passed
@@ -190,7 +199,7 @@ def plot_categorical_pies(
 def plot_correlations_full_heatmap(
     df: pd.DataFrame, figsize: Tuple[int, int] = (14, 10), **kwargs
 ):
-    """Display a heatmap to show correlations between all the numeric
+    """Display a heatmap to show correlations between all numeric
     columns in the Dataframe. Optional figsize and additional keyword
     arguments will be passed to the actual seaborn plot function.
     """
@@ -239,9 +248,10 @@ def plot_correlations_numeric_to_target_regressions(
     **kwargs,
 ):
     """Display a regplot for every numeric feature in the passed
-    If not explicitely passed, a suitable figsize is interfered.
-    Additional keyword arguments will be passed to the actual seaborn
-    plot function.
+    dataframe to show correlations to a numeric target variable. If
+    not explicitely passed, a suitable figsize is interfered. 
+    Additional keyword arguments will be passed to the actual
+    seaborn plot function.
     """
     num_cols = df.select_dtypes(include=np.number).columns.tolist()
     try:
@@ -412,7 +422,6 @@ def plot_correlations_categorical_to_target_stripplots(
     plt.figure(figsize=figsize)
     for pos, col in enumerate(cat_cols, 1):
         df_plot = df[[col, target_col]]
-        pos += 1
         plt.subplot(int(np.ceil(len(cat_cols) / 2)), 2, pos)
         plt.tight_layout(w_pad=1)
         sns.stripplot(x=col, y=target_col, data=df_plot, **kwargs)
