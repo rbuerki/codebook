@@ -1,5 +1,6 @@
-""" LIST OF FUNCTIONS
-    -----------------
+""" 
+LIST OF FUNCTIONS
+-----------------
 
 Dataframe values:
 - `display_distinct_values`: Display a dataframe containing the number
@@ -26,7 +27,7 @@ Correlations:
 - `plot_correlations_numeric_to_target_regressions`: Display a regplot
   for every numeric feature in the passed dataframe to show correlations
   to a numeric target variable.
-- `plot_correlations_numeric_to_target_lineplots`: Display a lineplot 
+- `plot_correlations_numeric_to_target_lineplots`: Display a lineplot
   for every numeric feature in the passed dataframe to display the 
   correlation to a numeric target variable.
 - `plot_correlations_numeric_to_target_boxplots`: Display a boxplot for

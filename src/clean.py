@@ -3,17 +3,20 @@ LIST OF FUNCTIONS
 -----------------
 
 Columns:
-- prettify_column_names: Replace whitespace in column labels with 
+- `prettify_column_names`: Replace whitespace in column labels with
   an underscore and, by default, change to all lowercase.
-- change_dtypes: Change datatypes for selected columns.
-- delete_columns: Delete columns permanently from a dataframe.
+- `count_dtypes`: Display a dataframe showing the count of different
+  column datatypes in the passed dataframe.
+- `delete_columns`: Delete selected columns permanently from the 
+  passed dataframe.
 
 Missing Values:
-- plot_NaN: Plot heatmap with all NaN in DataFrame.
-- list_NaN: Display DataFrame with missing values and their respective 
-  percentage for every column that contains missing values
-- handle_NaN: Apply different strategies for NaN handling in selected
-  columns (simplistic approach).
+- `plot_nan`: Display a heatmap of the passed dataframe highlighting
+  the missing values.
+- `list_nan`: Display a dataframe showing the missing values with their
+  respective percentage of the total values in a column.
+- `handle_nan`: Apply different strategies for handling missing values
+  in selected columns (simplistic approach).
 
 Duplicates:
 - list_duplicates: Display the columns containing column-wise duplicates.
@@ -35,9 +38,8 @@ Transformations:
   NOTE: Cannot handle NaN but yeo-johnson works on neg and zero values.
 """
 
-
 import collections
-from typing import List, Union
+from typing import Iterable, Tuple
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -46,7 +48,7 @@ import seaborn as sns
 from scipy import stats
 
 
-## COLUMNS - Names, Datatypes and Removal
+# COLUMNS - Names, Datatypes and Removal
 
 
 def prettify_column_names(
@@ -64,7 +66,7 @@ def prettify_column_names(
 
 
 def count_dtypes(df: pd.DataFrame):
-    """Print a list with the count of the different column
+    """Display a dataframe showing the count of different column
     datatypes in the passed dataframe.
     """
     dtypes_dict = collections.Counter(df.dtypes.values)
@@ -77,103 +79,88 @@ def count_dtypes(df: pd.DataFrame):
     )
 
 
-def change_dtypes(
-    df,
-    cols_to_category: Union[List[str], None] = None,
-    cols_to_object: Union[List[str], None] = None,
-    cols_to_string: Union[List[str], None] = None,
-    cols_to_integer: Union[List[str], None] = None,
-    cols_to_float: Union[List[str], None] = None,
-    cols_to_datetime: Union[List[str], None] = None,
-    datetime_pattern: str = "%Y/%m/%d",
+# TODO ... remove or refactor
+# def change_dtypes(
+#     df,
+#     cols_to_category: Union[List[str], None] = None,
+#     cols_to_object: Union[List[str], None] = None,
+#     cols_to_string: Union[List[str], None] = None,
+#     cols_to_integer: Union[List[str], None] = None,
+#     cols_to_float: Union[List[str], None] = None,
+#     cols_to_datetime: Union[List[str], None] = None,
+#     datetime_pattern: str = "%Y/%m/%d",
+# ) -> pd.DataFrame:
+#     """Transform datatypes of selected columns in the passed
+#     dataframe and return it.
+#     """
+#     df = df.copy()
+#     dtypes_dict = {
+#         tuple(cols_to_category): "category",
+#         tuple(cols_to_object): str,
+#         tuple(cols_to_integer): np.int64,
+#         tuple(cols_to_float): np.float64,
+#     }
+
+#     for cols_list, datatype in dtypes_dict.items():
+#         if cols_list is not None:
+#             for col in cols_list:
+#                 if col in df.columns:
+#                     df[col] = df[col].astype(datatype)
+#                 else:
+#                     print(col + " not found")
+
+#     # different handling for datetime columns
+#     if cols_to_datetime is not None:
+#         for col in cols_to_datetime:
+#             if col in df.columns:
+#                 df[col] = pd.to_datetime(df[col], format=datetime_pattern)
+#             else:
+#                 print(col + " not found")
+#     return df
+
+
+def delete_columns(
+    df: pd.DataFrame, cols_to_delete: Iterable[str]
 ) -> pd.DataFrame:
-    """Transform datatypes of selected columns in the passed
-    dataframe and return it.
+    """Delete columns permanently from the passed dataframe. Note: 
+    This function is structure such that more columns can be deleted
+    iteratively during EDA. In the end you hold the full list of
+    deleted columns.
     """
-    # TODO continue here ...
     df = df.copy()
-    dtypes_dict = {
-        tuple(cols_to_category): "category",
-        tuple(cols_to_object): str,
-        tuple(cols_to_integer): np.int64,
-        tuple(cols_to_float): np.float64,
-    }
-
-    for cols_list, datatype in dtypes_dict.items():
-        if cols_list is not None:
-            for col in cols_list:
-                if col in df.columns:
-                    df[col] = df[col].astype(datatype)
-                else:
-                    print(col + " not found")
-
-    # different handling for datetime columns
-    if cols_to_datetime is not None:
-        for col in cols_to_datetime:
-            if col in df.columns:
-                df[col] = pd.to_datetime(df[col], format=datetime_pattern)
-            else:
-                print(col + " not found")
-    return df
-
-
-def delete_columns(df, cols_to_delete):
-    """Delete columns permanently from a dataframe.
-
-    Arguments:
-    ----------
-    - df: DataFrame
-    - cols_to_delete: list, names of columns to delete
-
-    Returns:
-    --------
-    - df_del: DataFrame, transformed copy of original DataFrame
-    """
-
-    df_del = df.copy()
     for col in cols_to_delete:
-        if col in df_del.columns:
-            df_del.drop(col, axis=1, inplace=True)
-            print(col + " successfully deleted")
-
-    return df_del
+        try:
+            df.drop(col, axis=1, inplace=True)
+            print(f"Column {col} successfully deleted.")
+        except KeyError:
+            pass
+    return df
 
 
 ### MISSING VALUES - Detection and handling
 
 
-def plot_NaN(df, figsize=(18, 6), cmap="viridis"):
-    """Display heatmap of DataFrame highlighting missing values.
-
-    Arguments:
-    ----------
-    - df: DataFrame
-    - figsize: default is (18, 6)
-    - cmap: default is 'viridis'
-
-    Returns:
-    --------
-    - None, plot heatmap
-
-    """
-
+def plot_nan(df: pd.DataFrame, figsize: Tuple[int, int] = (14, 6), **kwargs):
+    """Display a heatmap of the passed dataframe highlighting the
+    missing values. Additional keyword arguments will be passed to
+    the actual seaborn plot function. """
+    defaults = {
+        "cmap": "viridis",
+        "yticklabels": False,
+        "cbar": False,
+    }
+    kwargs = {**defaults, **kwargs}
     plt.figure(figsize=figsize)
-    sns.heatmap(df.isnull(), yticklabels=False, cbar=False, cmap="viridis")
+    sns.heatmap(df.isnull(), **kwargs)
 
 
-def list_NaN(df):
-    """Display DataFrame with missing values and their respective percentage
-    for every column that contains missing values.
-
-    Arguments:
-    ----------
-    - df: DataFrame
-
-    Returns:
-    --------
-    - None, display DataFrame
+def list_nan(df):
+    """Display a dataframe showing the missing values with their
+    respective percentage of the total values in a column.
     """
-    if df.isnull().sum().sum() > 0:
+    if df.isnull().sum().sum() == 0:
+        print("No empty cells in DataFrame.")
+    else:
         total = df.isnull().sum()
         percent = round(df.isnull().sum() / len(df) * 100, 1)
         dtypes = df.dtypes
@@ -185,11 +172,10 @@ def list_NaN(df):
             ["total"], ascending=False
         )
         display(missing_data)
-    else:
-        print("No empty cells in DataFrame.")
 
 
-def handle_NaN(
+# TODO: continue here ...
+def handle_nan(
     df,
     cols_to_impute_num=None,
     cols_to_impute_cat=None,
@@ -252,7 +238,7 @@ def handle_NaN(
     return df_NaN
 
 
-### DUPLICATES
+# DUPLICATES
 
 
 def list_duplicates(df):
@@ -280,7 +266,7 @@ def list_duplicates(df):
             )
 
 
-### OUTLIERS - Count and Removal
+# OUTLIERS - Count and Removal
 
 
 def count_outliers_IQR_method(df, outlier_cols=None, IQR_dist=1.5):
@@ -306,10 +292,10 @@ def count_outliers_IQR_method(df, outlier_cols=None, IQR_dist=1.5):
     for col in outlier_cols:
         q25, q75 = np.nanpercentile(df[col], 25), np.nanpercentile(df[col], 75)
         iqr = q75 - q25
-        # calculate the outlier cut-off
+        # Calculate the outlier cut-off
         cut_off = iqr * IQR_dist
         lower, upper = q25 - cut_off, q75 + cut_off
-        # identify outliers
+        # Identify outliers
         outliers = [x for x in df[col] if x < lower or x > upper]
         if len(outliers) > 0:
             print(col + "\nIdentified outliers: {}".format(len(outliers)))
@@ -341,7 +327,7 @@ def remove_outliers_IQR_method(df, outlier_cols=None, IQR_dist=1.5):
     outlier_cols = (
         outlier_cols
         if outlier_cols is not None
-        else list(df_out.select_dtypes(include=["float64", "int64"]).columns)
+        else list(df_out.select_dtypes(include=np.number).columns)
     )
     outer_row_count_1 = len(df_out)
     rows_to_delete = []
@@ -382,7 +368,7 @@ def remove_outliers_IQR_method(df, outlier_cols=None, IQR_dist=1.5):
     return df_out
 
 
-### TRANSFORMATION
+# TRANSFORMATION
 
 
 def apply_log(df, cols_to_transform=None, treat_NaN=False, rename=False):
