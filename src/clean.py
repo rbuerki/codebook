@@ -39,7 +39,7 @@ Transformations:
 """
 
 import collections
-from typing import Iterable, Tuple
+from typing import Iterable, List, Optional, Tuple, Union
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -143,7 +143,8 @@ def delete_columns(
 def plot_nan(df: pd.DataFrame, figsize: Tuple[int, int] = (14, 6), **kwargs):
     """Display a heatmap of the passed dataframe highlighting the
     missing values. Additional keyword arguments will be passed to
-    the actual seaborn plot function. """
+    the actual seaborn plot function. 
+    """
     defaults = {
         "cmap": "viridis",
         "yticklabels": False,
@@ -241,134 +242,105 @@ def handle_nan(
 # DUPLICATES
 
 
-def list_duplicates(df):
-    """Display the columns containing column-wise duplicates.
-
-    Arguments:
-    ----------
-    - df: DataFrame
-
-    Returns:
-    --------
-    - None, print list
+def list_duplicates(df: pd.DataFrame):
+    """Display a summary of the column-wise duplicates in the passed
+    dataframe.
     """
-
     print("Number of column-wise duplicates per column:")
     for col in df:
         dup = df[col].loc[df[[col]].duplicated(keep=False) == 1]
-        dup_unique = dup.nunique()
+        dup_nunique = dup.nunique()
         dup_full = len(dup)
-        if dup_unique > 0:
+        if dup_nunique > 0:
             print(
-                "{}: {} unique duplicate values ({} total duplicates)".format(
-                    df[col].name, dup_unique, dup_full
-                )
+                f"- {col}: {dup_nunique} unique duplicated values "
+                f"({dup_full} duplicated rows)"
             )
 
 
 # OUTLIERS - Count and Removal
 
 
-def count_outliers_IQR_method(df, outlier_cols=None, IQR_dist=1.5):
-    """Display outlier count in specified columns depending on distance
-    from 1th / 3rd quartile. NaN are ignored.
-
-    Arguments:
-    ----------
-    - df: DataFrame
-    - outlier_cols: List with columns to clean, (default=all num columns)
-    - IQR_dist: Float for cut-off distance from quartiles, (default=1.5)
-
-    Returns:
-    --------
-    - None, print cols with outliers
+def count_outliers_IQR_method(
+    df: pd.DataFrame, iqr_dist: Union[int, float] = 1.5
+):
+    """Display outlier count for numeric columns in the passed
+    dataframe based on the IQR distance from the 1th / 3rd quartile
+    (defaults to 1.5). NaN values are ignored for the calculations.
     """
+    outlier_cols = df.select_dtypes(include=[np.number]).columns.tolist()
 
-    outlier_cols = (
-        outlier_cols
-        if outlier_cols is not None
-        else list(df.select_dtypes(include=["float64", "int64"]).columns)
-    )
     for col in outlier_cols:
         q25, q75 = np.nanpercentile(df[col], 25), np.nanpercentile(df[col], 75)
         iqr = q75 - q25
-        # Calculate the outlier cut-off
-        cut_off = iqr * IQR_dist
+        cut_off = iqr * iqr_dist
         lower, upper = q25 - cut_off, q75 + cut_off
-        # Identify outliers
         outliers = [x for x in df[col] if x < lower or x > upper]
+
         if len(outliers) > 0:
-            print(col + "\nIdentified outliers: {}".format(len(outliers)))
+            outlier_pct = len(outliers) / len(df[col])
             print(
-                "Percentage of total: {:.1f}%\n".format(
-                    (len(outliers) / len(df[col])) * 100
-                )
+                f"\n{col}:\n"
+                f" - upper cut-off value: {upper:,.2f}\n"
+                f" - lower cut-off value: {lower:,.2f}\n"
+                f" - Identified outliers: {len(outliers):,.0f}\n"
+                f" - of total values: {outlier_pct:.1%}"
             )
 
 
-def remove_outliers_IQR_method(df, outlier_cols=None, IQR_dist=1.5):
-    """Remove outliers in specified columns depending on distance from
-    1th / 3rd quartile. NaN are ignored. Returns a transformed copy of the
-    original DataFrame.
+def remove_outliers_IQR_method(
+    df: pd.DataFrame,
+    outlier_cols: Optional[List[str]] = None,
+    iqr_dist: Union[int, float] = 1.5,
+    return_idx_deleted: bool = False,
+) -> pd.DataFrame:
+    """Return a dataframe with outliers removed for selected columns.
+    If no specific `outlier_cols` are specified (default), the cleaning
+    is applied to all numeric columns. Outliers are removed depending
+    on the desired distance from 1th and 3rd quartile (defaults to 1.5).
+    NaN values are ignored.
 
-    Arguments:
-    ----------
-    - df: DataFrame
-    - outlier_cols: list of strings, columns to clean, (default=None).
-        If nothing is passed, the whole dataframe will be transformed
-    - IQR_dist: float, cut-off distance from quartiles (default=1.5)
-
-    Returns:
-    --------
-    - df_out: DataFrame, transformed copy of original DataFrame
+    If `return_idx_deleted` is set to True (it defaults to Flase), then
+    not only the cleaned dataframe is returned, but also the list of
+    the deleted index values as the second return object.
     """
+    df = df.copy()
+    if outlier_cols is None:
+        outlier_cols = df.select_dtypes(include=[np.number]).columns.tolist()
 
-    df_out = df.copy()
-    outlier_cols = (
-        outlier_cols
-        if outlier_cols is not None
-        else list(df_out.select_dtypes(include=np.number).columns)
-    )
-    outer_row_count_1 = len(df_out)
+    len_df_in = len(df)
     rows_to_delete = []
 
     for col in outlier_cols:
-        row_count_1 = len(rows_to_delete)
-        q25 = np.nanpercentile(df_out[col], 25)
-        q75 = np.nanpercentile(df_out[col], 75)
+        q25, q75 = np.nanpercentile(df[col], 25), np.nanpercentile(df[col], 75)
         iqr = q75 - q25
-        distance = IQR_dist * iqr
+        cut_off = iqr * iqr_dist
+        lower, upper = q25 - cut_off, q75 + cut_off
 
-        df_high = df_out.loc[df_out[col] > q75 + distance]
-        for idx in list(df_high.index):
-            rows_to_delete.append(idx)
-        df_low = df_out.loc[df_out[col] < q25 - distance]
-        for idx in list(df_low.index):
-            rows_to_delete.append(idx)
+        idx_low = df[df[col] < lower].index.tolist()
+        idx_high = df[df[col] > upper].index.tolist()
 
-        row_diff = len(rows_to_delete) - row_count_1
-        print()
-        print(col + "\nRows to remove: {}\n".format(row_diff))
+        print(f"\n{col}: \nRows to remove: {len(idx_low + idx_high)}\n")
+        rows_to_delete = rows_to_delete + idx_low + idx_high
 
-    rows_to_delete = list(set(rows_to_delete))
-    df_out.drop(rows_to_delete, inplace=True, axis=0)
+    rows_to_delete = set(rows_to_delete)
+    df.drop(rows_to_delete, inplace=True, axis=0)
+    len_df_out = len(df)
+    assert len(rows_to_delete) == (len_df_in - len_df_out)
 
-    outer_row_count_2 = len(df_out)
-    assert len(rows_to_delete) == (outer_row_count_1 - outer_row_count_2)
     print(
-        "\nRows removed in total: {}".format(
-            outer_row_count_1 - outer_row_count_2
-        )
+        f"\nRows removed in total: {len_df_in - len_df_out}"
+        f"\n(Percentage of original DataFrame: "
+        f"{len(rows_to_delete) / len_df_in:0.1%})"
     )
-    print(
-        "Percentage of original DataFrame: {:.1f}%".format(
-            (len(rows_to_delete) / outer_row_count_1) * 100
-        )
-    )
-    return df_out
+
+    if not return_idx_deleted:
+        return df
+    else:
+        return df, list(rows_to_delete)
 
 
-# TRANSFORMATION
+# TRANSFORMATIONS
 
 
 def apply_log(df, cols_to_transform=None, treat_NaN=False, rename=False):
@@ -379,7 +351,7 @@ def apply_log(df, cols_to_transform=None, treat_NaN=False, rename=False):
     Arguments:
     ----------
     - df: DataFrame
-    - cols_to_transform: list of columns that will have jy-transformation
+    - cols_to_transform: list of columns that will have the transformation
         applied, (default is all numerical columns)
     - treat_NaN: bool, set NaN to small negative value, (default=False)
     - rename: bool, rename column with appendix, (default=False)
@@ -404,7 +376,7 @@ def apply_log(df, cols_to_transform=None, treat_NaN=False, rename=False):
         else:
             print(col + " not found")
 
-        # Eename transformed columns
+        # Rename transformed columns
         if rename:
             df_log.rename(columns={col: col + "_log"}, inplace=True)
 
