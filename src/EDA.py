@@ -13,22 +13,22 @@ Dataframe values:
 Distributions:
 - `plot_numeric_histograms`: Display a histogram for every numeric column
   in the passed dataframe.
-- `plot_numeric_boxplots`: Display a boxplot for every numeric column in 
+- `plot_numeric_boxplots`: Display a boxplot for every numeric column in
   the passed dataframe.
-- `plot_categorical_pies`: Display a pieplot for every categorical column 
+- `plot_categorical_pies`: Display a pieplot for every categorical column
   in the passed dataframe that has no more than 30 distinct values.
 
 Correlations:
 - `plot_correlations_full_heatmap`: Display a heatmap to show
   correlations   between all numeric columns in the Dataframe.
 - `plot_correlations_numeric_to_target_barchart`: Display a barchart to
-  show the correlations between the numeric features and a numeric 
+  show the correlations between the numeric features and a numeric
   target variable.
 - `plot_correlations_numeric_to_target_regressions`: Display a regplot
   for every numeric feature in the passed dataframe to show correlations
   to a numeric target variable.
 - `plot_correlations_numeric_to_target_lineplots`: Display a lineplot
-  for every numeric feature in the passed dataframe to display the 
+  for every numeric feature in the passed dataframe to display the
   correlation to a numeric target variable.
 - `plot_correlations_numeric_to_target_boxplots`: Display a boxplot for
   every numeric feature in the passed dataframe to display the
@@ -49,7 +49,6 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import seaborn as sns
-from tqdm import tqdm
 
 
 # DATAFRAME VALUES
