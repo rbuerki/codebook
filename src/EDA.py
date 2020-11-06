@@ -3,11 +3,11 @@ LIST OF FUNCTIONS
 -----------------
 
 Dataframe values:
-- `display_distinct_values`: Display a dataframe containing the number
+- `display_distinct_values`: Return a dataframe containing the number
    of distinct values for each column of the passed dataframe.
-- `display_value_counts_ptc`: Display a dataframe containing the value
+- `display_value_counts_ptc`: Return a dataframe containing the value
    counts and their respective pct for a column or a list of columns.
-- `display_tail_transposed`: Display transposed tail of the passed
+- `display_tail_transposed`: Return transposed tail of the passed
    dataframe with cols shown as rows and values for 5 instances as cols.
 
 Distributions:

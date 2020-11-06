@@ -5,7 +5,7 @@ LIST OF FUNCTIONS
 Columns:
 - `prettify_column_names`: Replace whitespace in column labels with
   an underscore and, by default, change to all lowercase.
-- `count_dtypes`: Display a dataframe showing the count of different
+- `count_dtypes`: Return a dataframe showing the count of different
   column datatypes in the passed dataframe.
 - `delete_columns`: Delete selected columns permanently from the 
   passed dataframe.
@@ -13,7 +13,7 @@ Columns:
 Missing Values:
 - `plot_nan`: Display a heatmap of the passed dataframe highlighting
   the missing values.
-- `list_nan`: Display a dataframe showing the missing values with their
+- `list_nan`: Return a dataframe showing the missing values with their
   respective percentage of the total values in a column.
 - `handle_nan`: Apply different strategies for handling missing values
   in selected columns (simplistic approach).
@@ -22,9 +22,9 @@ Duplicates:
 - list_duplicates: Display the columns containing column-wise duplicates.
 
 Outliers:
-- count_outliers_IQR_method: Detect outliers in specified columns 
+- count_outliers_IQR_method: Detect outliers in specified columns
   depending on specified distance from 1th / 3rd quartile. NaN ignored.
-- remove_outliers_IQR_method: Remove outliers in specified columns 
+- remove_outliers_IQR_method: Remove outliers in specified columns
   depending on specified distance from 1th / 3rd quartile. NaN ignored.
 
 Transformations:
@@ -66,16 +66,12 @@ def prettify_column_names(
 
 
 def count_dtypes(df: pd.DataFrame):
-    """Display a dataframe showing the count of different column
+    """Return a dataframe showing the count of different column
     datatypes in the passed dataframe.
     """
     dtypes_dict = collections.Counter(df.dtypes.values)
-    display(
-        pd.DataFrame(
-            data=dtypes_dict.values(),
-            index=dtypes_dict.keys(),
-            columns=["# cols"],
-        )
+    return pd.DataFrame(
+        data=dtypes_dict.values(), index=dtypes_dict.keys(), columns=["# cols"],
     )
 
 
@@ -156,23 +152,23 @@ def plot_nan(df: pd.DataFrame, figsize: Tuple[int, int] = (14, 6), **kwargs):
 
 
 def list_nan(df):
-    """Display a dataframe showing the missing values with their
+    """Return a dataframe showing the missing values with their
     respective percentage of the total values in a column.
     """
     if df.isnull().sum().sum() == 0:
         print("No empty cells in DataFrame.")
     else:
         total = df.isnull().sum()
-        percent = round(df.isnull().sum() / len(df) * 100, 1)
+        prop = df.isnull().sum() / len(df)
         dtypes = df.dtypes
 
         missing_data = pd.concat(
-            [total, percent, dtypes], axis=1, keys=["total", "percent", "dtype"]
+            [total, prop, dtypes], axis=1, keys=["total", "prop", "dtype"]
         )
         missing_data = missing_data.loc[missing_data["total"] != 0].sort_values(
             ["total"], ascending=False
         )
-        display(missing_data)
+        return missing_data.style.format({"prop": "{:0.1%}"})
 
 
 # TODO: continue here ...
@@ -281,8 +277,10 @@ def count_outliers_IQR_method(
             outlier_pct = len(outliers) / len(df[col])
             print(
                 f"\n{col}:\n"
-                f" - upper cut-off value: {upper:,.2f}\n"
-                f" - lower cut-off value: {lower:,.2f}\n"
+                f" - effective upper cut-off value: "
+                f"{min(df[col].max(), upper):,.2f}\n"
+                f" - effective lower cut-off value: "
+                f"{max(df[col].min(), lower):,.2f}\n"
                 f" - Identified outliers: {len(outliers):,.0f}\n"
                 f" - of total values: {outlier_pct:.1%}"
             )
