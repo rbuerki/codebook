@@ -5,42 +5,41 @@ LIST OF FUNCTIONS
 Dataframe values:
 - `display_distinct_values`: Return a dataframe containing the number
    of distinct values for each column of the passed dataframe.
-- `display_value_counts_ptc`: Return a dataframe containing the value
+- `display_value_counts`: Display a dataframe containing the value
    counts and their respective pct for a column or a list of columns.
 - `display_tail_transposed`: Return transposed tail of the passed
    dataframe with cols shown as rows and values for 5 instances as cols.
 
 Distributions:
-- `plot_numeric_histograms`: Display a histogram for every numeric column
-  in the passed dataframe.
-- `plot_numeric_boxplots`: Display a boxplot for every numeric column in
-  the passed dataframe.
-- `plot_categorical_pies`: Display a pieplot for every categorical column
-  in the passed dataframe that has no more than 30 distinct values.
+- `plot_distr_histograms`: Display a histogram for every numeric
+   column in the passed dataframe.
+- `plot_distr_boxplots`: Display a boxplot for every numeric
+   column in the passed dataframe.
+- `plot_distr_pies`: Display a pieplot for every column of dtype
+  "category" (with up to 30 distinct values) in the passed dataframe .
 
 Correlations:
-- `plot_correlations_full_heatmap`: Display a heatmap to show
-  correlations   between all numeric columns in the Dataframe.
-- `plot_correlations_numeric_to_target_barchart`: Display a barchart to
-  show the correlations between the numeric features and a numeric
-  target variable.
-- `plot_correlations_numeric_to_target_regressions`: Display a regplot
-  for every numeric feature in the passed dataframe to show correlations
-  to a numeric target variable.
-- `plot_correlations_numeric_to_target_lineplots`: Display a lineplot
-  for every numeric feature in the passed dataframe to display the
-  correlation to a numeric target variable.
-- `plot_correlations_numeric_to_target_boxplots`: Display a boxplot for
-  every numeric feature in the passed dataframe to display the
-  correlation to a target variable made of categorical classes (dtype
-  can be numeric).
-- `plot_correlations_numeric_to_target_pointplots_with_pies`: Display a
-  pointplot (and corresponding piechart) for every numeric feature in
-  the passed dataframe to display the correlation to a target variable
-  of categorical classes (dtype can be numeric).
-- `plot_correlations_categorical_to_target_stripplots`: Display a
-  stripplot for each categorical feature in the passed dataframe to
-  show the correlation to a numeric target variable.
+- `plot_corr_full_heatmap`: Display a heatmap to show the correlations
+   between all numeric columns in the Dataframe.
+- `plot_corr_to_target_barchart`: Display a barchart for every numeric
+   feature in the passed dataframe to show the correlation to a
+   numeric target variable.
+- `plot_corr_to_target_regplots`: Display a regplot for every numeric
+   feature in the passed dataframe to show the correlation to a
+   numeric target variable.
+- `plot_corr_to_target_lineplots`: Display a lineplot for every numeric
+  feature in the passed dataframe with up to (by default) 100 distinct 
+  values to analyze the correlation to a numeric target variable.
+- `plot_corr_to_target_boxplots`: Display a boxplot for every numeric
+   feature column in the passed dataframe to analyze the correlation to
+   a target variable with few distinct values (any dtype possible).
+- `plot_corr_to_target_pointplots_with_pies`: Display a pointplot
+   (and corresponding piechart) for every feature with dtype "category"
+   in the passed dataframe to display the correlation to a numeric 
+   target variable.
+- `plot_corr_to_target_stripplots`: Display a stripplot for each 
+   feature with dtype "category" in the passed dataframe to analyze
+   the correlation to a numeric target variable.
 
 Cumulative Sums / Counts:
 - `display_cumcurve_stats`: Return a dataframe with cumsum stats for an
@@ -60,7 +59,7 @@ import seaborn as sns
 # DATAFRAME VALUES
 
 
-def display_distinct_values(df: Union[pd.DataFrame, pd.Series]):
+def display_distinct_values(df: Union[pd.DataFrame, pd.Series]) -> pd.DataFrame:
     """Return a dataframe containing the number of distinct values
     for each column of the passed dataframe.
     """
@@ -76,11 +75,11 @@ def display_distinct_values(df: Union[pd.DataFrame, pd.Series]):
     return df_out
 
 
-def display_value_counts_ptc(
+def display_value_counts(
     df: pd.DataFrame, n_rows: Optional[int] = None,
 ):
-    """Return a dataframe containing the value counts and their
-    respective pct for a column or a list of columns. The max
+    """Display a dataframe containing the value counts and their
+    respective pct for each column of the passed dataframe. The max
     number of values to display (ordered desc by counts) can be
     defined by the optional n_rows parameter.
     """
@@ -102,42 +101,44 @@ def display_value_counts_ptc(
             df_out = df_out.iloc[:n_rows, :]
             caption_str = "".join([caption_str, f", top {n_rows}"])
 
-        return df_out.style.format(
-            {"counts": "{:,.0f}", "prop": "{:.1%}", "cum_prop": "{:.1%}"}
-        ).set_caption(caption_str)
+        display(
+            df_out.style.format(
+                {"counts": "{:,.0f}", "prop": "{:.1%}", "cum_prop": "{:.1%}"}
+            ).set_caption(caption_str)
+        )
 
 
 def display_tail_transposed(
     df: pd.DataFrame, max_row: int = 100, random_state: Optional[int] = None
 ):
-    """Display transposed tail of the passed dataframe with the
+    """Return the transposed tail of the passed dataframe with the
     columns shown as rows and values for 5 sample instances as
     columns. The max number of rows can be adapted (defaults to 100).
     A random state seed can be specified (defaults to None).
     """
     df = df.sample(frac=1, random_state=random_state)
     with pd.option_context("display.max_rows", max_row):
-        print(df.shape)
+        # TODO: Not sure if return works for very wide frames, or if i have to reset to display
         return df.tail(5).transpose()
 
 
 # DISTRIBUTIONS
 
 
-def plot_numeric_histograms(
+def plot_distr_histograms(
     df: pd.DataFrame, figsize: Optional[Tuple[int, int]] = None, **kwargs
 ):
     """Display a histogram for every numeric column in the passed
     dataframe. If not explicitely passed, a suitable figsize is
     interfered. Additional keyword arguments will be passed to the
-    actual seaborn plot function.
+    actual Seaborn plot function.
     """
     num_cols = df.select_dtypes(include=np.number).columns
     defaults = {"bins": 50, "color": "rebeccapurple", "kde": True}
     kwargs = {**defaults, **kwargs}
     if figsize is None:
         height = np.ceil(len(num_cols) / 4) * 3.5
-        figsize = (14, height)
+        figsize = (12, height)
 
     plt.figure(figsize=figsize)
     for pos, col in enumerate(num_cols, 1):
@@ -147,20 +148,21 @@ def plot_numeric_histograms(
     plt.show()
 
 
-def plot_numeric_boxplots(
+def plot_distr_boxplots(
     df: pd.DataFrame, figsize: Optional[Tuple[int, int]] = None, **kwargs
 ):
-    """Display a boxplot for every numeric column in the passed
-    dataframe. If not explicitely passed, a suitable figsize is
-    interfered. Additional keyword arguments will be passed to the
-    actual seaborn plot function.
+    """Display a barchart for every numeric feature in the passed
+    dataframe to show the correlation to a numeric target variable. 
+    If not explicitely passed, a suitable figsize isinterfered. 
+    Additional keyword arguments will be passed to the actual Seaborn
+    plot function.
     """
     num_cols = df.select_dtypes(include=np.number).columns
     defaults = {"color": "rebeccapurple"}
     kwargs = {**defaults, **kwargs}
     if figsize is None:
         height = np.ceil(len(num_cols) / 4) * 3.5
-        figsize = (14, height)
+        figsize = (12, height)
 
     plt.figure(figsize=figsize)
     for pos, col in enumerate(num_cols, 1):
@@ -170,11 +172,11 @@ def plot_numeric_boxplots(
     plt.show()
 
 
-def plot_categorical_pies(
+def plot_distr_pies(
     df: pd.DataFrame, figsize: Optional[Tuple[int, int]] = None, **kwargs
 ):
-    """Display a pieplot for every categorical column in the passed
-    dataframe that has no more than 30 distinct values. If not
+    """Display a pieplot for every column of dtype "category" in the
+    passed dataframe that has no more than 30 distinct values. If not
     explicitely passed, a suitable figsize is interfered. Additional
     keyword arguments will be passed to the actual pandas plot
     function.
@@ -184,7 +186,7 @@ def plot_categorical_pies(
     kwargs = {**defaults, **kwargs}
     if figsize is None:
         height = np.ceil(len(cat_cols) / 3) * 3.5
-        figsize = (14, height)
+        figsize = (12, height)
     cols_with_many_distinct_values = []
     pos = 0
 
@@ -200,24 +202,28 @@ def plot_categorical_pies(
     plt.show()
 
     if len(cols_with_many_distinct_values) > 0:
-        print(f"Not plotted: {cols_with_many_distinct_values}")
+        print("No plot (to many distinct values) for:")
+        for col in cols_with_many_distinct_values:
+            print(f"- {col}")
 
 
 # CORRELATIONS
 
 
-def plot_correlations_full_heatmap(
+def plot_corr_full_heatmap(
     df: pd.DataFrame, figsize: Tuple[int, int] = (14, 10), **kwargs
 ):
-    """Display a heatmap to show correlations between all numeric
+    """Display a heatmap to show the correlations between all numeric
     columns in the Dataframe. Optional figsize and additional keyword
-    arguments will be passed to the actual seaborn plot function.
+    arguments will be passed to the actual Seaborn plot function.
     """
     df_num = df.select_dtypes(include=np.number)
     defaults = {
         "cmap": "magma",
         "linecolor": "white",
         "linewidth": 1,
+        "vmax": 1.0,
+        "vmin": -1.0,
         "annot": True,
     }
     kwargs = {**defaults, **kwargs}
@@ -227,21 +233,21 @@ def plot_correlations_full_heatmap(
     plt.show()
 
 
-def plot_correlations_numeric_to_target_barchart(
+def plot_corr_to_target_barchart(
     df: pd.DataFrame,
     target_col: str,
     figsize: Tuple[int, int] = (14, 8),
     **kwargs,
 ):
     """Display a barchart to show the correlations between the
-    numeric features and a numeric target variable. Optional
-    figsize and additional keyword arguments will be passed to
-    the actual pandas plot function.
+    numeric features in the passed dataframe and a numeric target
+     variable. Optional figsize and additional keyword arguments 
+     will be passed to the actual pandas plot function.
     """
     df_num = df.select_dtypes(include=np.number)
     defaults = {
         "color": "rebeccapurple",
-        "title": "Correlations to Target Variable",
+        "title": f"Correlations to Target Variable: '{target_col}'",
     }
     kwargs = {**defaults, **kwargs}
     correlations = df_num.corr()[target_col].sort_values(ascending=False)
@@ -251,17 +257,17 @@ def plot_correlations_numeric_to_target_barchart(
     plt.show()
 
 
-def plot_correlations_numeric_to_target_regressions(
+def plot_corr_to_target_regplots(
     df: pd.DataFrame,
     target_col: str,
     figsize: Optional[Tuple[int, int]] = None,
     **kwargs,
 ):
     """Display a regplot for every numeric feature in the passed
-    dataframe to show correlations to a numeric target variable. If
-    not explicitely passed, a suitable figsize is interfered. 
+    dataframe to show the correlation to a numeric target variable.
+     If not explicitely passed, a suitable figsize is interfered. 
     Additional keyword arguments will be passed to the actual
-    seaborn plot function.
+    Seaborn plot function.
     """
     num_cols = df.select_dtypes(include=np.number).columns.tolist()
     try:
@@ -273,7 +279,7 @@ def plot_correlations_numeric_to_target_regressions(
     kwargs = {**defaults, **kwargs}
     if figsize is None:
         height = np.ceil(len(num_cols) / 2) * 3.5
-        figsize = (14, height)
+        figsize = (12, height)
 
     plt.figure(figsize=figsize)
     for pos, col in enumerate(num_cols, 1):
@@ -283,24 +289,32 @@ def plot_correlations_numeric_to_target_regressions(
     plt.show()
 
 
-def plot_correlations_numeric_to_target_lineplots(
+def plot_corr_to_target_lineplots(
     df: pd.DataFrame,
     target_col: str,
+    value_threshold: Optional[int] = 100,
     figsize: Optional[Tuple[int, int]] = None,
     ylim: Optional[Tuple[int, int]] = None,
     **kwargs,
 ):
     """Display a lineplot for every numeric feature in the
-    passed dataframe to display the correlation to a numeric target
-    variable. If not explicitely passed, a suitable figsize is
-    interfered. The same is true for the ylim tuple. Additional
-    keyword arguments will be passed to the actual seaborn plot
-    function.
+    passed dataframe with up to (by default) 100 distinct values
+    to analyze the correlation to a numeric target variable. If not
+    explicitely passed, a suitable figsize is interfered. The same
+    is true for the ylim argument. Additional keyword arguments will
+    be passed to the actual Seaborn plot function.
 
-    This is a powerful visualization but it is computationally
-    expensive and can be confusing on large datasets.
+    By default this implementation uses estimator='mean' and ci=95,
+    this could be changed by passing kwargs.
     """
+    print(
+        f"Only columns with up to {value_threshold} distinct values are shown."
+    )
     num_cols = df.select_dtypes(include=np.number).columns.tolist()
+    if value_threshold:
+        num_cols = [
+            col for col in num_cols if df[col].nunique() <= value_threshold
+        ]
     try:
         num_cols.remove(target_col)
     except ValueError:
@@ -310,7 +324,7 @@ def plot_correlations_numeric_to_target_lineplots(
 
     if figsize is None:
         height = np.ceil(len(num_cols) / 2) * 3.5
-        figsize = (14, height)
+        figsize = (12, height)
     if ylim is None:
         upper = df[target_col].max()
         lower = df[target_col].min()
@@ -326,18 +340,17 @@ def plot_correlations_numeric_to_target_lineplots(
     plt.show()
 
 
-def plot_correlations_numeric_to_target_boxplots(
+def plot_corr_to_target_boxplots(
     df: pd.DataFrame,
     target_col: str,
     figsize: Optional[Tuple[int, int]] = None,
     **kwargs,
 ):
-    """Display a boxplot for every numeric feature in the
-    passed dataframe to display the correlation to a target variable
-    made of categorical classes (dtype can be numeric). If not
-    explicitely passed, a suitable figsize is interfered. Additional
-    keyword arguments will be passed to the actual seaborn plot
-    function.
+    """Display a boxplot for every numeric feature column in the
+    passed dataframe to analyze the correlation to a target variable
+    with few distinct values (any dtype possible). If not explicitely 
+    passed, a suitable figsize is interfered. Additional keyword
+    arguments will be passed to the actual Seaborn plot function.
     """
     num_cols = df.select_dtypes(include=np.number).columns.tolist()
     try:
@@ -351,7 +364,7 @@ def plot_correlations_numeric_to_target_boxplots(
     kwargs = {**defaults, **kwargs}
     if figsize is None:
         height = np.ceil(len(num_cols) / 2) * 3.5
-        figsize = (14, height)
+        figsize = (12, height)
 
     plt.figure(figsize=figsize)
     for pos, col in enumerate(num_cols, 1):
@@ -362,7 +375,7 @@ def plot_correlations_numeric_to_target_boxplots(
     plt.show()
 
 
-def plot_correlations_numeric_to_target_pointplots_with_pies(
+def plot_corr_to_target_pointplots_with_pies(
     df: pd.DataFrame,
     target_col: str,
     figsize: Optional[Tuple[int, int]] = None,
@@ -370,11 +383,11 @@ def plot_correlations_numeric_to_target_pointplots_with_pies(
     **kwargs,
 ):
     """Display a pointplot (and corresponding piechart) for every
-    numeric feature in the passed dataframe to display the correlation
-    to a target variable of categorical classes (dtype can be numeric).
-    If not explicitely passed, a suitable figsize is interfered.
-    The same is true for the ylim tuple. No additional key word
-    arguments allowed for this function. It's complicated enough ;-).
+    feature with dtype "category" in the passed dataframe to display 
+    the correlation to a numeric target variable. If not explicitely
+    passed, a suitable figsize is interfered. The same is true for
+    the ylim tuple. No additional key word arguments allowed for this
+    function. - It's complicated enough ;-).
     """
     cat_cols = df.select_dtypes(include=["category"]).columns.tolist()
     try:
@@ -384,7 +397,7 @@ def plot_correlations_numeric_to_target_pointplots_with_pies(
 
     if figsize is None:
         height = np.ceil(len(cat_cols) / 2) * 5
-        figsize = (14, height)
+        figsize = (12, height)
     if ylim is None:
         upper = df[target_col].max()
         lower = df[target_col].min()
@@ -407,21 +420,21 @@ def plot_correlations_numeric_to_target_pointplots_with_pies(
         pos += 1
         if df[col].nunique() <= 30:
             plt.subplot(len(cat_cols), 2, pos)
-            df[col].value_counts().plot(kind="pie", cmap="rocket")
+            df[col].value_counts().plot(kind="pie", cmap="magma")
     plt.show()
 
 
-def plot_correlations_categorical_to_target_stripplots(
+def plot_corr_to_target_stripplots(
     df: pd.DataFrame,
     target_col: str,
     figsize: Optional[Tuple[int, int]] = None,
     **kwargs,
 ):
-    """Display a stripplot for each categorical feature in the passed
-    dataframe to show the correlation to a numeric target variable.
-    If not explicitely passed, a suitable figsize is interfered.
-    Additional keyword arguments will be passed to the actual seaborn
-    plot function.
+    """Display a stripplot for each feature with dtype "category" in
+    the passed dataframe to analyze the correlation to a numeric target 
+    variable. If not explicitely passed, a suitable figsize is 
+    interfered. Additional keyword arguments will be passed to the
+    actual Seaborn plot function.
     """
     cat_cols = df.select_dtypes(include="category").columns
 
@@ -429,7 +442,7 @@ def plot_correlations_categorical_to_target_stripplots(
     kwargs = {**defaults, **kwargs}
     if figsize is None:
         height = np.ceil(len(cat_cols) / 2) * 3.5
-        figsize = (14, height)
+        figsize = (12, height)
 
     plt.figure(figsize=figsize)
     for pos, col in enumerate(cat_cols, 1):
@@ -438,14 +451,6 @@ def plot_correlations_categorical_to_target_stripplots(
         plt.tight_layout(w_pad=1)
         sns.stripplot(x=col, y=target_col, data=df_plot, **kwargs)
     plt.show()
-
-
-# corr PairPlot numCols to numTarget - see here:
-# https://www.kaggle.com/ekami66/detailed-exploratory-data-analysis-with-python
-# for i in range(0, len(df_num.columns), 5):
-#     sns.pairplot(data=df,
-#                 x_vars=df_num.columns[i:i+5],
-#                 y_vars=['SalePrice'])
 
 
 # Cumulative COUNTS / SUMS
@@ -509,7 +514,7 @@ def plot_cumsum_curve(
     dataframe. Intercept lines are displayed for the values
     in the optional threshold_list. (You can deactivate that
     by setting it to None.) Optional figsize and additional
-    keyword arguments will be passed to the actual seaborn plot
+    keyword arguments will be passed to the actual Seaborn plot
     function.
     """
     iterable_checked = _check_iterable_for_cumsum(iterable)
