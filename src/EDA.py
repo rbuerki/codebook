@@ -16,7 +16,7 @@ Distributions:
 - `plot_distr_boxplots`: Display a boxplot for every numeric
    column in the passed dataframe.
 - `plot_distr_pies`: Display a pieplot for every column of dtype
-  "category" (with up to 30 distinct values) in the passed dataframe .
+  "category" (with up to 30 distinct values) in the passed dataframe.
 
 Correlations:
 - `plot_corr_full_heatmap`: Display a heatmap to show the correlations
@@ -28,16 +28,16 @@ Correlations:
    feature in the passed dataframe to show the correlation to a
    numeric target variable.
 - `plot_corr_to_target_lineplots`: Display a lineplot for every numeric
-  feature in the passed dataframe with up to (by default) 100 distinct 
+  feature in the passed dataframe with up to (by default) 100 distinct
   values to analyze the correlation to a numeric target variable.
 - `plot_corr_to_target_boxplots`: Display a boxplot for every numeric
    feature column in the passed dataframe to analyze the correlation to
    a target variable with few distinct values (any dtype possible).
 - `plot_corr_to_target_pointplots_with_pies`: Display a pointplot
    (and corresponding piechart) for every feature with dtype "category"
-   in the passed dataframe to display the correlation to a numeric 
+   in the passed dataframe to display the correlation to a numeric
    target variable.
-- `plot_corr_to_target_stripplots`: Display a stripplot for each 
+- `plot_corr_to_target_stripplots`: Display a stripplot for each
    feature with dtype "category" in the passed dataframe to analyze
    the correlation to a numeric target variable.
 
@@ -118,7 +118,8 @@ def display_tail_transposed(
     """
     df = df.sample(frac=1, random_state=random_state)
     with pd.option_context("display.max_rows", max_row):
-        # TODO: Not sure if return works for very wide frames, or if i have to reset to display
+        # TODO: Not sure if return works for very wide frames,
+        # or if i have to reset to display
         return df.tail(5).transpose()
 
 
@@ -152,8 +153,8 @@ def plot_distr_boxplots(
     df: pd.DataFrame, figsize: Optional[Tuple[int, int]] = None, **kwargs
 ):
     """Display a barchart for every numeric feature in the passed
-    dataframe to show the correlation to a numeric target variable. 
-    If not explicitely passed, a suitable figsize isinterfered. 
+    dataframe to show the correlation to a numeric target variable.
+    If not explicitely passed, a suitable figsize isinterfered.
     Additional keyword arguments will be passed to the actual Seaborn
     plot function.
     """
@@ -241,7 +242,7 @@ def plot_corr_to_target_barchart(
 ):
     """Display a barchart to show the correlations between the
     numeric features in the passed dataframe and a numeric target
-     variable. Optional figsize and additional keyword arguments 
+     variable. Optional figsize and additional keyword arguments
      will be passed to the actual pandas plot function.
     """
     df_num = df.select_dtypes(include=np.number)
@@ -265,7 +266,7 @@ def plot_corr_to_target_regplots(
 ):
     """Display a regplot for every numeric feature in the passed
     dataframe to show the correlation to a numeric target variable.
-     If not explicitely passed, a suitable figsize is interfered. 
+     If not explicitely passed, a suitable figsize is interfered.
     Additional keyword arguments will be passed to the actual
     Seaborn plot function.
     """
@@ -348,7 +349,7 @@ def plot_corr_to_target_boxplots(
 ):
     """Display a boxplot for every numeric feature column in the
     passed dataframe to analyze the correlation to a target variable
-    with few distinct values (any dtype possible). If not explicitely 
+    with few distinct values (any dtype possible). If not explicitely
     passed, a suitable figsize is interfered. Additional keyword
     arguments will be passed to the actual Seaborn plot function.
     """
@@ -383,7 +384,7 @@ def plot_corr_to_target_pointplots_with_pies(
     **kwargs,
 ):
     """Display a pointplot (and corresponding piechart) for every
-    feature with dtype "category" in the passed dataframe to display 
+    feature with dtype "category" in the passed dataframe to display
     the correlation to a numeric target variable. If not explicitely
     passed, a suitable figsize is interfered. The same is true for
     the ylim tuple. No additional key word arguments allowed for this
@@ -431,8 +432,8 @@ def plot_corr_to_target_stripplots(
     **kwargs,
 ):
     """Display a stripplot for each feature with dtype "category" in
-    the passed dataframe to analyze the correlation to a numeric target 
-    variable. If not explicitely passed, a suitable figsize is 
+    the passed dataframe to analyze the correlation to a numeric target
+    variable. If not explicitely passed, a suitable figsize is
     interfered. Additional keyword arguments will be passed to the
     actual Seaborn plot function.
     """
