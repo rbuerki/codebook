@@ -2,13 +2,23 @@
 LIST OF FUNCTIONS
 -----------------
 
-Dataframe values:
+Dataframe Values:
 - `display_distinct_values`: Return a dataframe containing the number
    of distinct values for each column of the passed dataframe.
 - `display_value_counts`: Display a dataframe containing the value
    counts and their respective pct for a column or a list of columns.
 - `display_tail_transposed`: Return transposed tail of the passed
    dataframe with cols shown as rows and values for 5 instances as cols.
+- `display_dtypes`: Return a dataframe showing the count of different
+   datatypes for the columns in the passed dataframe.
+
+Missing Values and Duplicates:
+- `display_nan`: Return a dataframe showing the missing values with
+   their respective percentage of the total values in a column.
+- `plot_nan`: Display a heatmap of the passed dataframe, highlighting
+   the missing values.
+- `display_duplicates`: Print a summary of the column-wise duplicates
+   in the passed dataframe.
 
 Distributions:
 - `plot_distr_histograms`: Display a histogram for every numeric
@@ -48,6 +58,7 @@ Cumulative Sums / Counts:
   values.
 """
 
+import collections
 from typing import Iterable, Optional, Tuple, Union
 
 import matplotlib.pyplot as plt
@@ -108,19 +119,102 @@ def display_value_counts(
         )
 
 
-def display_tail_transposed(
-    df: pd.DataFrame, max_row: int = 100, random_state: Optional[int] = None
+def display_df_sample_transposed(
+    df: pd.DataFrame,
+    n_instances: int = 5,
+    max_rows: int = 100,
+    random_state: Optional[int] = None,
 ):
-    """Return the transposed tail of the passed dataframe with the
-    columns shown as rows and values for 5 sample instances as
-    columns. The max number of rows can be adapted (defaults to 100).
-    A random state seed can be specified (defaults to None).
+    """Return a transposed sample of (by default) 5 original dataframe
+    rows, so that they are shown as columns and vice versa.
+    This helps to get a better overview of wide dataframes. The max
+    of orignal colums to be displayed defaults to 100 and could be
+    changed for really wide frames. Also a random state seed can be
+    fixed for the sampling (it defaults to None).
     """
-    df = df.sample(frac=1, random_state=random_state)
-    with pd.option_context("display.max_rows", max_row):
+    df = df.sample(n=n_instances, random_state=random_state).copy()
+    with pd.option_context("display.max_rows", max_rows):
         # TODO: Not sure if return works for very wide frames,
         # or if i have to reset to display
-        return df.tail(5).transpose()
+        return df.transpose()
+
+
+def display_dtypes(df: pd.DataFrame):
+    """Return a dataframe showing the count of different datatypes
+    for the columns in the passed dataframe.
+    """
+    dtypes_list = [str(val) for val in df.dtypes.values]
+    dtypes_dict = collections.Counter(dtypes_list)
+    return pd.DataFrame(
+        data=dtypes_dict.values(), index=dtypes_dict.keys(), columns=["# cols"],
+    ).sort_index()
+
+
+# MISSING VALUES AND DUPLICATES
+
+
+def display_nan(df: Union[pd.DataFrame, pd.Series]) -> pd.DataFrame:
+    """Return a dataframe showing the missing values with their
+    respective percentage of the total values in a column.
+    """
+    if isinstance(df, pd.core.series.Series):
+        df = pd.DataFrame(df)
+
+    if df.isnull().sum().sum() == 0:
+        print("No empty cells in DataFrame.")
+    else:
+        total = df.isnull().sum()
+        prop = df.isnull().sum() / len(df)
+        dtypes = df.dtypes
+
+        missing_data = pd.concat(
+            [total, prop, dtypes], axis=1, keys=["total", "prop", "dtype"]
+        )
+        missing_data = missing_data.loc[missing_data["total"] != 0].sort_values(
+            ["total"], ascending=False
+        )
+        return missing_data.style.format({"prop": "{:0.1%}"})
+
+
+def plot_nan(df: pd.DataFrame, figsize: Tuple[int, int] = (14, 6), **kwargs):
+    """Display a heatmap of the passed dataframe, highlighting the
+    missing values. Additional keyword arguments will be passed to
+    the actual seaborn plot function.
+
+    Attention: For large datasets this plot can be misleading. Do
+    not use without calling `display_nan` function also!
+    """
+    defaults = {
+        "cmap": "viridis",
+        "yticklabels": False,
+        "cbar": False,
+    }
+    kwargs = {**defaults, **kwargs}
+    plt.figure(figsize=figsize)
+    sns.heatmap(df.isnull(), **kwargs)
+
+
+def display_duplicates(df: Union[pd.DataFrame, pd.Series]):
+    """Print a summary of the column-wise duplicates in the passed
+    dataframe.
+    """
+    if isinstance(df, pd.core.series.Series):
+        df = pd.DataFrame(df)
+    dup_count = 0
+    print("Number of column-wise duplicates per column:")
+    for col in df:
+        dup = df[col].loc[df[[col]].duplicated(keep=False) == 1]
+        dup_nunique = dup.nunique()
+        dup_full = len(dup)
+        if dup_nunique > 0:
+            print(
+                f" - {col}: {dup_nunique} unique duplicated values "
+                f"({dup_full} duplicated rows)"
+            )
+        dup_count += dup_nunique
+
+    if dup_count == 0:
+        print("... No duplicate values in columns.")
 
 
 # DISTRIBUTIONS

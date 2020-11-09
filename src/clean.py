@@ -5,21 +5,12 @@ LIST OF FUNCTIONS
 Columns:
 - `prettify_column_names`: Replace whitespace in column labels with
   an underscore and, by default, change to all lowercase.
-- `count_dtypes`: Return a dataframe showing the count of different
-  column datatypes in the passed dataframe.
-- `delete_columns`: Delete selected columns permanently from the 
+- `delete_columns`: Delete selected columns permanently from the
   passed dataframe.
 
 Missing Values:
-- `plot_nan`: Display a heatmap of the passed dataframe highlighting
-  the missing values.
-- `list_nan`: Return a dataframe showing the missing values with their
-  respective percentage of the total values in a column.
 - `handle_nan`: Apply different strategies for handling missing values
   in selected columns (simplistic approach).
-
-Duplicates:
-- list_duplicates: Display the columns containing column-wise duplicates.
 
 Outliers:
 - count_outliers_IQR_method: Detect outliers in specified columns
@@ -38,7 +29,6 @@ Transformations:
   NOTE: Cannot handle NaN but yeo-johnson works on neg and zero values.
 """
 
-import collections
 from typing import Iterable, List, Optional, Tuple, Union
 
 import matplotlib.pyplot as plt
@@ -65,56 +55,6 @@ def prettify_column_names(
     return df
 
 
-def count_dtypes(df: pd.DataFrame):
-    """Return a dataframe showing the count of different column
-    datatypes in the passed dataframe.
-    """
-    dtypes_dict = collections.Counter(df.dtypes.values)
-    return pd.DataFrame(
-        data=dtypes_dict.values(), index=dtypes_dict.keys(), columns=["# cols"],
-    )
-
-
-# TODO ... remove or refactor
-# def change_dtypes(
-#     df,
-#     cols_to_category: Union[List[str], None] = None,
-#     cols_to_object: Union[List[str], None] = None,
-#     cols_to_string: Union[List[str], None] = None,
-#     cols_to_integer: Union[List[str], None] = None,
-#     cols_to_float: Union[List[str], None] = None,
-#     cols_to_datetime: Union[List[str], None] = None,
-#     datetime_pattern: str = "%Y/%m/%d",
-# ) -> pd.DataFrame:
-#     """Transform datatypes of selected columns in the passed
-#     dataframe and return it.
-#     """
-#     df = df.copy()
-#     dtypes_dict = {
-#         tuple(cols_to_category): "category",
-#         tuple(cols_to_object): str,
-#         tuple(cols_to_integer): np.int64,
-#         tuple(cols_to_float): np.float64,
-#     }
-
-#     for cols_list, datatype in dtypes_dict.items():
-#         if cols_list is not None:
-#             for col in cols_list:
-#                 if col in df.columns:
-#                     df[col] = df[col].astype(datatype)
-#                 else:
-#                     print(col + " not found")
-
-#     # different handling for datetime columns
-#     if cols_to_datetime is not None:
-#         for col in cols_to_datetime:
-#             if col in df.columns:
-#                 df[col] = pd.to_datetime(df[col], format=datetime_pattern)
-#             else:
-#                 print(col + " not found")
-#     return df
-
-
 def delete_columns(
     df: pd.DataFrame, cols_to_delete: Iterable[str]
 ) -> pd.DataFrame:
@@ -133,43 +73,7 @@ def delete_columns(
     return df
 
 
-### MISSING VALUES - Detection and handling
-
-
-def plot_nan(df: pd.DataFrame, figsize: Tuple[int, int] = (14, 6), **kwargs):
-    """Display a heatmap of the passed dataframe highlighting the
-    missing values. Additional keyword arguments will be passed to
-    the actual seaborn plot function. 
-    """
-    defaults = {
-        "cmap": "viridis",
-        "yticklabels": False,
-        "cbar": False,
-    }
-    kwargs = {**defaults, **kwargs}
-    plt.figure(figsize=figsize)
-    sns.heatmap(df.isnull(), **kwargs)
-
-
-def list_nan(df):
-    """Return a dataframe showing the missing values with their
-    respective percentage of the total values in a column.
-    """
-    if df.isnull().sum().sum() == 0:
-        print("No empty cells in DataFrame.")
-    else:
-        total = df.isnull().sum()
-        prop = df.isnull().sum() / len(df)
-        dtypes = df.dtypes
-
-        missing_data = pd.concat(
-            [total, prop, dtypes], axis=1, keys=["total", "prop", "dtype"]
-        )
-        missing_data = missing_data.loc[missing_data["total"] != 0].sort_values(
-            ["total"], ascending=False
-        )
-        return missing_data.style.format({"prop": "{:0.1%}"})
-
+### MISSING VALUES - Handling
 
 # TODO: continue here ...
 def handle_nan(
@@ -233,25 +137,6 @@ def handle_nan(
         df_NaN = df_NaN.dropna(how="any")  # drop remaining rows with any NaNs
 
     return df_NaN
-
-
-# DUPLICATES
-
-
-def list_duplicates(df: pd.DataFrame):
-    """Display a summary of the column-wise duplicates in the passed
-    dataframe.
-    """
-    print("Number of column-wise duplicates per column:")
-    for col in df:
-        dup = df[col].loc[df[[col]].duplicated(keep=False) == 1]
-        dup_nunique = dup.nunique()
-        dup_full = len(dup)
-        if dup_nunique > 0:
-            print(
-                f"- {col}: {dup_nunique} unique duplicated values "
-                f"({dup_full} duplicated rows)"
-            )
 
 
 # OUTLIERS - Count and Removal
