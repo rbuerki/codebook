@@ -6,27 +6,19 @@ Columns:
 - `prettify_column_names`: Replace whitespace in column labels with
   an underscore and, by default, change to all lowercase.
 - `delete_columns`: Delete selected columns permanently from the
-  passed dataframe.
-
-Missing Values:
-- `handle_nan`: Apply different strategies for handling missing values
-  in selected columns (simplistic approach).
+  input dataframe.
 
 Outliers:
-- count_outliers_IQR_method: Detect outliers in specified columns
+- `count_outliers_IQR_method`: Detect outliers in specified columns
   depending on specified distance from 1th / 3rd quartile. NaN ignored.
-- remove_outliers_IQR_method: Remove outliers in specified columns
+- `remove_outliers_IQR_method`: Remove outliers in specified columns
   depending on specified distance from 1th / 3rd quartile. NaN ignored.
+- `winsorize_values`: Return a winsorized version of the selected
+  columns.
 
 Transformations:
-- apply_log: Transform values of selected columns to natural log.
-  NaN not affected by default, parameter can be changed.
-- apply_log10: Transform values of selected columns to log10.
-  NaN not affected by default, parameter can be changed.
-- apply_box_cox: Power transform values of selected columns with box-cox.
-  NOTE: Cannot handle NaN and negvalues. Workaround to handle zero values.
-- apply_yeo_j: Power transform values of selected columns with yeo-johnson.
-  NOTE: Cannot handle NaN but yeo-johnson works on neg and zero values.
+- `transfrom_data`: Apply the desired transformation on the selected
+  columns. (Methods are log, log10, box-cox or yeo-johnson)
 """
 
 from typing import Dict, Iterable, List, Optional, Tuple, Union
@@ -56,7 +48,7 @@ def prettify_column_names(
 def delete_columns(
     df: pd.DataFrame, cols_to_delete: Iterable[str]
 ) -> pd.DataFrame:
-    """Delete columns permanently from the passed dataframe. Note:
+    """Delete columns permanently from the input dataframe. Note:
     This function is structured such that more and more columns can be
     added to the list and deleted iteratively during EDA. In the end
     you hold the full list of deleted columns.
@@ -162,7 +154,7 @@ def winsorize_outliers(
     the input dataframe, a `w_dict` has to be passed, consisting
     of the column names as keys and tuples of the quantiles on each
     end to be winsorized. (Note you can substitute the floats with
-    "None" when you don't want to transfrom on one side. Additional
+    "None" when you don't want to transfrom on one side.) Additional
     kwargs can be passed to the underlying `winsorize` function
     from scipy.stats.mstats.
 
@@ -238,8 +230,7 @@ def transform_data(
                 df[col].replace(np.nan, -1, inplace=True)
             if add_suffix:
                 df.rename(
-                    columns={col: col + suffix_dict.get(method)}, 
-                    inplace=True
+                    columns={col: col + suffix_dict.get(method)}, inplace=True
                 )
         except KeyError:
             print(col + " not found!")
