@@ -19,9 +19,9 @@ Outliers:
   depending on specified distance from 1th / 3rd quartile. NaN ignored.
 
 Transformations:
-- apply_log: Transform values of selected columns to natural log. 
+- apply_log: Transform values of selected columns to natural log.
   NaN not affected by default, parameter can be changed.
-- apply_log10: Transform values of selected columns to log10. 
+- apply_log10: Transform values of selected columns to log10.
   NaN not affected by default, parameter can be changed.
 - apply_box_cox: Power transform values of selected columns with box-cox.
   NOTE: Cannot handle NaN and negvalues. Workaround to handle zero values.
@@ -29,12 +29,10 @@ Transformations:
   NOTE: Cannot handle NaN but yeo-johnson works on neg and zero values.
 """
 
-from typing import Iterable, List, Optional, Tuple, Union
+from typing import Dict, Iterable, List, Optional, Tuple, Union
 
-import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-import seaborn as sns
 from scipy import stats
 
 
@@ -58,10 +56,10 @@ def prettify_column_names(
 def delete_columns(
     df: pd.DataFrame, cols_to_delete: Iterable[str]
 ) -> pd.DataFrame:
-    """Delete columns permanently from the passed dataframe. Note: 
-    This function is structure such that more columns can be deleted
-    iteratively during EDA. In the end you hold the full list of
-    deleted columns.
+    """Delete columns permanently from the passed dataframe. Note:
+    This function is structured such that more and more columns can be
+    added to the list and deleted iteratively during EDA. In the end
+    you hold the full list of deleted columns.
     """
     df = df.copy()
     for col in cols_to_delete:
@@ -71,72 +69,6 @@ def delete_columns(
         except KeyError:
             pass
     return df
-
-
-### MISSING VALUES - Handling
-
-# TODO: continue here ...
-def handle_nan(
-    df,
-    cols_to_impute_num=None,
-    cols_to_impute_cat=None,
-    cols_to_drop=None,
-    drop_all_NaN=False,
-):
-    """Handle NaN with different strategies for selected columns. Return a
-    transformed copy of the DataFrame. Note: Use with caution, as there are
-    more sophisticated solutions around.
-
-    Arguments:
-    ----------
-    - cols_to_impute_num: list of num columns to impute median,
-        (default=None)
-    - cols_to_impute_cat: list of categorical columns to impute mode,
-        (default=None)
-    - cols_to_drop: list of columns to drop entirely,
-        (default=None)
-    - drop_all_NaN: bool, if True ALL remaining rows with NaN will be removed,
-        (default=False)
-
-    Returns:
-    --------
-    - df_NaN: DataFrame, transformed copy of original DataFrame
-    """
-    df_NaN = df.copy()
-    if cols_to_impute_num is not None:
-        for col in cols_to_impute_num:
-            if col in df_NaN.columns:
-                print(
-                    "{} - median value to impute: {}".format(
-                        col, df_NaN[col].median()
-                    )
-                )
-                df_NaN[col] = df_NaN[col].fillna(df_NaN[col].median())
-            else:
-                print(col + " not found")
-    if cols_to_impute_cat is not None:
-        for col in cols_to_impute_cat:
-            if col in df_NaN.columns:
-                print(
-                    "{} - most frequent value to impute: {}".format(
-                        col, df_NaN[col].value_counts().index[0]
-                    )
-                )
-                df_NaN[col] = df_NaN[col].fillna(
-                    df_NaN[col].value_counts().index[0]
-                )
-            else:
-                print(col + " not found")
-    if cols_to_drop is not None:
-        for col in cols_to_drop:
-            if col in df_NaN.columns:
-                df_NaN.drop(col, axis=1, inplace=True)
-            else:
-                print(col + " not found")
-    if drop_all_NaN:
-        df_NaN = df_NaN.dropna(how="any")  # drop remaining rows with any NaNs
-
-    return df_NaN
 
 
 # OUTLIERS - Count and Removal
@@ -176,7 +108,7 @@ def remove_outliers_IQR_method(
     outlier_cols: Optional[List[str]] = None,
     iqr_dist: Union[int, float] = 1.5,
     return_idx_deleted: bool = False,
-) -> pd.DataFrame:
+) -> (pd.DataFrame, Optional[List[str]]):
     """Return a dataframe with outliers removed for selected columns.
     If no specific `outlier_cols` are specified (default), the cleaning
     is applied to all numeric columns. Outliers are removed depending
@@ -223,162 +155,157 @@ def remove_outliers_IQR_method(
         return df, list(rows_to_delete)
 
 
+def winsorize_outliers(
+    df: pd.DataFrame, w_dict: Dict[str, Tuple[float, float]], **kwargs
+) -> pd.DataFrame:
+    """Return a winsorized version of the selected columns. Besides
+    the input dataframe, a `w_dict` has to be passed, consisting
+    of the column names as keys and tuples of the quantiles on each
+    end to be winsorized. (Note you can substitute the floats with
+    "None" when you don't want to transfrom on one side. Additional
+    kwargs can be passed to the underlying `winsorize` function
+    from scipy.stats.mstats.
+
+    Example w_dict:
+        w_dict = {
+            "col1": (None, 0.05),
+            "col2": (0.1, 0.02),
+        }
+
+    Scipy reference here:
+        https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.mstats.winsorize.html
+    """
+    df = df.copy()
+    for col, limits in w_dict.items():
+        df[col] = stats.mstats.winsorize(df[col], limits=limits, **kwargs)
+    return df
+
+
 # TRANSFORMATIONS
 
 
-def apply_log(df, cols_to_transform=None, treat_NaN=False, rename=False):
-    """Transform values of selected columns to natural log. NaN are not
-    affected by default, parameter can be changed. Returns a transformed
-    DataFrame, column names have "_log" appended if parameter is set.
+def transform_data(
+    df: pd.DataFrame,
+    method: Optional[str] = "log",
+    cols_to_transform: Optional[List[str]] = None,
+    treat_nan: Optional[bool] = False,
+    add_suffix: Optional[bool] = True,
+) -> pd.DataFrame:
+    """Apply the desired transformation on the selected columns of
+    the input dataframe. Missing values are ignored (see below). YJ 
+    is the only option you can use with 0 or negative values.
 
-    Arguments:
-    ----------
-    - df: DataFrame
-    - cols_to_transform: list of columns that will have the transformation
-        applied, (default is all numerical columns)
-    - treat_NaN: bool, set NaN to small negative value, (default=False)
-    - rename: bool, rename column with appendix, (default=False)
+    Possible transformations are:
+    - log (compress values more the larger they are)
+    - log10 (same, but somewhat easier to interpret)
+    - box-cox (optimized generalization of the log transformation)
+    - yeo-johnson (same but able to handle zero and negative values)
 
-    Returns:
-    --------
-    - df: DataFrame, natural log-transformed copy of original DataFrame
+    Note: The `treat_nan` option simply sets all nan values to -1. 
+    Use with caution.
     """
-
-    df_log = df.copy()
+    df = df.copy()
     cols_to_transform = (
         cols_to_transform
-        if cols_to_transform is not None
-        else list(df_log.select_dtypes(include=["float64", "int64"]).columns)
+        or df.select_dtypes(include=np.number).columns.tolist()
     )
+    suffix_dict = {
+        "log": "_log",
+        "log10": "_log10",
+        "box_cox": "_bc",
+        "yeo_johnson": "_yj",
+    }
+    function_dict = {
+        "log": lambda x: np.log(x),
+        "log10": lambda x: np.log10(x),
+    }
 
-    for col in df_log[cols_to_transform]:
-        if col in df_log:
-            df_log[col] = df_log[col].apply(lambda x: np.log(max(x, 0.001)))
-            if treat_NaN:
-                df_log[col].replace(np.nan, -1, inplace=True)
-        else:
-            print(col + " not found")
-
-        # Rename transformed columns
-        if rename:
-            df_log.rename(columns={col: col + "_log"}, inplace=True)
-
-    return df_log
-
-
-def apply_log10(df, cols_to_transform=None, treat_NaN=False, rename=False):
-    """Transform values of selected columns to natural log. NaN are not
-    affected by default, parameter can be changed. Returns a transformed
-    DataFrame, column names have "_log10" appended if parameter is set.
-
-    Arguments:
-    ----------
-    - df: DataFrame
-    - cols_to_transform: list of columns that will have jy-transformation
-        applied, (default is all numerical columns)
-    - treat_NaN: bool, set NaN to small negative value, (default=False)
-    - rename: bool, rename column with appendix, (default=False)
-
-    Returns:
-    --------
-    - df: DataFrame, log10-transformed copy of original DataFrame
-    """
-
-    df_log = df.copy()
-    cols_to_transform = (
-        cols_to_transform
-        if cols_to_transform is not None
-        else list(df_log.select_dtypes(include=["float64", "int64"]).columns)
-    )
-
-    for col in df_log[cols_to_transform]:
-        if col in df_log:
-            df_log[col] = df_log[col].apply(lambda x: np.log10(max(x, 0.001)))
-            if treat_NaN:
-                df_log[col].replace(np.nan, -1, inplace=True)
-        else:
-            print(col + " not found")
-
-        # Rename transformed columns
-        if rename:
-            df_log.rename(columns={col: col + "_log10"}, inplace=True)
-
-    return df_log
+    for col in df[cols_to_transform]:
+        if (np.min(df[col]) <= 0) & (method != "yeo_johnson"):
+            print(np.min(df[col]))
+            raise ValueError(
+                "Zero or negative value(s) in column, "
+                "please use method 'yeo-johnson'."
+            )
+        try:
+            if method in ["log", "log10"]:
+                df[col] = df[col].apply(function_dict.get(method))
+            elif method == "box_cox":
+                df[col] = stats.boxcox(df[col])[0]
+            elif method == "yeo_johnson":
+                df[col] = stats.yeojohnson(df[col])[0]
+            if treat_nan:
+                df[col].replace(np.nan, -1, inplace=True)
+            if add_suffix:
+                df.rename(
+                    columns={col: col + suffix_dict.get(method)}, 
+                    inplace=True
+                )
+        except KeyError:
+            print(col + " not found!")
+    return df
 
 
-def apply_box_cox(df, cols_to_transform=None, rename=False):
-    """Transform values of selected columns with box-cox. Returns transformed
-    DataFrame, column names have "_bc" appended if parameter is set.
-    NOTE: Cannot handle NaN and negative values. Normally bc can works on
-    positive values only, this function has a little workaround is included to
-    set 0 values to 0.01.
+### MISSING VALUES - Handling
 
-    Arguments:
-    ----------
-    - df: DataFrame
-    - cols_to_transform: list of columns that will have jy-transformation
-        applied, (default is all numerical columns)
-    - treat_NaN: bool, set NaN to small negative value, (default=False)
-    - rename: bool, rename column with appendix, (default=False)
+# def handle_nan(
+#     df,
+#     cols_to_impute_num=None,
+#     cols_to_impute_cat=None,
+#     cols_to_drop=None,
+#     drop_all_NaN=False,
+# ):
+#     """Handle NaN with different strategies for selected columns. Return a
+#     transformed copy of the DataFrame. Note: Use with caution, as there are
+#     more sophisticated solutions around.
 
-    Returns:
-    --------
-    - df_bc: DataFrame, box-cox-transformed copy of original DataFrame
-    """
+#     Arguments:
+#     ----------
+#     - cols_to_impute_num: list of num columns to impute median,
+#         (default=None)
+#     - cols_to_impute_cat: list of categorical columns to impute mode,
+#         (default=None)
+#     - cols_to_drop: list of columns to drop entirely,
+#         (default=None)
+#     - drop_all_NaN: bool, if True ALL remaining rows with NaN will be removed,
+#         (default=False)
 
-    df_bc = df.copy()
-    cols_to_transfrom = (
-        cols_to_transform
-        if cols_to_transform is not None
-        else list(df_bc.select_dtypes(include=["float64", "int64"]).columns)
-    )
+#     Returns:
+#     --------
+#     - df_NaN: DataFrame, transformed copy of original DataFrame
+#     """
+#     df_NaN = df.copy()
+#     if cols_to_impute_num is not None:
+#         for col in cols_to_impute_num:
+#             if col in df_NaN.columns:
+#                 print(
+#                     "{} - median value to impute: {}".format(
+#                         col, df_NaN[col].median()
+#                     )
+#                 )
+#                 df_NaN[col] = df_NaN[col].fillna(df_NaN[col].median())
+#             else:
+#                 print(col + " not found")
+#     if cols_to_impute_cat is not None:
+#         for col in cols_to_impute_cat:
+#             if col in df_NaN.columns:
+#                 print(
+#                     "{} - most frequent value to impute: {}".format(
+#                         col, df_NaN[col].value_counts().index[0]
+#                     )
+#                 )
+#                 df_NaN[col] = df_NaN[col].fillna(
+#                     df_NaN[col].value_counts().index[0]
+#                 )
+#             else:
+#                 print(col + " not found")
+#     if cols_to_drop is not None:
+#         for col in cols_to_drop:
+#             if col in df_NaN.columns:
+#                 df_NaN.drop(col, axis=1, inplace=True)
+#             else:
+#                 print(col + " not found")
+#     if drop_all_NaN:
+#         df_NaN = df_NaN.dropna(how="any")
 
-    for col in df_bc[cols_to_transform]:
-        if col in df:
-            df_bc[col] = df_bc[col].apply(lambda x: x + 0.001 if x == 0 else x)
-            df_bc[col] = stats.boxcox(df_bc[col])[0]
-        else:
-            print(col + " not found")
-
-        # rename transformed columns
-        if rename:
-            df_bc.rename(columns={col: col + "_bc"}, inplace=True)
-
-    return df_bc
-
-
-def apply_yeo_j(df, cols_to_transform=None, rename=False):
-    """Transform values of selected columns with yeo-johnson. Returns transformed
-    DataFrame, column names have "_yj" appended if parameter is set.
-    NOTE: Cannot handle NaN but contrary to box-cox, yeo-johnson works also on
-    negative and zero values.
-
-    Arguments:
-    ----------
-    - df: DataFrame
-    - cols_to_transform: list of columns that will have jy-transformation
-        applied, (default is all numerical columns)
-    - rename: bool, rename column with appendix, (default=False)
-
-    Returns:
-    --------
-    - df_yj: DataFrame, yeo-johnson-transformed copy of original DataFrame
-    """
-    df_yj = df.copy()
-    cols_to_transfrom = (
-        cols_to_transform
-        if cols_to_transform is not None
-        else list(df_yj.select_dtypes(include=["float64", "int64"]).columns)
-    )
-
-    for col in df_yj[cols_to_transform]:
-        if col in df_yj:
-            df_yj[col] = stats.yeojohnson(df_yj[col])[0]
-        else:
-            print(col + " not found")
-
-        # Rename transformed columns
-        if rename:
-            df_yj.rename(columns={col: col + "_yj"}, inplace=True)
-
-    return df_yj
+#     return df_NaN
