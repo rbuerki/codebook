@@ -1,76 +1,100 @@
 #  Codebook
 
-Small collections of functions and classes written for reusability in my projects.
+Some modules containing collections of functions and classes written for reusability in my projects.
 
-### cleaning_functions.py - List of functions
+## EDA.py
+(last update Nov 2020)
 
-*Columns:*
-- `edit_column_names`: Replace whitespace in column labels with underscore
-  and change to all lowercase (optional).
-- `change_dtypes`: Change different datatypes for selected columns.
-- `delete_columns`: Delete columns permanently from a dataframe.
+LIST OF FUNCTIONS
+-----------------
 
-*Missing Values:*
-- `plot_NaN`: Plot heatmap with all NaN in DataFrame.
-- `list_NaN`: Display DataFrame with missing values and their respective
-  percentage for every column that contains missing values
-- `handle_NaN`: Apply different strategies for NaN handling in selected
-  columns (simplistic approach).
+Dataframe Values:
+- `display_distinct_values`: Return a dataframe containing the number
+   of distinct values for each column of the input dataframe.
+- `display_value_counts`: Display a dataframe containing the value
+   counts and their respective pct for a column or a list of columns.
+- `display_tail_transposed`: Return transposed tail of the passed
+   dataframe with cols shown as rows and values for 5 instances as cols.
+- `display_dtypes`: Return a dataframe showing the count of different
+   datatypes for the columns in the input dataframe.
 
-*Duplicates:*
-- `list_duplicates`: Display the columns containing column-wise duplicates.
+Missing Values and Duplicates:
+- `display_nan`: Return a dataframe showing the missing values with
+   their respective percentage of the total values in a column.
+- `plot_nan`: Display a heatmap of the input dataframe, highlighting
+   the missing values.
+- `display_duplicates`: Print a summary of the column-wise duplicates
+   in the input dataframe.
 
-*Outliers:*
+Distributions:
+- `plot_distr_histograms`: Display a histogram for every numeric
+   column in the input dataframe.
+- `plot_distr_boxplots`: Display a boxplot for every numeric
+   column in the input dataframe.
+- `plot_distr_pies`: Display a pieplot for every column of dtype
+  "category" (with up to 30 distinct values) in the input dataframe.
+- `plot_distr_pdf_ecdf`: Display a histogram overlaid with an ECDF 
+   for every numeric column in the input dataframe.
+
+Correlations:
+- `plot_corr_full_heatmap`: Display a heatmap to show the correlations
+   between all numeric columns in the Dataframe.
+- `plot_corr_to_target_barchart`: Display a barchart for every numeric
+   feature in the input dataframe to show the correlation to a
+   numeric target variable.
+- `plot_corr_to_target_regplots`: Display a regplot for every numeric
+   feature in the input dataframe to show the correlation to a
+   numeric target variable.
+- `plot_corr_to_target_lineplots`: Display a lineplot for every numeric
+  feature in the input dataframe with up to (by default) 100 distinct
+  values to analyze the correlation to a numeric target variable.
+- `plot_corr_to_target_boxplots`: Display a boxplot for every numeric
+   feature column in the input dataframe to analyze the correlation to
+   a target variable with few distinct values (any dtype possible).
+- `plot_corr_to_target_pointplots_with_pies`: Display a pointplot
+   (and corresponding piechart) for every feature with dtype "category"
+   in the input dataframe to display the correlation to a numeric
+   target variable.
+- `plot_corr_to_target_stripplots`: Display a stripplot for each
+   feature with dtype "category" in the input dataframe to analyze
+   the correlation to a numeric target variable.
+
+Cumulative Sums / Counts:
+- `display_cumcurve_stats`: Return a dataframe with cumsum stats for an
+  iterable of numeric values.
+- plot_cumsum_curve`: Display a cumsum curve for an iterable of numeric
+  values.
+
+## clean.py
+(last update Nov 2020)
+
+LIST OF FUNCTIONS
+-----------------
+
+Columns:
+- `prettify_column_names`: Replace whitespace in column labels with
+   an underscore and, by default, change to all lowercase.
+- `delete_columns`: Delete selected columns permanently from the
+   input dataframe.
+
+Outliers:
 - `count_outliers_IQR_method`: Detect outliers in specified columns
-  depending on specified distance from 1th / 3rd quartile. NaN ignored.
+   depending on specified distance from 1th / 3rd quartile. NaN ignored.
 - `remove_outliers_IQR_method`: Remove outliers in specified columns
-  depending on specified distance from 1th / 3rd quartile. NaN ignored.
+   depending on specified distance from 1th / 3rd quartile. NaN ignored.
+- `winsorize_values`: Return a winsorized version of the selected
+   columns.
 
-*Transformations:*
-_(The different transformations are demonstrated in nb-4 of the starbucks challenge.)_
-- `apply_log`: Transform values of selected columns to natural log.
-  NaN not affected by default, parameter can be changed.
-- `apply_log10`: Transform values of selected columns to log10.
-  NaN not affected by default, parameter can be changed.
-- `apply_box_cox`: Power transform values of selected columns with box-cox.
-  NOTE: Cannot handle NaN and negvalues. Workaround to handle zero values.
-- `apply_yeo_j`: Power transform values of selected columns with yeo-johnson.
-  NOTE: Cannot handle NaN but yeo-johnson works on neg and zero values.
+Transformations:
+- `transfrom_data`: Apply the desired transformation on the selected
+   columns. (Methods are log, log10, box-cox or yeo-johnson.)
 
-### EDA_functions.py - List of functions
+--<!-- markdownlint-capture -->
 
-*General*
-- `display_value_counts_pct`:Display the value counts and respective proportion
-  of the column total for in a nicely formatted dataframe for a single column
-  or a list of columns.
-- `display_tail_transposed`: Display transposed tail of DataFrame with all the
-  features as rows and values for 5 instances as columns.
-
-*Distributions:*
-- `plot_num_hist`: Display histograms for all numerical columns in DataFrame.
-- `plot_num_box`: Display boxplots for all numerical columns in DataFrame.
-- `plot_cat_pies`: Display pieplots for all categorical columns in DataFrame with
-  up to 30 unique values.
-
-*Correlations:*
-- `plot_num_corrMap`: Display heatmap to show correlations between all numerical
-  columns in the Dataframe.
-- `plot_corr_bar_num_target`: Display sorted barchart to show correlations between
-  all numerical features and numerical target variable.
-- `plot_corr_regression_num_target`: Display regplots to visualize correlations
-  between the numerical features and numerical target variable.
-- `plot_corr_box_num_target`: Display boxplots to show correlations between all
-  numerical features and target classes.
-- `plot_corr_line_num_target`: Display lineplots to show correlation details
-  between all numerical features and target classes.
-- `plot_corr_strip_cat_target`: Display stripplots to show correlations between
-  the categorical features and numerical target variable.
-- `plot_corr_point_cat_target`: Display pointplots (and corresponding piecharts)
-  to show correlations between all categorical columns and target classes.
-
+## Older Stuff
 
 ### custom_transformers.py - List of classes
-
+(last update: long ago ...)
 
 - `ColumnSelector`: Selects  the defined  columns from a DataFrame for further
     processing. Makes sure, that only the these columns are processed. Valuable
@@ -86,6 +110,7 @@ _(The different transformations are demonstrated in nb-4 of the starbucks challe
 
 
 ### hypothesis_functions.py - List of functions
+(last update: long ago ...)
 
 _NOTE: The functions in this notebook are for calculations on PROPORTIONS only!
 (They have been developed in the small projects in the experimental design repository.)_
@@ -100,6 +125,7 @@ _NOTE: The functions in this notebook are for calculations on PROPORTIONS only!
 
 
 ### baseline_regressor.py
+(last update: long ago ...)
 
 `BaselineRegression`: Regression class based on sklearn for applying and evaluating
 different models. Needs a sklearn regression model object as input.
@@ -118,6 +144,7 @@ _Evaluation:_
 
 
 ### baseline_classifier.py
+(last update: long ago ...)
 
 `BaselineClassification`: Classification class based on sklearn for applying and
 evaluating different models. Needs a sklearn classification model object as input.
@@ -142,9 +169,9 @@ _Evaluation:
     get_feature_weights() method (tree-based models)
 
 
-## Install
+## Requirements
 
-These functions require **Python 3.x** and the following Python libraries installed:
+These functions require **Python 3.6** and the following Python libraries installed:
 
 - [NumPy](http://www.numpy.org/)
 - [Pandas](http://pandas.pydata.org)
