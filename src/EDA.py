@@ -4,51 +4,53 @@ LIST OF FUNCTIONS
 
 Dataframe Values:
 - `display_distinct_values`: Return a dataframe containing the number
-   of distinct values for each column of the passed dataframe.
+   of distinct values for each column of the input dataframe.
 - `display_value_counts`: Display a dataframe containing the value
    counts and their respective pct for a column or a list of columns.
 - `display_tail_transposed`: Return transposed tail of the passed
    dataframe with cols shown as rows and values for 5 instances as cols.
 - `display_dtypes`: Return a dataframe showing the count of different
-   datatypes for the columns in the passed dataframe.
+   datatypes for the columns in the input dataframe.
 
 Missing Values and Duplicates:
 - `display_nan`: Return a dataframe showing the missing values with
    their respective percentage of the total values in a column.
-- `plot_nan`: Display a heatmap of the passed dataframe, highlighting
+- `plot_nan`: Display a heatmap of the input dataframe, highlighting
    the missing values.
 - `display_duplicates`: Print a summary of the column-wise duplicates
-   in the passed dataframe.
+   in the input dataframe.
 
 Distributions:
 - `plot_distr_histograms`: Display a histogram for every numeric
-   column in the passed dataframe.
+   column in the input dataframe.
 - `plot_distr_boxplots`: Display a boxplot for every numeric
-   column in the passed dataframe.
+   column in the input dataframe.
 - `plot_distr_pies`: Display a pieplot for every column of dtype
-  "category" (with up to 30 distinct values) in the passed dataframe.
+  "category" (with up to 30 distinct values) in the input dataframe.
+- `plot_distr_pdf_ecdf`: Display a histogram overlaid with an ECDF 
+   for every numeric column in the input dataframe.
 
 Correlations:
 - `plot_corr_full_heatmap`: Display a heatmap to show the correlations
    between all numeric columns in the Dataframe.
 - `plot_corr_to_target_barchart`: Display a barchart for every numeric
-   feature in the passed dataframe to show the correlation to a
+   feature in the input dataframe to show the correlation to a
    numeric target variable.
 - `plot_corr_to_target_regplots`: Display a regplot for every numeric
-   feature in the passed dataframe to show the correlation to a
+   feature in the input dataframe to show the correlation to a
    numeric target variable.
 - `plot_corr_to_target_lineplots`: Display a lineplot for every numeric
-  feature in the passed dataframe with up to (by default) 100 distinct
+  feature in the input dataframe with up to (by default) 100 distinct
   values to analyze the correlation to a numeric target variable.
 - `plot_corr_to_target_boxplots`: Display a boxplot for every numeric
-   feature column in the passed dataframe to analyze the correlation to
+   feature column in the input dataframe to analyze the correlation to
    a target variable with few distinct values (any dtype possible).
 - `plot_corr_to_target_pointplots_with_pies`: Display a pointplot
    (and corresponding piechart) for every feature with dtype "category"
-   in the passed dataframe to display the correlation to a numeric
+   in the input dataframe to display the correlation to a numeric
    target variable.
 - `plot_corr_to_target_stripplots`: Display a stripplot for each
-   feature with dtype "category" in the passed dataframe to analyze
+   feature with dtype "category" in the input dataframe to analyze
    the correlation to a numeric target variable.
 
 Cumulative Sums / Counts:
@@ -59,7 +61,7 @@ Cumulative Sums / Counts:
 """
 
 import collections
-from typing import Iterable, Optional, Tuple, Union
+from typing import Iterable, List, Optional, Tuple, Union
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -72,7 +74,7 @@ import seaborn as sns
 
 def display_distinct_values(df: Union[pd.DataFrame, pd.Series]) -> pd.DataFrame:
     """Return a dataframe containing the number of distinct values
-    for each column of the passed dataframe.
+    for each column of the input dataframe.
     """
     if isinstance(df, pd.core.series.Series):
         df = pd.DataFrame(df)
@@ -90,7 +92,7 @@ def display_value_counts(
     df: pd.DataFrame, n_rows: Optional[int] = None,
 ):
     """Display a dataframe containing the value counts and their
-    respective pct for each column of the passed dataframe. The max
+    respective pct for each column of the input dataframe. The max
     number of values to display (ordered desc by counts) can be
     defined by the optional n_rows parameter.
     """
@@ -141,7 +143,7 @@ def display_df_sample_transposed(
 
 def display_dtypes(df: pd.DataFrame):
     """Return a dataframe showing the count of different datatypes
-    for the columns in the passed dataframe.
+    for the columns in the input dataframe.
     """
     dtypes_list = [str(val) for val in df.dtypes.values]
     dtypes_dict = collections.Counter(dtypes_list)
@@ -177,7 +179,7 @@ def display_nan(df: Union[pd.DataFrame, pd.Series]) -> pd.DataFrame:
 
 
 def plot_nan(df: pd.DataFrame, figsize: Tuple[int, int] = (14, 6), **kwargs):
-    """Display a heatmap of the passed dataframe, highlighting the
+    """Display a heatmap of the input dataframe, highlighting the
     missing values. Additional keyword arguments will be passed to
     the actual seaborn plot function.
 
@@ -221,7 +223,7 @@ def display_duplicates(df: Union[pd.DataFrame, pd.Series]):
 
 
 def plot_distr_histograms(
-    df: pd.DataFrame, figsize: Optional[Tuple[int, int]] = None, **kwargs
+    df: pd.DataFrame, figsize: Optional[Tuple[float, float]] = None, **kwargs
 ):
     """Display a histogram for every numeric column in the passed
     dataframe. If not explicitely passed, a suitable figsize is
@@ -229,7 +231,7 @@ def plot_distr_histograms(
     actual Seaborn plot function.
     """
     num_cols = df.select_dtypes(include=np.number).columns
-    defaults = {"bins": 50, "color": "rebeccapurple", "kde": True}
+    defaults = {"bins": "auto", "color": "rebeccapurple", "kde": True}
     kwargs = {**defaults, **kwargs}
     if figsize is None:
         height = np.ceil(len(num_cols) / 4) * 3.5
@@ -244,7 +246,7 @@ def plot_distr_histograms(
 
 
 def plot_distr_boxplots(
-    df: pd.DataFrame, figsize: Optional[Tuple[int, int]] = None, **kwargs
+    df: pd.DataFrame, figsize: Optional[Tuple[float, float]] = None, **kwargs
 ):
     """Display a barchart for every numeric feature in the passed
     dataframe to show the correlation to a numeric target variable.
@@ -268,10 +270,10 @@ def plot_distr_boxplots(
 
 
 def plot_distr_pies(
-    df: pd.DataFrame, figsize: Optional[Tuple[int, int]] = None, **kwargs
+    df: pd.DataFrame, figsize: Optional[Tuple[float, float]] = None, **kwargs
 ):
     """Display a pieplot for every column of dtype "category" in the
-    passed dataframe that has no more than 30 distinct values. If not
+    input dataframe that has no more than 30 distinct values. If not
     explicitely passed, a suitable figsize is interfered. Additional
     keyword arguments will be passed to the actual pandas plot
     function.
@@ -300,6 +302,78 @@ def plot_distr_pies(
         print("No plot (to many distinct values) for:")
         for col in cols_with_many_distinct_values:
             print(f"- {col}")
+
+
+def plot_distr_pdf_ecdf(
+    df: Union[pd.DataFrame, pd.core.series.Series],
+    figsize: Optional[Tuple[float, float]] = None,
+    percentiles: Optional[List[float]] = [2.5, 25, 50, 75, 97.5],
+    **kwargs,
+):
+    """Display a histogram overlaid with an ECDF for every numeric
+    column in the input dataframe. By default selected percentile
+    markers are displayed on the ECDF. (Can be changed or removed.) 
+    Additional keyword arguments will be passed to the actual Seaborn
+    plot functions for the histogram and ECDF. 
+
+    One useful kwarg is the "hue" parameter. If you use it, make sure
+    to include the respective column in the dataframe, even if it is
+    not numeric. The percentile markers will be displayed for an 
+    invisible overall ECDF curve only in this case.
+    """
+    if isinstance(df, pd.core.series.Series):
+        df = pd.DataFrame(df)
+
+    num_cols = df.select_dtypes(include=np.number).columns.tolist()
+    defaults = {"palette": ["rebeccapurple", "orchid"], "hue": None}
+    kwargs = {**defaults, **kwargs}
+
+    if kwargs.get("hue") != None:
+        try:
+            num_cols.remove(kwargs.get("hue"))
+        except ValueError:
+            pass
+
+    if figsize is None:
+        height = len(num_cols) * 5
+        figsize = (12, height)
+
+    plt.subplots(nrows=len(num_cols), ncols=1, figsize=figsize)
+
+    for pos, col in enumerate(num_cols, 1):
+        plt.subplot(len(num_cols), 1, pos)
+
+        _ = sns.histplot(data=df, x=col, alpha=0.4, **kwargs)
+
+        plt.grid(which="major", axis="x", color="lightgray")
+        plt.twinx()
+
+        _ = sns.ecdfplot(data=df, x=col, **kwargs)
+
+        plt.grid(which="major", axis="y", color="lightgray")
+
+        if percentiles is not None:
+            percentiles = np.array(percentiles)
+
+            # Compute and print percentile values
+            pctile_values = np.percentile(df[col].dropna(), percentiles)
+            print(
+                f"{col} - Percentile values: "
+                f"{[round(x, 2) for x in pctile_values]}"
+            )
+
+            # Overlay percentiles as diamonds
+            _ = plt.plot(
+                pctile_values,
+                percentiles / 100,
+                marker="D",
+                color="purple",
+                linestyle="none",
+            )
+
+    plt.tight_layout(w_pad=1)
+    plt.suptitle("PDF & ECDF\n", y=1.02, size=14)
+    plt.show()
 
 
 # CORRELATIONS
@@ -335,7 +409,7 @@ def plot_corr_to_target_barchart(
     **kwargs,
 ):
     """Display a barchart to show the correlations between the
-    numeric features in the passed dataframe and a numeric target
+    numeric features in the input dataframe and a numeric target
      variable. Optional figsize and additional keyword arguments
      will be passed to the actual pandas plot function.
     """
@@ -355,7 +429,7 @@ def plot_corr_to_target_barchart(
 def plot_corr_to_target_regplots(
     df: pd.DataFrame,
     target_col: str,
-    figsize: Optional[Tuple[int, int]] = None,
+    figsize: Optional[Tuple[float, float]] = None,
     **kwargs,
 ):
     """Display a regplot for every numeric feature in the passed
@@ -370,7 +444,11 @@ def plot_corr_to_target_regplots(
     except ValueError:
         raise ValueError(f"Found no numeric column with name {target_col}.")
 
-    defaults = {"color": "rebeccapurple", "line_kws": {"color": "yellow"}}
+    defaults = {
+        "color": "rebeccapurple",
+        "marker": ".",
+        "line_kws": {"color": "yellow"},
+    }
     kwargs = {**defaults, **kwargs}
     if figsize is None:
         height = np.ceil(len(num_cols) / 2) * 3.5
@@ -388,12 +466,12 @@ def plot_corr_to_target_lineplots(
     df: pd.DataFrame,
     target_col: str,
     value_threshold: Optional[int] = 100,
-    figsize: Optional[Tuple[int, int]] = None,
+    figsize: Optional[Tuple[float, float]] = None,
     ylim: Optional[Tuple[int, int]] = None,
     **kwargs,
 ):
     """Display a lineplot for every numeric feature in the
-    passed dataframe with up to (by default) 100 distinct values
+    input dataframe with up to (by default) 100 distinct values
     to analyze the correlation to a numeric target variable. If not
     explicitely passed, a suitable figsize is interfered. The same
     is true for the ylim argument. Additional keyword arguments will
@@ -438,11 +516,11 @@ def plot_corr_to_target_lineplots(
 def plot_corr_to_target_boxplots(
     df: pd.DataFrame,
     target_col: str,
-    figsize: Optional[Tuple[int, int]] = None,
+    figsize: Optional[Tuple[float, float]] = None,
     **kwargs,
 ):
     """Display a boxplot for every numeric feature column in the
-    passed dataframe to analyze the correlation to a target variable
+    input dataframe to analyze the correlation to a target variable
     with few distinct values (any dtype possible). If not explicitely
     passed, a suitable figsize is interfered. Additional keyword
     arguments will be passed to the actual Seaborn plot function.
@@ -473,12 +551,12 @@ def plot_corr_to_target_boxplots(
 def plot_corr_to_target_pointplots_with_pies(
     df: pd.DataFrame,
     target_col: str,
-    figsize: Optional[Tuple[int, int]] = None,
-    ylim: Optional[Tuple[int, int]] = None,
+    figsize: Optional[Tuple[float, float]] = None,
+    ylim: Optional[Tuple[float, float]] = None,
     **kwargs,
 ):
     """Display a pointplot (and corresponding piechart) for every
-    feature with dtype "category" in the passed dataframe to display
+    feature with dtype "category" in the input dataframe to display
     the correlation to a numeric target variable. If not explicitely
     passed, a suitable figsize is interfered. The same is true for
     the ylim tuple. No additional key word arguments allowed for this
@@ -522,18 +600,18 @@ def plot_corr_to_target_pointplots_with_pies(
 def plot_corr_to_target_stripplots(
     df: pd.DataFrame,
     target_col: str,
-    figsize: Optional[Tuple[int, int]] = None,
+    figsize: Optional[Tuple[float, float]] = None,
     **kwargs,
 ):
     """Display a stripplot for each feature with dtype "category" in
-    the passed dataframe to analyze the correlation to a numeric target
+    the input dataframe to analyze the correlation to a numeric target
     variable. If not explicitely passed, a suitable figsize is
     interfered. Additional keyword arguments will be passed to the
     actual Seaborn plot function.
     """
     cat_cols = df.select_dtypes(include="category").columns
 
-    defaults = {"palette": "rocket"}
+    defaults = {"palette": "rocket", "marker": "."}
     kwargs = {**defaults, **kwargs}
     if figsize is None:
         height = np.ceil(len(cat_cols) / 2) * 3.5
@@ -601,7 +679,7 @@ def display_cumcurve_stats(
 def plot_cumsum_curve(
     iterable: Iterable[Union[int, float]],
     threshold_list: Optional[Iterable[float]] = (0.2, 0.5, 0.8),
-    figsize: Optional[Tuple[int, int]] = (12, 5),
+    figsize: Optional[Tuple[float, float]] = (12, 5),
     **kwargs,
 ):
     """Display a cumsum curve for an iterable of numeric values
@@ -615,9 +693,7 @@ def plot_cumsum_curve(
     iterable_checked = _check_iterable_for_cumsum(iterable)
     iterable_sorted = sorted(iterable_checked, reverse=True)
     iter_cumsum = np.cumsum(iterable_sorted)
-    defaults = {
-        "color": "rebeccapurple",
-    }
+    defaults = {"color": "rebeccapurple", "linewidth": 2.5}
     kwargs = {**defaults, **kwargs}
 
     plt.figure(figsize=figsize)
@@ -636,7 +712,7 @@ def plot_cumsum_curve(
         title = f"{iterable.name}: {title}"
     plt.title(title, fontsize=14)
 
-    for thresh_value in [0.8, 0.2, 0.5]:
+    for thresh_value in threshold_list:
         thresh_sum = iter_cumsum[-1] * thresh_value
         thresh_count = sum(iter_cumsum < thresh_sum) + 1
         y_intercept = thresh_sum
@@ -672,7 +748,7 @@ def _check_iterable_for_cumsum(
     includes negative values. If there are 0 values or missing values
     print a warning. Return the iterable without the missing values.
     """
-    if iterable.min() < 0:
+    if min(iterable) < 0:
         raise AssertionError(
             "There cannot be negative values in the input iterable."
         )
