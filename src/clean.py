@@ -4,21 +4,21 @@ LIST OF FUNCTIONS
 
 Columns:
 - `prettify_column_names`: Replace whitespace in column labels with
-  an underscore and, by default, change to all lowercase.
+   an underscore and, by default, change to all lowercase.
 - `delete_columns`: Delete selected columns permanently from the
-  input dataframe.
+   input dataframe.
 
 Outliers:
 - `count_outliers_IQR_method`: Detect outliers in specified columns
-  depending on specified distance from 1th / 3rd quartile. NaN ignored.
+   depending on specified distance from 1th / 3rd quartile. NaN ignored.
 - `remove_outliers_IQR_method`: Remove outliers in specified columns
-  depending on specified distance from 1th / 3rd quartile. NaN ignored.
+   depending on specified distance from 1th / 3rd quartile. NaN ignored.
 - `winsorize_values`: Return a winsorized version of the selected
-  columns.
+   columns.
 
 Transformations:
 - `transfrom_data`: Apply the desired transformation on the selected
-  columns. (Methods are log, log10, box-cox or yeo-johnson)
+   columns. (Methods are log, log10, box-cox or yeo-johnson.)
 """
 
 from typing import Dict, Iterable, List, Optional, Tuple, Union
