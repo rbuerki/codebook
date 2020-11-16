@@ -3,6 +3,9 @@
 
 #My own stuff
 /data
+/test/
+/test_notebooks/
+.gitignore
 
 ### JupyterNotebook ###
 .ipynb_checkpoints

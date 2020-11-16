@@ -2,11 +2,10 @@
 
 Some modules containing collections of functions and classes written for reusability in my projects.
 
-## EDA.py
+## EDA.py - List of Functions
 (last update Nov 2020)
 
-LIST OF FUNCTIONS
------------------
+see notebook in demo folder
 
 Dataframe Values:
 - `display_distinct_values`: Return a dataframe containing the number
@@ -65,11 +64,10 @@ Cumulative Sums / Counts:
 - plot_cumsum_curve`: Display a cumsum curve for an iterable of numeric
   values.
 
-## clean.py
+## clean.py - List of Functions
 (last update Nov 2020)
 
-LIST OF FUNCTIONS
------------------
+see notebook in demo folder
 
 Columns:
 - `prettify_column_names`: Replace whitespace in column labels with
@@ -93,7 +91,7 @@ Transformations:
 
 ## Older Stuff
 
-### custom_transformers.py - List of classes
+### custom_transformers.py - List of Classes
 (last update: long ago ...)
 
 - `ColumnSelector`: Selects  the defined  columns from a DataFrame for further
@@ -109,7 +107,7 @@ Transformations:
     does not (yet) support get_feature_names(). See [here](https://stackoverflow.com/questions/53382322/adding-get-feature-names-to-columntransformer-pipeline) for background info.
 
 
-### hypothesis_functions.py - List of functions
+### hypothesis_functions.py - List of Functions
 (last update: long ago ...)
 
 _NOTE: The functions in this notebook are for calculations on PROPORTIONS only!
