@@ -107,9 +107,9 @@ def remove_outliers_IQR_method(
     on the desired distance from 1th and 3rd quartile (defaults to 1.5).
     NaN values are ignored.
 
-    If `return_idx_deleted` is set to True (it defaults to Flase), then
-    not only the cleaned dataframe is returned, but also the list of
-    the deleted index values as the second return object.
+    If `return_idx_deleted` is set to True (it defaults to Flase),
+    then not only the cleaned dataframe is returned, but also the list
+    of the deleted index values as the second return object.
     """
     df = df.copy()
     if outlier_cols is None:
@@ -184,8 +184,10 @@ def transform_data(
     add_suffix: Optional[bool] = True,
 ) -> pd.DataFrame:
     """Apply the desired transformation on the selected columns of
-    the input dataframe. Missing values are ignored (see below). YJ 
-    is the only option you can use with 0 or negative values.
+    the input dataframe. Missing values are ignored (see below). YJ
+    is the only option that can handle 0 or negative values, the
+    other methods will shift the data accoringly if they encounter
+    0 or negative values.
 
     Possible transformations are:
     - log (compress values more the larger they are)
@@ -193,7 +195,7 @@ def transform_data(
     - box-cox (optimized generalization of the log transformation)
     - yeo-johnson (same but able to handle zero and negative values)
 
-    Note: The `treat_nan` option simply sets all nan values to -1. 
+    Note: The `treat_nan` option simply sets all nan values to -1.
     Use with caution.
     """
     df = df.copy()
@@ -213,16 +215,20 @@ def transform_data(
     }
 
     for col in df[cols_to_transform]:
+        shift_value = 0
         if (np.min(df[col]) <= 0) & (method != "yeo_johnson"):
-            print(np.min(df[col]))
-            raise ValueError(
-                "Zero or negative value(s) in column, "
-                "please use method 'yeo-johnson'."
+            shift_value = np.min(df[col]) * -1 + 0.1
+            print(
+                f"Zero or negative value(s) in col {col}, "
+                f"all data is shifted by {shift_value}. "
+                "Alternatively use method 'yeo-johnson'."
             )
         try:
             if method in ["log", "log10"]:
+                df[col] = df[col] + shift_value
                 df[col] = df[col].apply(function_dict.get(method))
             elif method == "box_cox":
+                df[col] = df[col] + shift_value
                 df[col] = stats.boxcox(df[col])[0]
             elif method == "yeo_johnson":
                 df[col] = stats.yeojohnson(df[col])[0]
