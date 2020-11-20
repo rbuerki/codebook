@@ -27,7 +27,7 @@ Distributions:
    column in the input dataframe.
 - `plot_distr_pies`: Display a pieplot for every column of dtype
   "category" (with up to 30 distinct values) in the input dataframe.
-- `plot_distr_pdf_ecdf`: Display a histogram overlaid with an ECDF 
+- `plot_distr_pdf_ecdf`: Display a histogram overlaid with an ECDF
    for every numeric column in the input dataframe.
 
 Correlations:
@@ -307,18 +307,21 @@ def plot_distr_pies(
 def plot_distr_pdf_ecdf(
     df: Union[pd.DataFrame, pd.core.series.Series],
     figsize: Optional[Tuple[float, float]] = None,
+    xlim: Optional[Tuple[float, float]] = None,
     percentiles: Optional[List[float]] = [2.5, 25, 50, 75, 97.5],
     **kwargs,
 ):
     """Display a histogram overlaid with an ECDF for every numeric
     column in the input dataframe. By default selected percentile
-    markers are displayed on the ECDF. (Can be changed or removed.) 
+    markers are displayed on the ECDF. (Can be changed or removed.)
+    If not explicitely passed, a suitable figsize is interfered.
     Additional keyword arguments will be passed to the actual Seaborn
-    plot functions for the histogram and ECDF. 
+    plot functions for the histogram and ECDF. (Note: The optional
+    xlim argument works best if you plot only one series.)
 
     One useful kwarg is the "hue" parameter. If you use it, make sure
     to include the respective column in the dataframe, even if it is
-    not numeric. The percentile markers will be displayed for an 
+    not numeric. The percentile markers will be displayed for an
     invisible overall ECDF curve only in this case.
     """
     if isinstance(df, pd.core.series.Series):
@@ -371,6 +374,8 @@ def plot_distr_pdf_ecdf(
                 linestyle="none",
             )
 
+    if xlim:
+        plt.xlim(xlim)
     plt.tight_layout(w_pad=1)
     plt.suptitle("PDF & ECDF\n", y=1.02, size=14)
     plt.show()
