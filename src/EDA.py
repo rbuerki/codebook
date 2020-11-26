@@ -158,9 +158,20 @@ def display_dtypes(df: pd.DataFrame):
 def display_nan(df: Union[pd.DataFrame, pd.Series]) -> pd.DataFrame:
     """Return a dataframe showing the missing values with their
     respective percentage of the total values in a column.
+
+    Empty strings are displayed as NaN.
     """
     if isinstance(df, pd.core.series.Series):
         df = pd.DataFrame(df)
+
+    df = df.copy()
+    df = df.applymap(lambda x: x.strip() if isinstance(x, str) else x)
+    if (df == "").any().any():
+        print(
+            "Warning: There are empty strings in the dataframe.",
+            "They are displayed as missing values.",
+        )
+    df = df.replace(str(""), np.nan)
 
     if df.isnull().sum().sum() == 0:
         print("No empty cells in DataFrame.")
@@ -183,9 +194,20 @@ def plot_nan(df: pd.DataFrame, figsize: Tuple[int, int] = (14, 6), **kwargs):
     missing values. Additional keyword arguments will be passed to
     the actual seaborn plot function.
 
+    Empty strings are displayed as NaN.
+    
     Attention: For large datasets this plot can be misleading. Do
     not use without calling `display_nan` function also!
     """
+    df = df.copy()
+    df = df.applymap(lambda x: x.strip() if isinstance(x, str) else x)
+    if (df == "").any().any():
+        print(
+            "Warning: There are empty strings in the dataframe.",
+            "They are displayed as missing values.",
+        )
+    df = df.replace(str(""), np.nan)
+
     defaults = {
         "cmap": "viridis",
         "yticklabels": False,
