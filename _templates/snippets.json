@@ -1,37 +1,14 @@
 {
     "snippets": [
         {
-            "name": "imports_large",
+            "name": "imports_basic",
             "code": [
                 "import datetime as dt",
                 "import sys",
                 "from pathlib import Path",
                 "",
-                "import matplotlib.pyplot as plt",
-                "import numpy as np",
-                "import pandas as pd",
-                "import seaborn as sns",
-                "from pprint import pprint",
-                "from tqdm import tqdm_notebook as tqdm",
-                "",
-                "# Visualization - Plotly",
-                "import plotly.graph_objects as go",
-                "import plotly.io as pio",
-                "pio.renderers.default = 'notebook_connected' # online only",
-                "pio.templates.default = 'plotly_white'",
-                "",
-                "# import plotly_express as px",
-                "# import plotly.io as pio",
-                "# pio.renderers.default = 'notebook_connected' # online only",
-                "# pio.templates.default = 'simple_white'"
-            ]
-        },
-        {
-            "name": "imports_small",
-            "code": [
-                "import datetime as dt",
-                "import sys",
-                "",
+                "import codebook.EDA as EDA",
+                "import codebook.clean as clean",
                 "import numpy as np",
                 "import pandas as pd",
                 "import matplotlib.pyplot as plt",
@@ -39,39 +16,68 @@
             ]
         },
         {
-            "name": "config stuff",
+            "name": "imports_extra",
+            "code": [
+                "# Misc",
+                "from pprint import pprint",
+                "from tqdm import tqdm.notebook as tqdm",
+                "",
+                "# Visualization - Plotly",
+                "import plotly.express as px",
+                "import plotly.graph_objects as go  # if needed",
+                "import plotly.io as pio",
+                "pio.renderers.default = 'notebook_connected' # online only",
+                "pio.templates.default = 'plotly_white'"
+            ]
+        },
+        {
+            "name": "config_stuff",
             "code": [
                 "%load_ext autoreload",
                 "%autoreload 2",
                 "",
                 "%matplotlib inline",
-                "# %config InlineBackend.figure_format = 'svg'",
                 "plt.style.use('raph-base')",
                 "",
                 "from IPython.core.interactiveshell import InteractiveShell",
                 "InteractiveShell.ast_node_interactivity = 'all'",
                 "",
-                "pd.set_option('precision', 2)",
+                "pd.options.display.float_format = '{:,.2f}'.format",
                 "pd.set_option('display.max_columns', 30)",
                 "pd.set_option('display.expand_frame_repr', False)",
-                "pd.set_option('max_colwidth', 800)"
+                "pd.set_option('max_colwidth', 800)",
+                "",
+                "np.random.seed(666)"
             ]
         },
         {
-            "name": "executable and version",
+            "name": "executable_versions",
             "code": [
                 "print(sys.executable)",
-                "print(sys.version)"
+                "print(sys.version)",
+                "prinf(f'Pandas {pd.__version__}"
             ]
         },
         {
-            "name": "extend sys path",
+            "name": "extend_sys_path",
             "code": [
                 "sys.path.append(str(Path.cwd().parent / 'src'))"
             ]
         },
         {
-            "name": "connect to server, create engine",
+            "name": "save_pd_to_parquet",
+            "code": [
+                "# Save to parquet file - CHECK YOUR INDEX",
+                "filename = '0_trx_clean.parquet'",
+                "rel_path = 'data'",
+                "",
+                "if not Path(rel_path).exists():",
+                "    Path(rel_path).mkdir()",
+                "trx_clean.to_parquet(Path(rel_path) / filename, index=False)"
+            ]
+        },
+        {
+            "name": "connect_to_server_create_engine",
             "code": [
                 "# Connect to server, create engine",
                 "",
@@ -89,15 +95,16 @@
             ]
         },
         {
-            "name": "load data from query (example)",
+            "name": "load_from_query_(example)",
             "code": [
                 "# Load data from query",
                 "",
                 "N_MONTHS_BACK = '36'",
                 "placeholder = '@n_months_back'",
                 "",
-                "with open('sql_statements/3-trx-data_pkz_analyis_code_improved.sql', 'r',",
-                "           encoding='utf-8-sig'",
+                "with open(",
+                "    'sql_statements/some_query.sql', 'r',",
+                "    encoding='utf-8-sig'",
                 ") as file:",
                 "    query = file.read()",
                 "query = query.replace(placeholder, N_MONTHS_BACK)",
