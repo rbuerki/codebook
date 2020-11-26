@@ -1,0 +1,56 @@
+# .15 = dark_gray
+# .8 = light_gray
+# fontsizes are relative to font.size
+
+# Don't go over width of 14, else larger fonts get blurred
+figure.figsize : 12, 6
+figure.titlesize : xx-large
+figure.facecolor : white
+
+axes.labelsize : 13  # large  
+axes.titlesize : x-large
+
+xtick.labelsize : medium
+xtick.color  : 0.15
+ytick.labelsize : medium
+ytick.color  : 0.15
+
+# Activate in case you want to remove ticks
+# xtick.bottom : False
+# xtick.top : False
+# ytick.left : False
+# ytick.right : False
+
+axes.labelpad : 8.0
+axes.titlepad : 8.0
+axes.spines.top : False
+axes.spines.right : False
+axes.facecolor : white
+axes.edgecolor : 0.15 
+axes.labelcolor : 0.15
+axes.grid: False
+axes.axisbelow: True
+
+
+grid.linestyle : -
+grid.color : 0.15
+
+lines.linewidth : 1.75
+lines.solid_capstyle : round
+
+legend.frameon: False
+legend.numpoints: 1  # number of points in the legend line, mpl has 2
+legend.scatterpoints: 1 # # number of scatter points, mpl has 3
+
+patch.facecolor: 4C72B0
+patch.linewidth: .3
+
+axes.prop_cycle : cycler('color', ['rebeccapurple', 'yellow', 'grey'])
+image.cmap: Greys
+
+text.color : 0.15
+font.size : 12
+font.family: sans-serif
+font.sans-serif: Arial, Liberation Sans, DejaVu Sans, Bitstream Vera Sans, sans-serif
+
+legend.fontsize : 10

@@ -1,0 +1,109 @@
+{
+    "snippets": [
+        {
+            "name": "imports_large",
+            "code": [
+                "import datetime as dt",
+                "import sys",
+                "from pathlib import Path",
+                "",
+                "import matplotlib.pyplot as plt",
+                "import numpy as np",
+                "import pandas as pd",
+                "import seaborn as sns",
+                "from pprint import pprint",
+                "from tqdm import tqdm_notebook as tqdm",
+                "",
+                "# Visualization - Plotly",
+                "import plotly.graph_objects as go",
+                "import plotly.io as pio",
+                "pio.renderers.default = 'notebook_connected' # online only",
+                "pio.templates.default = 'plotly_white'",
+                "",
+                "# import plotly_express as px",
+                "# import plotly.io as pio",
+                "# pio.renderers.default = 'notebook_connected' # online only",
+                "# pio.templates.default = 'simple_white'"
+            ]
+        },
+        {
+            "name": "imports_small",
+            "code": [
+                "import datetime as dt",
+                "import sys",
+                "",
+                "import numpy as np",
+                "import pandas as pd",
+                "import matplotlib.pyplot as plt",
+                "import seaborn as sns"
+            ]
+        },
+        {
+            "name": "config stuff",
+            "code": [
+                "%load_ext autoreload",
+                "%autoreload 2",
+                "",
+                "%matplotlib inline",
+                "# %config InlineBackend.figure_format = 'svg'",
+                "plt.style.use('raph-base')",
+                "",
+                "from IPython.core.interactiveshell import InteractiveShell",
+                "InteractiveShell.ast_node_interactivity = 'all'",
+                "",
+                "pd.set_option('precision', 2)",
+                "pd.set_option('display.max_columns', 30)",
+                "pd.set_option('display.expand_frame_repr', False)",
+                "pd.set_option('max_colwidth', 800)"
+            ]
+        },
+        {
+            "name": "executable and version",
+            "code": [
+                "print(sys.executable)",
+                "print(sys.version)"
+            ]
+        },
+        {
+            "name": "extend sys path",
+            "code": [
+                "sys.path.append(str(Path.cwd().parent / 'src'))"
+            ]
+        },
+        {
+            "name": "connect to server, create engine",
+            "code": [
+                "# Connect to server, create engine",
+                "",
+                "from sqlalchemy import create_engine",
+                "",
+                "SERVER = 'agtst01'",
+                "DB_NAME = 'SnippLoyalty_DW_LOEB'",
+                "",
+                "def connect_to_db(server, db_name):",
+                "    con_str = f'mssql+pyodbc://@{server}/{db_name}?driver=ODBC Driver 13 for SQL Server'",
+                "    engine = create_engine(con_str, fast_executemany=True)",
+                "    return engine",
+                "",
+                "engine = connect_to_db(SERVER, DB_NAME)"
+            ]
+        },
+        {
+            "name": "load data from query (example)",
+            "code": [
+                "# Load data from query",
+                "",
+                "N_MONTHS_BACK = '36'",
+                "placeholder = '@n_months_back'",
+                "",
+                "with open('sql_statements/3-trx-data_pkz_analyis_code_improved.sql', 'r',",
+                "           encoding='utf-8-sig'",
+                ") as file:",
+                "    query = file.read()",
+                "query = query.replace(placeholder, N_MONTHS_BACK)",
+                "",
+                "data_raw = pd.read_sql(query, engine)"
+            ]
+        }
+    ]
+}

@@ -1,0 +1,67 @@
+name: py3
+channels:
+  - anaconda
+  - plotly
+  - conda-forge
+  - defaults
+dependencies:
+  - python
+  # CODE FORMATTERS & lINTERS
+  - black
+  - autopep8
+  - flake8
+  - flake8-bugbear
+  - mypy
+  # JUPYTER STUFF
+  - jupyter
+  - jupyter_contrib_nbextensions
+  - ipywidgets
+  # SQL & CLOUD
+  - sqlalchemy
+  - pyodbc
+  - ipython-sql
+  # - psycopg2
+  - boto3
+  # DATA RELATED
+  - numpy
+  - pandas
+  - pandas-profiling
+  - scipy
+  - scikit-learn
+  - statsmodels
+  - pyarrow
+  - openpyxl
+  - tqdm
+  # - networkx
+# MACHINE LEARNING
+  - py-xgboost
+  - eli5
+  - imbalanced-learn
+  - mlxtend
+# PYTORCH 
+  - pytorch
+  - torchvision
+  - cudatoolkit=10.2
+  # PLOTTING
+  - matplotlib
+  - seaborn
+  - plotly
+  - python-cufflinks
+  # - squarify 
+# WEB
+  - flask
+  - flask-restful
+ # TESTING & DEVELOPMENT
+  - pytest
+  - pytest-cov
+  - pytest-xdist
+  - setuptools
+  - pip
+
+  - pip:
+    - pyautogui
+    - streamlit
+    - data-science-types
+    - xlsxwriter
+    # - opencv-python  # image manipulation
+    # - "O:\\DMIS Jemas\\20 Sourcecode\\90_Python\\bcag\\bcag_0.12\\dist\\bcag-0.12-py3-none-any.whl"
