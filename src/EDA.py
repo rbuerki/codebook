@@ -158,8 +158,10 @@ def display_dtypes(df: pd.DataFrame):
 def display_nan(df: Union[pd.DataFrame, pd.Series]) -> pd.DataFrame:
     """Return a dataframe showing the missing values with their
     respective percentage of the total values in a column.
-
     Empty strings are displayed as NaN.
+
+    Note: To be precise, the function returns a Styler object. If
+    you need the underlying dataframe, you can get it with `df.data`.
     """
     if isinstance(df, pd.core.series.Series):
         df = pd.DataFrame(df)
@@ -663,6 +665,9 @@ def display_cumcurve_stats(
     variables are: an iterable of numeric values (must be all positive)
     and an iterable containing the thresholds you want stats for
     (values have to be in the range of (0, 1)).
+
+    Note: To be precise, the function returns a Styler object. If
+    you need the underlying dataframe, you can get it with `df.data`.
     """
     stats_list = []
     threshold_list_sorted = sorted(threshold_list)
