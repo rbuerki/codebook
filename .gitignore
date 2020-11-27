@@ -2,9 +2,6 @@
 # Edit at https://www.gitignore.io/?templates=python,windows,jupyternotebook
 
 #My own stuff
-/data
-/test/
-/test_notebooks/
 .gitignore
 
 ### JupyterNotebook ###
@@ -171,3 +168,5 @@ $RECYCLE.BIN/
 *.lnk
 
 # End of https://www.gitignore.io/api/python,windows,jupyternotebook
+/test_notebooks
+/data
