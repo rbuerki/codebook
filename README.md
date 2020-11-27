@@ -1,23 +1,26 @@
-#  Codebook
+# Codebook
 
 Some modules containing collections of functions and classes written for reusability in my projects.
 
 ## EDA.py - List of Functions
+
 (last update Nov 2020)
 
 see notebook in demo folder
 
 Dataframe Values:
+
 - `display_distinct_values`: Return a dataframe containing the number
    of distinct values for each column of the input dataframe.
 - `display_value_counts`: Display a dataframe containing the value
    counts and their respective pct for a column or a list of columns.
-- `display_tail_transposed`: Return transposed tail of the passed
+- `display_df_sample_transposed`: Return transposed tail of the passed
    dataframe with cols shown as rows and values for 5 instances as cols.
 - `display_dtypes`: Return a dataframe showing the count of different
    datatypes for the columns in the input dataframe.
 
 Missing Values and Duplicates:
+
 - `display_nan`: Return a dataframe showing the missing values with
    their respective percentage of the total values in a column.
 - `plot_nan`: Display a heatmap of the input dataframe, highlighting
@@ -26,16 +29,18 @@ Missing Values and Duplicates:
    in the input dataframe.
 
 Distributions:
+
 - `plot_distr_histograms`: Display a histogram for every numeric
    column in the input dataframe.
 - `plot_distr_boxplots`: Display a boxplot for every numeric
    column in the input dataframe.
 - `plot_distr_pies`: Display a pieplot for every column of dtype
   "category" (with up to 30 distinct values) in the input dataframe.
-- `plot_distr_pdf_ecdf`: Display a histogram overlaid with an ECDF 
+- `plot_distr_pdf_ecdf`: Display a histogram overlaid with an ECDF
    for every numeric column in the input dataframe.
 
 Correlations:
+
 - `plot_corr_full_heatmap`: Display a heatmap to show the correlations
    between all numeric columns in the Dataframe.
 - `plot_corr_to_target_barchart`: Display a barchart for every numeric
@@ -59,23 +64,27 @@ Correlations:
    the correlation to a numeric target variable.
 
 Cumulative Sums / Counts:
+
 - `display_cumcurve_stats`: Return a dataframe with cumsum stats for an
   iterable of numeric values.
 - plot_cumsum_curve`: Display a cumsum curve for an iterable of numeric
   values.
 
 ## clean.py - List of Functions
+
 (last update Nov 2020)
 
 see notebook in demo folder
 
 Columns:
+
 - `prettify_column_names`: Replace whitespace in column labels with
    an underscore and, by default, change to all lowercase.
 - `delete_columns`: Delete selected columns permanently from the
    input dataframe.
 
 Outliers:
+
 - `count_outliers_IQR_method`: Detect outliers in specified columns
    depending on specified distance from 1th / 3rd quartile. NaN ignored.
 - `remove_outliers_IQR_method`: Remove outliers in specified columns
@@ -84,6 +93,7 @@ Outliers:
    columns.
 
 Transformations:
+
 - `transfrom_data`: Apply the desired transformation on the selected
    columns. (Methods are log, log10, box-cox or yeo-johnson.)
 
@@ -92,6 +102,7 @@ Transformations:
 ## Older Stuff
 
 ### custom_transformers.py - List of Classes
+
 (last update: long ago ...)
 
 - `ColumnSelector`: Selects  the defined  columns from a DataFrame for further
@@ -106,8 +117,8 @@ Transformations:
     transformed dataframe as the built in 'passthrough' argument in sklearn 0.20
     does not (yet) support get_feature_names(). See [here](https://stackoverflow.com/questions/53382322/adding-get-feature-names-to-columntransformer-pipeline) for background info.
 
-
 ### hypothesis_functions.py - List of Functions
+
 (last update: long ago ...)
 
 _NOTE: The functions in this notebook are for calculations on PROPORTIONS only!
@@ -121,38 +132,42 @@ _NOTE: The functions in this notebook are for calculations on PROPORTIONS only!
 - `calc_experiment_results`: Compute observed difference with it's lower and upper
   bounds based on a defined conficence level.
 
-
 ### baseline_regressor.py
+
 (last update: long ago ...)
 
 `BaselineRegression`: Regression class based on sklearn for applying and evaluating
 different models. Needs a sklearn regression model object as input.
 
 _Basic functions:_
+
 - `go_quickDirty`: Apply regression modelling to unprepared / dirty data. Preprocessing
     varies for tree-based and non-tree-based models.
 - `go_preprocessed`: Apply regression modelling to properly prepared data.
 
 _Evaluation:_
+
 - `plot_learning_curves`: Display learning curves based on n-fold cross validation.
 - `print_coef_weights`: Output estimates for coefficient weights and corresponding
       error for estimatores that have a coeff attribute (linear models)
 - `print_feature_weights`: Outputs feature weights for estimators that have a
     get_feature_weights() method (tree-based models)
 
-
 ### baseline_classifier.py
+
 (last update: long ago ...)
 
 `BaselineClassification`: Classification class based on sklearn for applying and
 evaluating different models. Needs a sklearn classification model object as input.
 
 _Basic functions:_
+
 - `go_quickDirty`: Apply classification modelling to unprepared / dirty data. Preprocessing
     varies for tree-based and non-tree-based models.
 - `go_preprocessed`: Apply classification modelling to properly prepared data.
 
-_Evaluation:
+_Evaluation:_
+
 - `compare_to_naive:` Compute metrics for a naive baseline as a comparison to
     the results of our not so naive baseline.
 - `plot_learning_curves`: Display learning curves based on n-fold cross validation.
@@ -166,7 +181,6 @@ _Evaluation:
 - `print_feature_weights`: Outputs feature weights for estimators that have a
     get_feature_weights() method (tree-based models)
 
-
 ## Requirements
 
 These functions require **Python 3.6** and the following Python libraries installed:
@@ -177,4 +191,3 @@ These functions require **Python 3.6** and the following Python libraries instal
 - [seaborn](http://seaborn.org)
 - [SciPy](https://www.scipy.org/)
 - [scikit-learn](http://scikit-learn.org/stable/)
-- [tqdm](https://pypi.org/project/tqdm/)

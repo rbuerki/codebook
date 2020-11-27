@@ -7,7 +7,7 @@ Dataframe Values:
    of distinct values for each column of the input dataframe.
 - `display_value_counts`: Display a dataframe containing the value
    counts and their respective pct for a column or a list of columns.
-- `display_tail_transposed`: Return transposed tail of the passed
+- `display_df_sample_transposed`: Return transposed tail of the passed
    dataframe with cols shown as rows and values for 5 instances as cols.
 - `display_dtypes`: Return a dataframe showing the count of different
    datatypes for the columns in the input dataframe.
