@@ -2,10 +2,8 @@
 # Edit at https://www.gitignore.io/?templates=python,windows,jupyternotebooks,visualstudiocode
 
 ### raph ###
-.gitignore
 debug.log
 data/
-reports/
 test_notebooks/
 
 ### JupyterNotebooks ###
