@@ -1,7 +1,7 @@
 import setuptools
 from pathlib import Path
 
-from src import __version__ as version
+from src.codebook import __version__ as version
 
 readme = Path.cwd() / "README.md"
 with open(readme, "r") as fh:
