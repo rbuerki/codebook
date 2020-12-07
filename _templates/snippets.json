@@ -55,7 +55,7 @@
             "code": [
                 "print(sys.executable)",
                 "print(sys.version)",
-                "prinf(f'Pandas {pd.__version__}"
+                "print(f'Pandas {pd.__version__}')"
             ]
         },
         {
