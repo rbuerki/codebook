@@ -77,6 +77,22 @@
             ]
         },
         {
+            "name": "altert_boxes_markdown",
+            "code": [
+                "<div class='alert alert-block alert-info'>",
+                "<b>Note:</b> Blue boxes for tips and notes.",
+                "</div>",
+                "",
+                "<div class='alert alert-block alert-warning'>",
+                "<b>Note:</b> Alert users to enter or update, validate input variables.",
+                "</div>",
+                "",
+                "<div class='alert alert-block alert-danger'>",
+                "<b>Note:</b> Alert users to not delete some important part of code etc.",
+                "</div>"
+            ]
+        },
+        {
             "name": "connect_to_server_create_engine",
             "code": [
                 "# Connect to server, create engine",

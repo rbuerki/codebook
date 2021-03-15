@@ -1,3 +1,5 @@
+# FOR TESTING PURPOSE ONLY
+
 # Difference to base
 # - set all colors from 0.5 to 0.15 (fixed that in base too)
 # - color cycler
@@ -44,12 +46,12 @@ lines.solid_capstyle : round
 
 legend.frameon: False
 legend.numpoints: 1  # number of points in the legend line, mpl has 2
-legend.scatterpoints: 1 # # number of scatter points, mpl has 3
+legend.scatterpoints: 1 # number of scatter points, mpl has 3
 
 patch.facecolor: 4C72B0
 patch.linewidth: .3
 
-axes.prop_cycle : cycler('color', ['b1006b', 'plum', '899ba5'])
+axes.prop_cycle : cycler('color', ['rebeccapurple', '9c179e', 'mediumpurple', 'plum', 'f0f921', 'grey'])
 image.cmap: Greys
 
 text.color : 0.15
