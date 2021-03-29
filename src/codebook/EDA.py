@@ -67,6 +67,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import seaborn as sns
+from pandas.io.formats.style import Styler
 
 
 # DATAFRAME VALUES
@@ -90,7 +91,7 @@ def display_distinct_values(df: Union[pd.DataFrame, pd.Series]) -> pd.DataFrame:
 
 def display_value_counts(
     df: pd.DataFrame, n_rows: Optional[int] = None,
-):
+) -> None:
     """Display a dataframe containing the value counts and their
     respective pct for each column of the input dataframe. The max
     number of values to display (ordered desc by counts) can be
@@ -126,7 +127,7 @@ def display_df_sample_transposed(
     n_instances: int = 5,
     max_rows: int = 100,
     random_state: Optional[int] = None,
-):
+) -> pd.DataFrame:
     """Return a transposed sample of (by default) 5 original dataframe
     rows, so that they are shown as columns and vice versa.
     This helps to get a better overview of wide dataframes. The max
@@ -141,7 +142,7 @@ def display_df_sample_transposed(
         return df.transpose()
 
 
-def display_dtypes(df: pd.DataFrame):
+def display_dtypes(df: pd.DataFrame) -> pd.DataFrame:
     """Return a dataframe showing the count of different datatypes
     for the columns in the input dataframe.
     """
@@ -155,13 +156,13 @@ def display_dtypes(df: pd.DataFrame):
 # MISSING VALUES AND DUPLICATES
 
 
-def display_nan(df: Union[pd.DataFrame, pd.Series]) -> pd.DataFrame:
-    """Return a dataframe showing the missing values with their
-    respective percentage of the total values in a column.
-    Empty strings are displayed as NaN.
+def display_nan(df: Union[pd.DataFrame, pd.Series]) -> Union[None, Styler]:
+    """If there is Nan, return a dataframe styler object showing
+    the missing values with their respective percentage of the total
+    values in a column. Note: Empty strings qualify as NaN.
 
-    Note: To be precise, the function returns a Styler object. If
-    you need the underlying dataframe, you can get it with `df.data`.
+    Note: The function returns a Styler object. If you need the
+    underlying dataframe, you can get it with `df.data`.
     """
     if isinstance(df, pd.core.series.Series):
         df = pd.DataFrame(df)
@@ -177,6 +178,8 @@ def display_nan(df: Union[pd.DataFrame, pd.Series]) -> pd.DataFrame:
 
     if df.isnull().sum().sum() == 0:
         print("No empty cells in DataFrame.")
+        return None
+
     else:
         total = df.isnull().sum()
         prop = df.isnull().sum() / len(df)
@@ -191,12 +194,13 @@ def display_nan(df: Union[pd.DataFrame, pd.Series]) -> pd.DataFrame:
         return missing_data.style.format({"prop": "{:0.1%}"})
 
 
-def plot_nan(df: pd.DataFrame, figsize: Tuple[int, int] = (14, 6), **kwargs):
+def plot_nan(
+    df: pd.DataFrame, figsize: Tuple[int, int] = (14, 6), **kwargs
+) -> None:
     """Display a heatmap of the input dataframe, highlighting the
     missing values. Additional keyword arguments will be passed to
-    the actual seaborn plot function.
-
-    Empty strings are displayed as NaN.
+    the actual seaborn plot function. Note: Empty strings qualify
+    as NaN.
     
     Attention: For large datasets this plot can be misleading. Do
     not use without calling `display_nan` function also!
@@ -220,7 +224,7 @@ def plot_nan(df: pd.DataFrame, figsize: Tuple[int, int] = (14, 6), **kwargs):
     sns.heatmap(df.isnull(), **kwargs)
 
 
-def display_duplicates(df: Union[pd.DataFrame, pd.Series]):
+def display_duplicates(df: Union[pd.DataFrame, pd.Series]) -> None:
     """Print a summary of the column-wise duplicates in the passed
     dataframe.
     """
@@ -248,7 +252,7 @@ def display_duplicates(df: Union[pd.DataFrame, pd.Series]):
 
 def plot_distr_histograms(
     df: pd.DataFrame, figsize: Optional[Tuple[float, float]] = None, **kwargs
-):
+) -> None:
     """Display a histogram for every numeric column in the passed
     dataframe. If not explicitely passed, a suitable figsize is
     interfered. Additional keyword arguments will be passed to the
@@ -271,7 +275,7 @@ def plot_distr_histograms(
 
 def plot_distr_boxplots(
     df: pd.DataFrame, figsize: Optional[Tuple[float, float]] = None, **kwargs
-):
+) -> None:
     """Display a barchart for every numeric feature in the passed
     dataframe to show the correlation to a numeric target variable.
     If not explicitely passed, a suitable figsize isinterfered.
@@ -295,7 +299,7 @@ def plot_distr_boxplots(
 
 def plot_distr_pies(
     df: pd.DataFrame, figsize: Optional[Tuple[float, float]] = None, **kwargs
-):
+) -> None:
     """Display a pieplot for every column of dtype "category" in the
     input dataframe that has no more than 30 distinct values. If not
     explicitely passed, a suitable figsize is interfered. Additional
@@ -334,7 +338,7 @@ def plot_distr_pdf_ecdf(
     xlim: Optional[Tuple[float, float]] = None,
     percentiles: Optional[List[float]] = [2.5, 25, 50, 75, 97.5],
     **kwargs,
-):
+) -> None:
     """Display a histogram overlaid with an ECDF for every numeric
     column in the input dataframe. By default selected percentile
     markers are displayed on the ECDF. (Can be changed or removed.)
@@ -410,7 +414,7 @@ def plot_distr_pdf_ecdf(
 
 def plot_corr_full_heatmap(
     df: pd.DataFrame, figsize: Tuple[int, int] = (14, 10), **kwargs
-):
+) -> None:
     """Display a heatmap to show the correlations between all numeric
     columns in the Dataframe. Optional figsize and additional keyword
     arguments will be passed to the actual Seaborn plot function.
@@ -436,7 +440,7 @@ def plot_corr_to_target_barchart(
     target_col: str,
     figsize: Tuple[int, int] = (14, 8),
     **kwargs,
-):
+) -> None:
     """Display a barchart to show the correlations between the
     numeric features in the input dataframe and a numeric target
      variable. Optional figsize and additional keyword arguments
@@ -460,7 +464,7 @@ def plot_corr_to_target_regplots(
     target_col: str,
     figsize: Optional[Tuple[float, float]] = None,
     **kwargs,
-):
+) -> None:
     """Display a regplot for every numeric feature in the passed
     dataframe to show the correlation to a numeric target variable.
      If not explicitely passed, a suitable figsize is interfered.
@@ -498,7 +502,7 @@ def plot_corr_to_target_lineplots(
     figsize: Optional[Tuple[float, float]] = None,
     ylim: Optional[Tuple[int, int]] = None,
     **kwargs,
-):
+) -> None:
     """Display a lineplot for every numeric feature in the
     input dataframe with up to (by default) 100 distinct values
     to analyze the correlation to a numeric target variable. If not
@@ -547,7 +551,7 @@ def plot_corr_to_target_boxplots(
     target_col: str,
     figsize: Optional[Tuple[float, float]] = None,
     **kwargs,
-):
+) -> None:
     """Display a boxplot for every numeric feature column in the
     input dataframe to analyze the correlation to a target variable
     with few distinct values (any dtype possible). If not explicitely
@@ -583,7 +587,7 @@ def plot_corr_to_target_pointplots_with_pies(
     figsize: Optional[Tuple[float, float]] = None,
     ylim: Optional[Tuple[float, float]] = None,
     **kwargs,
-):
+) -> None:
     """Display a pointplot (and corresponding piechart) for every
     feature with dtype "category" in the input dataframe to display
     the correlation to a numeric target variable. If not explicitely
@@ -631,7 +635,7 @@ def plot_corr_to_target_stripplots(
     target_col: str,
     figsize: Optional[Tuple[float, float]] = None,
     **kwargs,
-):
+) -> None:
     """Display a stripplot for each feature with dtype "category" in
     the input dataframe to analyze the correlation to a numeric target
     variable. If not explicitely passed, a suitable figsize is
@@ -660,14 +664,14 @@ def plot_corr_to_target_stripplots(
 
 def display_cumcurve_stats(
     iterable: Iterable[Union[int, float]], threshold_list: Iterable[float]
-) -> pd.DataFrame:
-    """Return a dataframe with stats for a cumsum calculation. Input
-    variables are: an iterable of numeric values (must be all positive)
-    and an iterable containing the thresholds you want stats for
-    (values have to be in the range of (0, 1)).
+) -> Styler:
+    """Return a dataframe styler object with stats for a cumsum
+    calculation. Input variables are: an iterable of numeric values
+    (must be all positive) and an iterable containing the thresholds
+    you want stats for (values have to be in the range of (0, 1)).
 
-    Note: To be precise, the function returns a Styler object. If
-    you need the underlying dataframe, you can get it with `df.data`.
+    Note: The function returns a Styler object. If you need the
+    underlying dataframe, you can get it with `df.data`.
     """
     stats_list = []
     threshold_list_sorted = sorted(threshold_list)
@@ -713,7 +717,7 @@ def plot_cumsum_curve(
     threshold_list: Optional[Iterable[float]] = (0.2, 0.5, 0.8),
     figsize: Optional[Tuple[float, float]] = (12, 5),
     **kwargs,
-):
+) -> None:
     """Display a cumsum curve for an iterable of numeric values
     (must be all positive). very numeric column in the passed
     dataframe. Intercept lines are displayed for the values
