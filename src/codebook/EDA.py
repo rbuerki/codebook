@@ -61,7 +61,7 @@ Cumulative Sums / Counts:
 """
 
 import collections
-from typing import Dict, Iterable, List, Optional, Tuple, Union
+from typing import Dict, Iterable, Optional, Tuple, Union
 
 import matplotlib.pyplot as plt
 import numpy as np
