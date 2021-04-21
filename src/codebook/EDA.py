@@ -61,7 +61,7 @@ Cumulative Sums / Counts:
 """
 
 import collections
-from typing import Iterable, List, Optional, Tuple, Union
+from typing import Dict, Iterable, List, Optional, Tuple, Union
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -90,15 +90,21 @@ def display_distinct_values(df: Union[pd.DataFrame, pd.Series]) -> pd.DataFrame:
 
 
 def display_value_counts(
-    df: pd.DataFrame, n_rows: Optional[int] = None,
-) -> None:
+    df: pd.DataFrame, n_rows: Optional[int] = None, return_dict: bool = False
+) -> Optional[Dict[str, pd.DataFrame]]:
     """Display a dataframe containing the value counts and their
     respective pct for each column of the input dataframe. The max
     number of values to display (ordered desc by counts) can be
     defined by the optional n_rows parameter.
+
+    If the return_dict param is set to True (False by default)
+    a dict of the dataframes is returned too.
     """
     if isinstance(df, pd.core.series.Series):
         df = pd.DataFrame(df)
+
+    # Initialize dict for returning dataframes
+    df_dict = {}
 
     for col in df.columns:
         counts = df[col].value_counts(dropna=False)
@@ -111,6 +117,8 @@ def display_value_counts(
         )
         caption_str = f"{col}"
 
+        df_dict[col] = df_out
+
         if n_rows is not None:
             df_out = df_out.iloc[:n_rows, :]
             caption_str = "".join([caption_str, f", top {n_rows}"])
@@ -120,6 +128,8 @@ def display_value_counts(
                 {"counts": "{:,.0f}", "prop": "{:.1%}", "cum_prop": "{:.1%}"}
             ).set_caption(caption_str)
         )
+    if return_dict:
+        return df_dict
 
 
 def display_df_sample_transposed(
@@ -201,7 +211,7 @@ def plot_nan(
     missing values. Additional keyword arguments will be passed to
     the actual seaborn plot function. Note: Empty strings qualify
     as NaN.
-    
+
     Attention: For large datasets this plot can be misleading. Do
     not use without calling `display_nan` function also!
     """
@@ -336,7 +346,7 @@ def plot_distr_pdf_ecdf(
     df: Union[pd.DataFrame, pd.core.series.Series],
     figsize: Optional[Tuple[float, float]] = None,
     xlim: Optional[Tuple[float, float]] = None,
-    percentiles: Optional[List[float]] = [2.5, 25, 50, 75, 97.5],
+    percentiles: Optional[Tuple[float]] = (2.5, 25.0, 50.0, 75.0, 97.5),
     **kwargs,
 ) -> None:
     """Display a histogram overlaid with an ECDF for every numeric
@@ -359,7 +369,7 @@ def plot_distr_pdf_ecdf(
     defaults = {"palette": ["rebeccapurple", "orchid"], "hue": None}
     kwargs = {**defaults, **kwargs}
 
-    if kwargs.get("hue") != None:
+    if kwargs.get("hue") is not None:
         try:
             num_cols.remove(kwargs.get("hue"))
         except ValueError:
