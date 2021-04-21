@@ -346,7 +346,7 @@ def plot_distr_pdf_ecdf(
     df: Union[pd.DataFrame, pd.core.series.Series],
     figsize: Optional[Tuple[float, float]] = None,
     xlim: Optional[Tuple[float, float]] = None,
-    percentiles: Optional[Tuple[float]] = (2.5, 25.0, 50.0, 75.0, 97.5),
+    percentiles: Optional[Iterable[float]] = (2.5, 25, 50, 75, 97.5),
     **kwargs,
 ) -> None:
     """Display a histogram overlaid with an ECDF for every numeric
