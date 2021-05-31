@@ -20,7 +20,7 @@
             "code": [
                 "# Misc",
                 "from pprint import pprint",
-                "from tqdm import tqdm.notebook as tqdm",
+                "from tqdm.notebook import tqdm",
                 "",
                 "# Visualization - Plotly",
                 "import plotly.express as px",

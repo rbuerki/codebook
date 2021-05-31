@@ -29,7 +29,7 @@ dependencies:
   - scipy
   - scikit-learn
   - statsmodels
-  - pyarrow
+  - conda-forge::pyarrow
   - openpyxl
   - tqdm
   # - networkx
@@ -39,9 +39,9 @@ dependencies:
   - imbalanced-learn
   - mlxtend
 # PYTORCH 
-  - pytorch
-  - torchvision
-  - cudatoolkit=10.2
+#  - pytorch
+#  - torchvision
+#  - cudatoolkit=10.2
   # PLOTTING
   - matplotlib
   - seaborn
@@ -49,8 +49,8 @@ dependencies:
   - python-cufflinks
   # - squarify 
 # WEB
-  - flask
-  - flask-restful
+  # - flask
+  # - flask-restful
  # TESTING & DEVELOPMENT
   - pytest
   - pytest-cov
@@ -59,9 +59,11 @@ dependencies:
   - pip
 
   - pip:
-    - pyautogui
-    - streamlit
     - data-science-types
+    - pyautogui
+    - rich
+    - streamlit
     - xlsxwriter
+    # - fastapi
+    # - uvicorn[standard]
     # - opencv-python  # image manipulation
-    # - "O:\\DMIS Jemas\\20 Sourcecode\\90_Python\\bcag\\bcag_0.12\\dist\\bcag-0.12-py3-none-any.whl"
