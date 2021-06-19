@@ -1,9 +1,9 @@
 name: py3
 channels:
-  - anaconda
-  - plotly
   - conda-forge
-  - defaults
+  - plotly
+  # - anaconda  # not compatible with conda-forge
+  # - defaults
 dependencies:
   - python
   # CODE FORMATTERS & lINTERS
