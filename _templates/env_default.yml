@@ -1,9 +1,9 @@
-name: py3
+<name: py3
 channels:
   - conda-forge
-  - plotly
-  # - anaconda  # not compatible with conda-forge
-  # - defaults
+#  - defaults
+#  - anaconda
+#  - plotly
 dependencies:
   - python
   # CODE FORMATTERS & lINTERS
@@ -32,6 +32,7 @@ dependencies:
   - conda-forge::pyarrow
   - openpyxl
   - tqdm
+  - python-dateutil
   # - networkx
 # MACHINE LEARNING
   - py-xgboost
