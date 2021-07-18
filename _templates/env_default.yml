@@ -49,6 +49,9 @@ dependencies:
   - plotly
   - python-cufflinks
   # - squarify 
+# WEBSCRAPING
+#  - beautifulsoup4
+#  - selenium
 # WEB
   # - flask
   # - flask-restful
