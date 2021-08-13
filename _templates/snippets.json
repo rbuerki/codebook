@@ -3,8 +3,9 @@
         {
             "name": "imports_basic",
             "code": [
-                "import datetime as dt",
                 "import sys",
+                "import typing",
+                "from datetime import datetime",
                 "from pathlib import Path",
                 "",
                 "import codebook.EDA as EDA",
@@ -130,6 +131,14 @@
                 "query = query.replace(placeholder, N_MONTHS_BACK)",
                 "",
                 "data_raw = pd.read_sql(query, engine)"
+            ]
+        },
+        {
+            "name": "create_small_test_dataframe",
+            "code": [
+                "import pandas.util.testing",
+                "df_test = pandas.util.testing.makeMixedDataFrame()",
+                "df_test['A'] = df_test['A'].astype(int)"
             ]
         }
     ]
