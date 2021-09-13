@@ -136,6 +136,8 @@
         {
             "name": "create_small_test_dataframe",
             "code": [
+                "# Create small test dataframe",
+                "",
                 "import pandas.util.testing",
                 "df_test = pandas.util.testing.makeMixedDataFrame()",
                 "df_test['A'] = df_test['A'].astype(int)"
