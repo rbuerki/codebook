@@ -28,7 +28,7 @@
                 "import plotly.graph_objects as go  # if needed",
                 "import plotly.io as pio",
                 "pio.renderers.default = 'notebook_connected' # online only",
-                "pio.templates.default = 'plotly_white'"
+                "pio.templates.default = 'simple_white'"
             ]
         },
         {
@@ -89,11 +89,11 @@
                 "</div>",
                 "",
                 "<div class='alert alert-block alert-warning'>",
-                "<b>Note:</b> Alert users to enter or update, validate input variables.",
+                "<b>Warning:</b> Alert users to enter or update, validate input variables.",
                 "</div>",
                 "",
                 "<div class='alert alert-block alert-danger'>",
-                "<b>Note:</b> Alert users to not delete some important part of code etc.",
+                "<b>Danger:</b> Alert users to not delete some important part of code etc.",
                 "</div>"
             ]
         },
