@@ -10,8 +10,12 @@
                 "",
                 "import codebook.EDA as EDA",
                 "import codebook.clean as clean",
+                "import codebook.style as style",
                 "import numpy as np",
                 "import pandas as pd",
+                "import plotly.express as px",
+                "# import plotly.graph_objects as go",
+                "import plotly.io as pio",
                 "import matplotlib.pyplot as plt",
                 "import seaborn as sns"
             ]
@@ -21,14 +25,8 @@
             "code": [
                 "# Misc",
                 "from pprint import pprint",
-                "from tqdm.notebook import tqdm",
-                "",
-                "# Visualization - Plotly",
-                "import plotly.express as px",
-                "import plotly.graph_objects as go  # if needed",
-                "import plotly.io as pio",
-                "pio.renderers.default = 'notebook_connected' # online only",
-                "pio.templates.default = 'simple_white'"
+                "from rich import inspect",
+                "from tqdm.notebook import tqdm"
             ]
         },
         {
@@ -47,6 +45,12 @@
                 "pd.set_option('display.max_columns', 30)",
                 "pd.set_option('display.expand_frame_repr', False)",
                 "pd.set_option('max_colwidth', 800)",
+                "",
+                "pio.templates.default = 'simple_white'",
+                "px.defaults.color_continuous_scale = style.plasma_long",
+                "px.defaults.color_discrete_sequence = style.purple_yellow_grey_long",
+                "px.defaults.width = 1000",
+                "px.defaults.height = 500",
                 "",
                 "np.random.seed(666)"
             ]
