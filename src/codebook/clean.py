@@ -136,7 +136,7 @@ def count_outliers_IQR_method(
 
     for col in outlier_cols:
         outliers, lower, upper = get_outlier_values_with_iqr_method(
-            col, iqr_dist=iqr_dist
+            df[col], iqr_dist=iqr_dist
         )
 
         if len(outliers) > 0:
@@ -177,7 +177,7 @@ def remove_outliers_IQR_method(
 
     for col in outlier_cols:
         _, lower, upper = get_outlier_values_with_iqr_method(
-            col, iqr_dist=iqr_dist
+            df[col], iqr_dist=iqr_dist
         )
 
         idx_low = df[df[col] < lower].index.tolist()
