@@ -106,7 +106,23 @@ def downcast_dtypes(
     return df
 
 
-# OUTLIERS - Count and Removal
+# OUTLIERS - Return (for an iterable), Count and Remove
+
+
+def get_outlier_values_with_iqr_method(
+    data: Iterable[Union[int, float]], iqr_dist: float
+) -> Tuple[List[Union[int, float]], float, float]:
+    """Return a list of outlier values and the lower and upper
+    cut-off values for the numerical data input. The outliers are
+    defined by the 'IQR-Method' for which an IQR-distance has to be
+    passed as the second parameter.
+    """
+    q25, q75 = np.nanpercentile(data, 25), np.nanpercentile(data, 75)
+    iqr = q75 - q25
+    cut_off = iqr * iqr_dist
+    lower, upper = q25 - cut_off, q75 + cut_off
+    outliers = [x for x in data if x < lower or x > upper]
+    return outliers, lower, upper
 
 
 def count_outliers_IQR_method(
@@ -119,11 +135,9 @@ def count_outliers_IQR_method(
     outlier_cols = df.select_dtypes(include=[np.number]).columns.tolist()
 
     for col in outlier_cols:
-        q25, q75 = np.nanpercentile(df[col], 25), np.nanpercentile(df[col], 75)
-        iqr = q75 - q25
-        cut_off = iqr * iqr_dist
-        lower, upper = q25 - cut_off, q75 + cut_off
-        outliers = [x for x in df[col] if x < lower or x > upper]
+        outliers, lower, upper = get_outlier_values_with_iqr_method(
+            col, iqr_dist=iqr_dist
+        )
 
         if len(outliers) > 0:
             outlier_pct = len(outliers) / len(df[col])
@@ -162,10 +176,9 @@ def remove_outliers_IQR_method(
     rows_to_delete = []
 
     for col in outlier_cols:
-        q25, q75 = np.nanpercentile(df[col], 25), np.nanpercentile(df[col], 75)
-        iqr = q75 - q25
-        cut_off = iqr * iqr_dist
-        lower, upper = q25 - cut_off, q75 + cut_off
+        _, lower, upper = get_outlier_values_with_iqr_method(
+            col, iqr_dist=iqr_dist
+        )
 
         idx_low = df[df[col] < lower].index.tolist()
         idx_high = df[df[col] > upper].index.tolist()
