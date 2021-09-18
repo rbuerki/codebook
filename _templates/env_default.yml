@@ -16,6 +16,7 @@ dependencies:
   - jupyter
   - jupyter_contrib_nbextensions
   - ipywidgets
+  - jupytext
   # SQL & CLOUD
   - sqlalchemy
   - pyodbc
