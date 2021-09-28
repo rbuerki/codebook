@@ -8,16 +8,15 @@
                 "from datetime import datetime",
                 "from pathlib import Path",
                 "",
-                "import codebook.EDA as EDA",
-                "import codebook.clean as clean",
-                "import codebook.style as style",
                 "import numpy as np",
                 "import pandas as pd",
                 "import plotly.express as px",
                 "# import plotly.graph_objects as go",
                 "import plotly.io as pio",
                 "import matplotlib.pyplot as plt",
-                "import seaborn as sns"
+                "import seaborn as sns",
+                "",
+                "from codebook import clean, EDA, style"
             ]
         },
         {
