@@ -1,6 +1,6 @@
 # COLORS
 
-# 7
+# len 7
 green_to_grey = [
     "#004c4c",
     "#66b2b2",
@@ -11,7 +11,7 @@ green_to_grey = [
     "#c0c5ce",
 ]
 
-# 7
+# len 7
 green_to_red = [
     "#74a09e",
     "#86c1b2",
@@ -22,7 +22,7 @@ green_to_red = [
     "#c14953",
 ]
 
-# 10
+# len 10
 plasma_long = [
     "#0d0887",
     "#46039f",
@@ -36,7 +36,7 @@ plasma_long = [
     "#f0f921",
 ]
 
-# 6
+# len 6
 purple_yellow_grey_long = [
     "rebeccapurple",
     "#9c179e",
@@ -46,5 +46,5 @@ purple_yellow_grey_long = [
     "grey",
 ]
 
-# 3
+# len 3
 purple_yellow_grey_short = ["rebeccapurple", "yellow", "grey"]

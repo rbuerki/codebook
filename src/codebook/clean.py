@@ -9,6 +9,8 @@ Columns:
    input dataframe.
 
 Outliers:
+- `get_outlier_values_with_iqr_method`: Return a list of outlier
+  values as well as the lower and upper cut-off values.
 - `count_outliers_IQR_method`: Detect outliers in specified columns
    depending on specified distance from 1th / 3rd quartile. NaN ignored.
 - `remove_outliers_IQR_method`: Remove outliers in specified columns
@@ -31,9 +33,7 @@ from scipy import stats
 # COLUMNS - Names, Datatypes and Removal
 
 
-def prettify_column_names(
-    df: pd.DataFrame, lowercase: bool = True
-) -> pd.DataFrame:
+def prettify_column_names(df: pd.DataFrame, lowercase: bool = True) -> pd.DataFrame:
     """Replace whitespace in column labels with underscore and,
     by default, change to all lowercase.
     """
@@ -45,9 +45,7 @@ def prettify_column_names(
     return df
 
 
-def delete_columns(
-    df: pd.DataFrame, cols_to_delete: Iterable[str]
-) -> pd.DataFrame:
+def delete_columns(df: pd.DataFrame, cols_to_delete: Iterable[str]) -> pd.DataFrame:
     """Delete columns permanently from the input dataframe. Note:
     This function is structured such that more and more columns can be
     added to the list and deleted iteratively during EDA. In the end
@@ -112,7 +110,7 @@ def downcast_dtypes(
 def get_outlier_values_with_iqr_method(
     data: Iterable[Union[int, float]], iqr_dist: float
 ) -> Tuple[List[Union[int, float]], float, float]:
-    """Return a list of outlier values and the lower and upper
+    """Return a list of outlier values as well as the lower and upper
     cut-off values for the numerical data input. The outliers are
     defined by the 'IQR-Method' for which an IQR-distance has to be
     passed as the second parameter.
@@ -125,9 +123,7 @@ def get_outlier_values_with_iqr_method(
     return outliers, lower, upper
 
 
-def count_outliers_IQR_method(
-    df: pd.DataFrame, iqr_dist: Union[int, float] = 1.5
-):
+def count_outliers_IQR_method(df: pd.DataFrame, iqr_dist: Union[int, float] = 1.5):
     """Display outlier count for numeric columns in the passed
     dataframe based on the IQR distance from the 1th / 3rd quartile
     (defaults to 1.5). NaN values are ignored for the calculations.
@@ -176,9 +172,7 @@ def remove_outliers_IQR_method(
     rows_to_delete = []
 
     for col in outlier_cols:
-        _, lower, upper = get_outlier_values_with_iqr_method(
-            df[col], iqr_dist=iqr_dist
-        )
+        _, lower, upper = get_outlier_values_with_iqr_method(df[col], iqr_dist=iqr_dist)
 
         idx_low = df[df[col] < lower].index.tolist()
         idx_high = df[df[col] > upper].index.tolist()
@@ -256,8 +250,7 @@ def transform_data(
     """
     df = df.copy()
     cols_to_transform = (
-        cols_to_transform
-        or df.select_dtypes(include=np.number).columns.tolist()
+        cols_to_transform or df.select_dtypes(include=np.number).columns.tolist()
     )
     suffix_dict = {
         "log": "_log",
@@ -291,9 +284,7 @@ def transform_data(
             if treat_nan:
                 df[col].replace(np.nan, -1, inplace=True)
             if add_suffix:
-                df.rename(
-                    columns={col: col + suffix_dict.get(method)}, inplace=True
-                )
+                df.rename(columns={col: col + suffix_dict.get(method)}, inplace=True)
         except KeyError:
             print(col + " not found!")
     return df
