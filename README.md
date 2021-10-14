@@ -6,7 +6,7 @@ Some modules containing collections of functions and classes written for reusabi
 
 (last update Nov 2020)
 
-see notebook in demo folder
+see notebooks in demo folder
 
 Dataframe Values:
 
@@ -72,7 +72,7 @@ Cumulative Sums / Counts:
 
 ## clean.py - List of Functions
 
-(last update Nov 2020)
+(last update Sep 2021)
 
 see notebook in demo folder
 
@@ -85,6 +85,8 @@ Columns:
 
 Outliers:
 
+- `get_outlier_values_with_iqr_method`: Return a list of outlier
+  values as well as the lower and upper cut-off values.
 - `count_outliers_IQR_method`: Detect outliers in specified columns
    depending on specified distance from 1th / 3rd quartile. NaN ignored.
 - `remove_outliers_IQR_method`: Remove outliers in specified columns
@@ -96,6 +98,12 @@ Transformations:
 
 - `transfrom_data`: Apply the desired transformation on the selected
    columns. (Methods are log, log10, box-cox or yeo-johnson.)
+
+## style.py
+
+(last update Sep 2021)
+
+This module contains some color sequences of different values / lenths. These can be used for plotting.
 
 --<!-- markdownlint-capture -->
 
