@@ -1,4 +1,4 @@
-<name: py3
+name: py3
 channels:
   - conda-forge
 #  - defaults
@@ -22,11 +22,11 @@ dependencies:
   - pyodbc
   - ipython-sql
   # - psycopg2
-  - boto3
+  # - boto3
   # DATA RELATED
   - numpy
   - pandas
-  - pandas-profiling
+  # - pandas-profiling
   - scipy
   - scikit-learn
   - statsmodels
@@ -36,10 +36,10 @@ dependencies:
   - python-dateutil
   # - networkx
 # MACHINE LEARNING
-  - py-xgboost
-  - eli5
-  - imbalanced-learn
-  - mlxtend
+  # - py-xgboost
+  # - eli5
+  # - imbalanced-learn
+  # - mlxtend
 # PYTORCH 
 #  - pytorch
 #  - torchvision
@@ -48,7 +48,7 @@ dependencies:
   - matplotlib
   - seaborn
   - plotly
-  - python-cufflinks
+  # - python-cufflinks
   # - squarify 
 # WEBSCRAPING
 #  - beautifulsoup4
