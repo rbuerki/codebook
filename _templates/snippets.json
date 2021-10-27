@@ -107,7 +107,7 @@
                 "from sqlalchemy import create_engine",
                 "",
                 "SERVER = 'BI-PRO-DB001'",
-                "DB_NAME = 'RPT'",
+                "DB_NAME = 'BIZ'",
                 "",
                 "def connect_to_db(server, db_name):",
                 "    con_str = f'mssql+pyodbc://@{server}/{db_name}?driver=SQL Server Native Client 11.0'",
