@@ -106,7 +106,7 @@
                 "",
                 "from sqlalchemy import create_engine",
                 "",
-                "SERVER = 'BI-TES-DB001'",
+                "SERVER = 'BI-PRO-DB001'",
                 "DB_NAME = 'RPT'",
                 "",
                 "def connect_to_db(server, db_name):",
@@ -118,7 +118,19 @@
             ]
         },
         {
-            "name": "load_from_query_(example)",
+            "name": "load_from_query_(string)",
+            "code": [
+                "# Load data from query",
+                "",
+                "query = '''",
+                "    SELECT ...",
+                "'''",
+                "",
+                "data_raw = pd.read_sql(query, engine)"
+            ]
+        },
+        {
+            "name": "load_from_query_(file)",
             "code": [
                 "# Load data from query",
                 "",
