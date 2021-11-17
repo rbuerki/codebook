@@ -17,7 +17,7 @@ import sqlalchemy
 
 
 def connect_to_db(
-    server: str = "BI-PRO-DB001", db_name: str = "BIZ"
+    server: str = "BI-PRO-DB001", db_name: str = "master"
 ) -> sqlalchemy.engine.Engine:
     """Connect to DB and open a persistent connection. The param
     `fast_exectuemany` is active for bulk operations. Returns
@@ -26,7 +26,7 @@ def connect_to_db(
     con_string = (
         f"mssql+pyodbc://@{server}/{db_name}?driver=SQL Server Native Client 11.0"
     )
-    print(f"Connecting to server {server} and database {db_name}")
+    print(f"Connecting to server `{server}` and database `{db_name}`")
     return sqlalchemy.create_engine(con_string, fast_executemany=True)
 
 
