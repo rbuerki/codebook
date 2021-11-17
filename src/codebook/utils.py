@@ -1,3 +1,14 @@
+"""
+LIST OF FUNCTIONS
+-----------------
+
+- `connect_to_db`: Open a persistent connection to DB. Returns a
+    sqlalchemy engine object.
+- `save_df_to_parquet`: Safe dataframe to parquet with options to
+    add a timestamp to the file name and to keep index or not.
+"""
+
+
 from datetime import datetime
 from pathlib import Path
 
@@ -10,7 +21,7 @@ def connect_to_db(
 ) -> sqlalchemy.engine.Engine:
     """Connect to DB and open a persistent connection. The param
     `fast_exectuemany` is active for bulk operations. Returns
-    sqlalchemy engine.
+    sqlalchemy engine object.
     """
     con_string = (
         f"mssql+pyodbc://@{server}/{db_name}?driver=SQL Server Native Client 11.0"
