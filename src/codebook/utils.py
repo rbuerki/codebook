@@ -48,4 +48,4 @@ def save_df_to_parquet(
 
     parent.mkdir(parents=True, exist_ok=True)
     df.to_parquet(relpath, index=keep_index)
-    print(f"Dataframe saved to: {path}\n")
+    print(f"Dataframe saved to: {relpath}\n")
