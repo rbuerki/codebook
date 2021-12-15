@@ -134,7 +134,7 @@ def display_value_counts(
 
 def display_df_sample_transposed(
     df: pd.DataFrame,
-    n_instances: int = 5,
+    n_instances: int = 3,
     max_rows: int = 100,
     random_state: Optional[int] = None,
 ) -> pd.DataFrame:
@@ -159,7 +159,9 @@ def display_dtypes(df: pd.DataFrame) -> pd.DataFrame:
     dtypes_list = [str(val) for val in df.dtypes.values]
     dtypes_dict = collections.Counter(dtypes_list)
     return pd.DataFrame(
-        data=dtypes_dict.values(), index=dtypes_dict.keys(), columns=["# cols"],
+        data=dtypes_dict.values(),
+        index=dtypes_dict.keys(),
+        columns=["# cols"],
     ).sort_index()
 
 
@@ -204,9 +206,7 @@ def display_nan(df: Union[pd.DataFrame, pd.Series]) -> Union[None, Styler]:
         return missing_data.style.format({"prop": "{:0.1%}"})
 
 
-def plot_nan(
-    df: pd.DataFrame, figsize: Tuple[int, int] = (14, 6), **kwargs
-) -> None:
+def plot_nan(df: pd.DataFrame, figsize: Tuple[int, int] = (14, 6), **kwargs) -> None:
     """Display a heatmap of the input dataframe, highlighting the
     missing values. Additional keyword arguments will be passed to
     the actual seaborn plot function. Note: Empty strings qualify
@@ -399,8 +399,7 @@ def plot_distr_pdf_ecdf(
             # Compute and print percentile values
             pctile_values = np.percentile(df[col].dropna(), percentiles)
             print(
-                f"{col} - Percentile values: "
-                f"{[round(x, 2) for x in pctile_values]}"
+                f"{col} - Percentile values: " f"{[round(x, 2) for x in pctile_values]}"
             )
 
             # Overlay percentiles as diamonds
@@ -523,14 +522,10 @@ def plot_corr_to_target_lineplots(
     By default this implementation uses estimator='mean' and ci=95,
     this could be changed by passing kwargs.
     """
-    print(
-        f"Only columns with up to {value_threshold} distinct values are shown."
-    )
+    print(f"Only columns with up to {value_threshold} distinct values are shown.")
     num_cols = df.select_dtypes(include=np.number).columns.tolist()
     if value_threshold:
-        num_cols = [
-            col for col in num_cols if df[col].nunique() <= value_threshold
-        ]
+        num_cols = [col for col in num_cols if df[col].nunique() <= value_threshold]
     try:
         num_cols.remove(target_col)
     except ValueError:
@@ -696,9 +691,7 @@ def display_cumcurve_stats(
         cum_value = iter_cumsum[n_instances - 1]
 
         if n_instances != 1:
-            lowest_value = (
-                iter_cumsum[n_instances - 1] - iter_cumsum[n_instances - 2]
-            )
+            lowest_value = iter_cumsum[n_instances - 1] - iter_cumsum[n_instances - 2]
         else:
             lowest_value = iter_cumsum[n_instances - 1]
 
@@ -763,9 +756,7 @@ def plot_cumsum_curve(
         thresh_count = sum(iter_cumsum < thresh_sum) + 1
         y_intercept = thresh_sum
         x_intercept = thresh_count
-        line.hlines(
-            y=thresh_sum, xmin=0, xmax=x_intercept, linewidth=0.5, color="gray"
-        )
+        line.hlines(y=thresh_sum, xmin=0, xmax=x_intercept, linewidth=0.5, color="gray")
         line.vlines(
             x=thresh_count,
             ymin=0,
@@ -795,13 +786,10 @@ def _check_iterable_for_cumsum(
     print a warning. Return the iterable without the missing values.
     """
     if min(iterable) < 0:
-        raise AssertionError(
-            "There cannot be negative values in the input iterable."
-        )
+        raise AssertionError("There cannot be negative values in the input iterable.")
     if sum(iterable == 0) > 0:
         print(
-            f"Attention: {sum(iterable == 0)} "
-            f"instances with value 0 not included."
+            f"Attention: {sum(iterable == 0)} " f"instances with value 0 not included."
         )
     missing_values = list(filter(lambda v: v != v, iterable))
     if len(missing_values) > 0:
