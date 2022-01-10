@@ -6,14 +6,21 @@ LIST OF FUNCTIONS
     sqlalchemy engine object.
 - `save_df_to_parquet`: Safe dataframe to parquet with options to
     add a timestamp to the file name and to keep index or not.
+- `read_yaml`: Return the key-value-pairs from a YAML file, or
+    a specific section of that file only.
 """
 
-
+import logging
+import yaml
 from datetime import datetime
 from pathlib import Path
+from typing import Any, Optional, Union
 
 import pandas as pd
 import sqlalchemy
+
+
+logger = logging.getLogger(__name__)
 
 
 def connect_to_db(
@@ -49,3 +56,20 @@ def save_df_to_parquet(
     parent.mkdir(parents=True, exist_ok=True)
     df.to_parquet(relpath, index=keep_index)
     print(f"Dataframe saved to: {relpath}\n".replace("\\", "/"))
+
+
+def read_yaml(file_path: Union[str, Path], section: Optional[str]) -> Any:
+    """Return the key-value-pairs from a YAML file, or, if the
+    optional `section` parameter is passed, only from a specific
+    section of that file.
+    """
+    with open(file_path, "r") as f:
+        yaml_content = yaml.safe_load(f)
+    if not section:
+        return yaml_content
+    else:
+        try:
+            return yaml_content[section]
+        except KeyError:
+            logging.error(f"Section {section} not found in config file. Please check.")
+            raise
