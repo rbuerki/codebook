@@ -61,49 +61,6 @@ def delete_columns(df: pd.DataFrame, cols_to_delete: Iterable[str]) -> pd.DataFr
     return df
 
 
-def downcast_dtypes(
-    df: pd.DataFrame,
-    category_threshold: Optional[int] = None,
-    verbose: bool = True,
-) -> pd.DataFrame:
-    """Return a copy of the input dataframe with reduced memory usage.
-    Numeric dtypes will be downcast to the smallest possible format
-    depending on the actual data, object dtypes with less distinct
-    values than an optional threshold (default is the rowcount) will
-    be transformed to dtype 'category'.
-
-    Limitations: Only 'object' cols are considered for conversion
-    to dtype 'category'.
-    """
-    if verbose:
-        print(
-            f" Original df size before downcasting: "
-            f"{df.memory_usage(deep=True).sum() / (1024**2):,.2f} MB"
-        )
-
-    df = df.copy()
-
-    for col in df.columns:
-        col_type = str(df[col].dtype)
-        col_cat_threshold = category_threshold or df[col].count()
-        col_unique_items = df[col].nunique()
-
-        if col_type == "object" and col_unique_items < col_cat_threshold:
-            df[col] = df[col].astype("category")
-        if col_type.startswith("int"):
-            df[col] = pd.to_numeric(df[col], downcast="integer")
-        if col_type.startswith("float"):
-            df[col] = pd.to_numeric(df[col], downcast="float")
-
-    if verbose:
-        print(
-            f" New df size after downcasting:"
-            f"{df.memory_usage(deep=True).sum() / (1024**2):,.2f} MB"
-        )
-
-    return df
-
-
 # OUTLIERS - Return (for an iterable), Count and Remove
 
 
