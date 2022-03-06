@@ -2,9 +2,23 @@
 
 Some modules containing collections of functions and classes written for reusability in my projects.
 
+
+## utils.py - List of Functions
+
+(latest update Feb 2022)
+
+- `connect_to_db`: Open a persistent connection to DB. Returns a
+    sqlalchemy engine object.
+- `downcast_dtypes`: Return a copy of the dataframe with reduced
+    memory usage by downcasting data formats.
+- `save_df_to_parquet`: Save dataframe to parquet with options to
+    add a timestamp to the file name and to keep index or not.
+- `read_yaml`: Return the key-value-pairs from a YAML file, or
+    a specific section of that file only.
+
 ## EDA.py - List of Functions
 
-(last update Nov 2020)
+(latest update Nov 2020)
 
 see notebooks in demo folder
 
@@ -72,7 +86,7 @@ Cumulative Sums / Counts:
 
 ## clean.py - List of Functions
 
-(last update Sep 2021)
+(latest update Sep 2021)
 
 see notebook in demo folder
 
@@ -101,9 +115,9 @@ Transformations:
 
 ## style.py
 
-(last update Sep 2021)
+(latest update Sep 2021)
 
-This module contains some color sequences of different values / lenths. These can be used for plotting.
+This module contains some color sequences of different values / lengths. These can be used for plotting.
 
 --<!-- markdownlint-capture -->
 
@@ -111,7 +125,7 @@ This module contains some color sequences of different values / lenths. These ca
 
 ### custom_transformers.py - List of Classes
 
-(last update: long ago ...)
+(latest update: long ago ...)
 
 - `ColumnSelector`: Selects  the defined  columns from a DataFrame for further
     processing. Makes sure, that only the these columns are processed. Valuable
@@ -127,7 +141,7 @@ This module contains some color sequences of different values / lenths. These ca
 
 ### hypothesis_functions.py - List of Functions
 
-(last update: long ago ...)
+(latest update: long ago ...)
 
 _NOTE: The functions in this notebook are for calculations on PROPORTIONS only!
 (They have been developed in the small projects in the experimental design repository.)_
@@ -142,7 +156,7 @@ _NOTE: The functions in this notebook are for calculations on PROPORTIONS only!
 
 ### baseline_regressor.py
 
-(last update: long ago ...)
+(latest update: long ago ...)
 
 `BaselineRegression`: Regression class based on sklearn for applying and evaluating
 different models. Needs a sklearn regression model object as input.
@@ -163,7 +177,7 @@ _Evaluation:_
 
 ### baseline_classifier.py
 
-(last update: long ago ...)
+(latest update: long ago ...)
 
 `BaselineClassification`: Classification class based on sklearn for applying and
 evaluating different models. Needs a sklearn classification model object as input.

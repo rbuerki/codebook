@@ -4,7 +4,7 @@ LIST OF FUNCTIONS
 
 - `connect_to_db`: Open a persistent connection to DB. Returns a
     sqlalchemy engine object.
-- `downcast_dtypes: Return a copy of the dataframe with reduced
+- `downcast_dtypes`: Return a copy of the dataframe with reduced
     memory usage by downcasting data formats.
 - `save_df_to_parquet`: Save dataframe to parquet with options to
     add a timestamp to the file name and to keep index or not.
