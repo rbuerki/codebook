@@ -1,3 +1,5 @@
+# pyright: reportGeneralTypeIssues=false
+
 """
 LIST OF FUNCTIONS
 -----------------
@@ -41,17 +43,26 @@ def connect_to_db(
 
 def downcast_dtypes(
     df: pd.DataFrame,
+    use_dtype_category: bool = False,
     category_threshold: Optional[int] = None,
+    category_columns: Optional[list[str]] = None,
     verbose: bool = True,
 ) -> pd.DataFrame:
     """Return a copy of the input dataframe with reduced memory usage.
     Numeric dtypes will be downcast to the smallest possible format
-    depending on the actual data, object dtypes with less distinct
-    values than an optional threshold (default is the rowcount) will
+    depending on the actual data. Per default there is no transformation
+    to the dtype 'category', but you can change this, by
+
+    a) either setting `use_dtype_category` to True, in which case
+    columns with object dtype and less distinct values than the optional
+    `category_threshold` (default value is the row count) will
     be transformed to dtype 'category'.
 
-    Limitations: Only 'object' cols are considered for conversion
-    to dtype 'category'.
+    b) or passing a list of column names you want to have transformed
+    to dtype 'category'. In that case the parameters for option a)
+    are overridden.
+
+    Finally, one can disable the printed info output.
     """
     if verbose:
         print(
@@ -60,25 +71,26 @@ def downcast_dtypes(
         )
 
     df = df.copy()
+    for col in [col for col in df.columns if str(df[col].dtype).startswith("int")]:
+        df[col] = pd.to_numeric(df[col], downcast="integer")
+    for col in [col for col in df.columns if str(df[col].dtype).startswith("float")]:
+        df[col] = pd.to_numeric(df[col], downcast="float")
 
-    for col in df.columns:
-        col_type = str(df[col].dtype)
-        col_cat_threshold = category_threshold or df[col].count()
-        col_unique_items = df[col].nunique()
-
-        if col_type == "object" and col_unique_items < col_cat_threshold:
+    if category_columns:
+        for col in category_columns:
             df[col] = df[col].astype("category")
-        if col_type.startswith("int"):
-            df[col] = pd.to_numeric(df[col], downcast="integer")
-        if col_type.startswith("float"):
-            df[col] = pd.to_numeric(df[col], downcast="float")
+    else:
+        if use_dtype_category:
+            col_cat_threshold = category_threshold or len(df)
+            for col in [col for col in df.columns if str(df[col].dtype) == "object"]:
+                if df[col].nunique() < col_cat_threshold:
+                    df[col] = df[col].astype("category")
 
     if verbose:
         print(
             f" New df size after downcasting:"
             f"{df.memory_usage(deep=True).sum() / (1024**2):,.2f} MB"
         )
-
     return df
 
 
