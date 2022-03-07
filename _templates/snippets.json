@@ -148,13 +148,25 @@
             ]
         },
         {
-            "name": "create_small_test_dataframe",
+            "name": "create_small_test_dataframes",
             "code": [
                 "# Create small test dataframe",
                 "",
                 "import pandas.util.testing",
                 "df_test = pandas.util.testing.makeMixedDataFrame()",
-                "df_test['A'] = df_test['A'].astype(int)"
+                "df_test['A'] = df_test['A'].astype(int)",
+                "",
+                "# Create alternative test dataframe",
+                "",
+                "df_len = 1000",
+                "test_df = pd.DataFrame(",
+                "    {",
+                "        'cat_col1': np.random.choice(['a', 'b', 'c'], size=df_len),",
+                "        'cat_col2': np.random.choice(['e', 'f', 'g'], size=df_len),",
+                "        'float_col1': np.random.random(size=df_len),",
+                "        'float_col2': np.random.random(size=df_len),",
+                "    }",
+                ")"
             ]
         }
     ]
