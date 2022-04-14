@@ -20,6 +20,7 @@ dependencies:
   # SQL & CLOUD
   - sqlalchemy
   - pyodbc
+  - google-cloud-bigquery
   - ipython-sql
   # - psycopg2
   # - boto3
