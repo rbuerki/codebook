@@ -21,6 +21,7 @@ dependencies:
   - sqlalchemy
   - pyodbc
   - google-cloud-bigquery
+  - google-cloud-bigquery-storage
   - ipython-sql
   # - psycopg2
   # - boto3
