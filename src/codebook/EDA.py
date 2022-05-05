@@ -439,8 +439,11 @@ def plot_corr_full_heatmap(
     }
     kwargs = {**defaults, **kwargs}
 
+    # Get upper triangle of the correlation matrix, to mask it
+    matrix = np.triu(df_num.corr())
+
     plt.figure(figsize=figsize)
-    sns.heatmap(df_num.corr(), **kwargs)
+    sns.heatmap(df_num.corr(), mask=matrix, **kwargs)
     plt.show()
 
 
