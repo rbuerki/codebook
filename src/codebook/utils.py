@@ -22,9 +22,35 @@ from typing import Any, Optional, Union
 
 import pandas as pd
 import sqlalchemy
+from google.cloud import bigquery
 
 
 logger = logging.getLogger(__name__)
+
+
+def read_bq_to_df(
+    query: str, dry_run: bool = False, verbose: bool = True
+) -> pd.DataFrame:
+
+    bqclient = bigquery.Client(project="dg-dp-bqondemand-dev", location="EU")
+
+    if dry_run:
+        job_config = bigquery.QueryJobConfig(dry_run=True)
+        query_job = bqclient.query(query, job_config=job_config)
+        print(
+            f"This query will process {query_job.total_bytes_processed / (1024**2):,.2f} MB."
+        )
+
+    else:
+        result = bqclient.query(query)
+        df: pd.DataFrame = result.to_dataframe()
+
+        if verbose:
+            print(f"Created: {result.created}")
+            print(f"Ended:   {result.ended}")
+            print(f"Bytes:   {result.total_bytes_processed:,.0f}")
+
+        return df
 
 
 def connect_to_db(
