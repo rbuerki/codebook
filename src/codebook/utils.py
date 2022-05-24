@@ -60,7 +60,7 @@ def read_bq_to_df(
             )
             print(f"Created: {result.created}")
             print(f"Ended:   {result.ended}")
-            print(f"Bytes:   {size:,.2f} GB.")
+            print(f"Data processed:   {size:,.2f} GB")
 
         return df
 
