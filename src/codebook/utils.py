@@ -3,9 +3,10 @@
 """
 LIST OF FUNCTIONS
 -----------------
-
-- `connect_to_db`: Open a persistent connection to DB. Returns a
-    sqlalchemy engine object.
+- `read_bq_to_df`: Connect to Big Query project and load results
+    of the passed query into a DataFrame.
+- `connect_to_db`: Open a persistent connection to a SQL ServerDB.
+    Return a sqlalchemy engine object.
 - `downcast_dtypes`: Return a copy of the dataframe with reduced
     memory usage by downcasting data formats.
 - `save_df_to_parquet`: Save dataframe to parquet with options to
@@ -29,26 +30,37 @@ logger = logging.getLogger(__name__)
 
 
 def read_bq_to_df(
-    query: str, dry_run: bool = False, verbose: bool = True
+    query: str,
+    project: str = "dg-dp-bqondemand-dev",
+    dry_run: bool = False,
+    verbose: bool = True,
 ) -> pd.DataFrame:
 
-    bqclient = bigquery.Client(project="dg-dp-bqondemand-dev", location="EU")
+    bqclient = bigquery.Client(project=project, location="EU")
 
     if dry_run:
         job_config = bigquery.QueryJobConfig(dry_run=True)
         query_job = bqclient.query(query, job_config=job_config)
-        print(
-            f"This query will process {query_job.total_bytes_processed / (1024**2):,.2f} MB."
+        size = (
+            query_job.total_bytes_processed / (1024**3)
+            if query_job.total_bytes_processed
+            else 0
         )
+        print(f"This query will process {size:,.2f} GB.")
 
     else:
         result = bqclient.query(query)
         df: pd.DataFrame = result.to_dataframe()
 
         if verbose:
+            size = (
+                result.total_bytes_processed / (1024**3)
+                if result.total_bytes_processed
+                else 0
+            )
             print(f"Created: {result.created}")
             print(f"Ended:   {result.ended}")
-            print(f"Bytes:   {result.total_bytes_processed:,.0f}")
+            print(f"Bytes:   {size:,.2f} GB.")
 
         return df
 
