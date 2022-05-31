@@ -34,32 +34,32 @@ def read_bq_to_df(
     project: str = "dg-dp-bqondemand-dev",
     dry_run: bool = False,
     verbose: bool = True,
+    **kwargs,
 ) -> pd.DataFrame:
+    """Read a query and return results to a dataframe. (Or optionally
+    perform a dry_run to check compilation and bytes to be processed.)
+    The function accepts kwargs to the job_config object, e.g. to pass
+    query parameters.
+    """
 
     bqclient = bigquery.Client(project=project, location="EU")
+    job_config = bigquery.QueryJobConfig(dry_run=dry_run, **kwargs)
+    query_job = bqclient.query(query, job_config=job_config)
+    size = (
+        query_job.total_bytes_processed / (1024**3)
+        if query_job.total_bytes_processed
+        else 0
+    )
 
     if dry_run:
-        job_config = bigquery.QueryJobConfig(dry_run=True)
-        query_job = bqclient.query(query, job_config=job_config)
-        size = (
-            query_job.total_bytes_processed / (1024**3)
-            if query_job.total_bytes_processed
-            else 0
-        )
         print(f"This query will process {size:,.2f} GB.")
 
     else:
-        result = bqclient.query(query)
-        df: pd.DataFrame = result.to_dataframe()
+        df: pd.DataFrame = query_job.to_dataframe()
 
         if verbose:
-            size = (
-                result.total_bytes_processed / (1024**3)
-                if result.total_bytes_processed
-                else 0
-            )
-            print(f"Created: {result.created}")
-            print(f"Ended:   {result.ended}")
+            print(f"Created: {query_job.created}")
+            print(f"Ended:   {query_job.ended}")
             print(f"Data processed:   {size:,.2f} GB")
 
         return df
