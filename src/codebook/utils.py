@@ -3,10 +3,12 @@
 """
 LIST OF FUNCTIONS
 -----------------
-- `read_bq_to_df`: Connect to Big Query project and load results
-    of the passed query into a DataFrame.
-- `connect_to_db`: Open a persistent connection to a SQL ServerDB.
-    Return a sqlalchemy engine object.
+- `read_bq_to_df_from_query`: Connect to BQ project and load
+    results of the passed query string into a DataFrame.
+- `read_bq_to_df_from_file`: Connect to BQ project and load
+    results of the passed query file into a DataFrame.
+- `connect_to_legacy_db`: Open a persistent connection to a SQL 
+    ServerDB. Return a sqlalchemy engine object.
 - `downcast_dtypes`: Return a copy of the dataframe with reduced
     memory usage by downcasting data formats.
 - `save_df_to_parquet`: Save dataframe to parquet with options to
@@ -19,7 +21,7 @@ import logging
 import yaml
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Optional, Union
+from typing import Any, List, Optional, Union
 
 import pandas as pd
 import sqlalchemy
@@ -29,7 +31,7 @@ from google.cloud import bigquery
 logger = logging.getLogger(__name__)
 
 
-def read_bq_to_df(
+def read_bq_to_df_from_query(
     query: str,
     project: str = "dg-dp-bqondemand-dev",
     dry_run: bool = False,
@@ -65,7 +67,26 @@ def read_bq_to_df(
         return df
 
 
-def connect_to_db(
+def read_bq_to_df_from_file(
+    file_path: str,
+    project: str = "dg-dp-bqondemand-dev",
+    dry_run: bool = False,
+    verbose: bool = True,
+    **kwargs,
+) -> pd.DataFrame:
+    """Read a query from file and return results to a dataframe. (Or optionally
+    perform a dry_run to check compilation and bytes to be processed.)
+    The function accepts kwargs to the job_config object, e.g. to pass
+    query parameters.
+    """
+    with open(file_path, "r", encoding="utf-8-sig") as file:
+        query = file.read()
+
+    df = read_bq_to_df_from_query(query, project, dry_run, verbose)
+    return df
+
+
+def connect_to_legacy_db(
     server: str = "BI-PRO-DB001", db_name: str = "master"
 ) -> sqlalchemy.engine.Engine:
     """Connect to DB and open a persistent connection. The param
@@ -83,7 +104,7 @@ def downcast_dtypes(
     df: pd.DataFrame,
     use_dtype_category: bool = False,
     category_threshold: Optional[int] = None,
-    category_columns: Optional[list[str]] = None,
+    category_columns: Optional[List[str]] = None,
     verbose: bool = True,
 ) -> pd.DataFrame:
     """Return a copy of the input dataframe with reduced memory usage.
@@ -135,20 +156,24 @@ def downcast_dtypes(
 def save_df_to_parquet(
     df: pd.DataFrame, path: str, add_timestamp=False, keep_index=False
 ):
-    """Save dataframe to parquet file at given path. If folder does not
-    exist, it is created. Options to add a timestamp to the filename
-    (default=False) and keep the index (default=False). To retrieve, use
-    `pd.read_parquet(path)`.
+    """Save dataframe to aparquet file at given path. This works locally
+    or for an existing gcs bucket. If folder does not exist, it is created.
+    By default a timestamp is appended to the filename and the index is
+    discarded. (Both options can be changed.)
+    Note: To retrieve the file again, use `pd.read_parquet(path)`.
     """
-    relpath = Path(path)
-    parent = relpath.parent
+    parent, file = path.rsplit("/", maxsplit=1)
+    stem, suffix = file.rsplit(".", maxsplit=1)
     if add_timestamp:
         timestamp_string = datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
-        stem = f"{relpath.stem}_{timestamp_string}"
-        suffix = relpath.suffix
-        relpath = Path(parent) / f"{stem}{suffix}"
+        stem = f"{stem}_{timestamp_string}"
+    relpath = f"{parent}/{stem}.{suffix}"
 
-    parent.mkdir(parents=True, exist_ok=True)
+    # Handle local folder creation if necessary
+    if not str(relpath)[:2] == "gs":
+        parent = Path(parent)
+        parent.mkdir(parents=True, exist_ok=True)
+
     df.to_parquet(relpath, index=keep_index)
     print(f"Dataframe saved to: {relpath}\n".replace("\\", "/"))
 
