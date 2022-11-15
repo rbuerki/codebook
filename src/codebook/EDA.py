@@ -77,7 +77,7 @@ def display_distinct_values(df: Union[pd.DataFrame, pd.Series]) -> pd.DataFrame:
     """Return a dataframe containing the number of distinct values
     for each column of the input dataframe.
     """
-    if isinstance(df, pd.core.series.Series):
+    if isinstance(df, pd.Series):
         df = pd.DataFrame(df)
 
     n_distinct_list = [df[col].nunique() for col in df.columns]
@@ -100,7 +100,7 @@ def display_value_counts(
     If the return_dict param is set to True (False by default)
     a dict of the dataframes is returned too.
     """
-    if isinstance(df, pd.core.series.Series):
+    if isinstance(df, pd.Series):
         df = pd.DataFrame(df)
 
     # Initialize dict for returning dataframes
@@ -176,7 +176,7 @@ def display_nan(df: Union[pd.DataFrame, pd.Series]) -> Union[None, Styler]:
     Note: The function returns a Styler object. If you need the
     underlying dataframe, you can get it with `df.data`.
     """
-    if isinstance(df, pd.core.series.Series):
+    if isinstance(df, pd.Series):
         df = pd.DataFrame(df)
 
     df = df.copy()
@@ -238,7 +238,7 @@ def display_duplicates(df: Union[pd.DataFrame, pd.Series]) -> None:
     """Print a summary of the column-wise duplicates in the passed
     dataframe.
     """
-    if isinstance(df, pd.core.series.Series):
+    if isinstance(df, pd.Series):
         df = pd.DataFrame(df)
     dup_count = 0
     print("Number of column-wise duplicates per column:")
@@ -343,7 +343,7 @@ def plot_distr_pies(
 
 
 def plot_distr_pdf_ecdf(
-    df: Union[pd.DataFrame, pd.core.series.Series],
+    df: Union[pd.DataFrame, pd.Series],
     figsize: Optional[Tuple[float, float]] = None,
     xlim: Optional[Tuple[float, float]] = None,
     percentiles: Optional[Iterable[float]] = (2.5, 25, 50, 75, 97.5),
@@ -362,7 +362,7 @@ def plot_distr_pdf_ecdf(
     not numeric. The percentile markers will be displayed for an
     invisible overall ECDF curve only in this case.
     """
-    if isinstance(df, pd.core.series.Series):
+    if isinstance(df, pd.Series):
         df = pd.DataFrame(df)
 
     num_cols = df.select_dtypes(include=np.number).columns.tolist()
@@ -750,7 +750,7 @@ def plot_cumsum_curve(
     plt.xlabel("Count", fontsize=12)
 
     title = "Cumulative Total Value Vs. Count of Instances"
-    if isinstance(iterable, pd.core.series.Series):
+    if isinstance(iterable, pd.Series):
         title = f"{iterable.name}: {title}"
     plt.title(title, fontsize=14)
 
