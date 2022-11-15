@@ -7,10 +7,8 @@ Dataframe Values:
    of distinct values for each column of the input dataframe.
 - `display_value_counts`: Display a dataframe containing the value
    counts and their respective pct for a column or a list of columns.
-- `display_df_sample_transposed`: Return transposed tail of the passed
-   dataframe with cols shown as rows and values for 5 instances as cols.
-- `display_dtypes`: Return a dataframe showing the count of different
-   datatypes for the columns in the input dataframe.
+- `display_dtypes_grouped`: Return a dataframe showing the count and 
+    column names of the different datatypes in the input dataframe.
 
 Missing Values and Duplicates:
 - `display_nan`: Return a dataframe showing the missing values with
@@ -60,7 +58,6 @@ Cumulative Sums / Counts:
   values.
 """
 
-import collections
 from typing import Dict, Iterable, Optional, Tuple, Union
 
 import matplotlib.pyplot as plt
@@ -132,36 +129,22 @@ def display_value_counts(
         return df_dict
 
 
-def display_df_sample_transposed(
-    df: pd.DataFrame,
-    n_instances: int = 3,
-    max_rows: int = 100,
-    random_state: Optional[int] = None,
-) -> pd.DataFrame:
-    """Return a transposed sample of (by default) 5 original dataframe
-    rows, so that they are shown as columns and vice versa.
-    This helps to get a better overview of wide dataframes. The max
-    of orignal colums to be displayed defaults to 100 and could be
-    changed for really wide frames. Also a random state seed can be
-    fixed for the sampling (it defaults to None).
+def display_dtypes_grouped(df: pd.DataFrame) -> pd.DataFrame:
+    """Return a dataframe showing the count and column names of
+    the different datatypes for the columns in the input dataframe.
     """
-    df = df.sample(n=n_instances, random_state=random_state).copy()
-    with pd.option_context("display.max_rows", max_rows):
-        # TODO: Not sure if return works for very wide frames,
-        # or if i have to reset to display
-        return df.transpose()
-
-
-def display_dtypes(df: pd.DataFrame) -> pd.DataFrame:
-    """Return a dataframe showing the count of different datatypes
-    for the columns in the input dataframe.
-    """
-    dtypes_list = [str(val) for val in df.dtypes.values]
-    dtypes_dict = collections.Counter(dtypes_list)
+    dtypes = sorted(set([str(val) for val in df.dtypes.values]))
+    cols_list = []
+    for dt in dtypes:
+        cols_list.append(
+            sorted([key for key, val in df.dtypes.items() if str(val) == dt])
+        )
+    cols_count = [len(x) for x in cols_list]
+    data = list(zip(cols_count, cols_list))
     return pd.DataFrame(
-        data=dtypes_dict.values(),
+        data=data,
         index=dtypes_dict.keys(),
-        columns=["# cols"],
+        columns=["# cols", "cols"],
     ).sort_index()
 
 
