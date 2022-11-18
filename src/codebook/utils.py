@@ -51,6 +51,7 @@ def read_bq_to_df_from_query(
     bqclient = bigquery.Client(project=project, location="EU")
     job_config = bigquery.QueryJobConfig(dry_run=dry_run, **kwargs)
     query_job = bqclient.query(query, job_config=job_config)
+    query_job.result()  # wait for completion to get total_bytes_processed
     size = (
         query_job.total_bytes_processed / (1024**3)
         if query_job.total_bytes_processed
